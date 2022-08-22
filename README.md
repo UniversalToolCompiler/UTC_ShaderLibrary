@@ -10,6 +10,8 @@ This is a first version of this plugin, content is limited but it will grow up o
 
 Marketplace: https://www.unrealengine.com/marketplace/profile/Universal+Tool+Compiler
 
+Demo : https://www.youtube.com/watch?v=AxLDbQTHUMM
+
 Follow the plugin’s development: 
 * Twitter: https://twitter.com/UTCompiler 
 * Trello: https://trello.com/b/w91ommLH/utc-shader-library
