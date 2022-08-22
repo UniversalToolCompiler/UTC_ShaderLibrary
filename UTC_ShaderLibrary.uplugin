@@ -1,0 +1,30 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.00",
+	"FriendlyName": "UTC Shader Library",
+	"Description": "Easily create Master Materials.",
+	"Category": "UTC Library",
+	"CreatedBy": "Universal Tool Compiler",
+	"CreatedByURL": "https://twitter.com/UTCompiler",
+	"DocsURL": "https://github.com/UniversalToolCompiler/UTC_ShaderLibrary",
+	"MarketplaceURL": "https://www.unrealengine.com/marketplace/en-US/profile/Universal+Tool+Compiler",
+	"SupportURL": "https://twitter.com/UTCompiler",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "UTC_ShaderLibrary",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "EditorScriptingUtilities",
+			"Enabled": true
+		}
+	]
+}
