@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # UTC Shader Library for Unreal Engine.
 
 Easily create Master Materials for Unreal Engine ! 
@@ -193,3 +194,7 @@ Get Z normal direction, to add dust, snow … on the mesh.
 >Local no Tiling
 
 >Triplanar
+=======
+# UTC_ShaderLibrary
+Easily create Master Materials for Unreal Engine 5
+>>>>>>> 734e6a1d949a65696d43d8362e26da035b73abaa
