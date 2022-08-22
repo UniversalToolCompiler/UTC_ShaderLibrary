@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # UTC Shader Library for Unreal Engine.
 
 Easily create Master Materials for Unreal Engine ! 
