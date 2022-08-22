@@ -27,8 +27,11 @@ This plugin is composed of 2 different parts,
 
 ## Plugin Installation
 
-Download the repo as zip and extract it under your project plugins folder as `YourProject/Plugins`. In Unreal, go to: Edit->Plugins, find UTC Shader Library, enable it and reload the Engine.
+Download the repo as zip and extract it under your project plugins folder as `YourProject/Plugins`. 
 
+In Unreal, go to: `Edit->Plugins`, find UTC Shader Library, enable it and reload the Engine.
+
+Visual Studio will be required.
 
 # Master Materials Generator
 
@@ -197,7 +200,7 @@ Get Z normal direction, to add dust, snow … on the mesh.
 
 >Subsurface
 
-## Uvs
+## UVs
 >Local
 
 >Local no Tiling
