@@ -1,2 +1,2 @@
 # UTC_ShaderLibrary
-Create easily Master Materials for Unreal Engine 5
+Easily create Master Materials for Unreal Engine 5
