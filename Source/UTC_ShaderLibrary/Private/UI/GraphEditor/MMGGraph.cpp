@@ -1,4 +1,4 @@
-﻿/** Created by Universal Tool Compiler */
+﻿/** Copyright 2022, Universal Tool Compiler */
 
 #include "UI/GraphEditor/MMGGraph.h"
 #include "UI/GraphEditor/MMGEdGraph.h"

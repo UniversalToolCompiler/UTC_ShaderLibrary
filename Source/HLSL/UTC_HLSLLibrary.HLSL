@@ -1,3 +1,5 @@
+//Copyright 2022, Universal Tool Compiler
+
 void MF_ComputeEdge(float3 CameraPos, float3 VertexNormal, out float3 Edges)
 {
     float3 CamVertDir = normalize(CameraPos - VertexNormal);

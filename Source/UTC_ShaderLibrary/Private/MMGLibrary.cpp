@@ -1,4 +1,4 @@
-﻿/** Created by Universal Tool Compiler */
+﻿/** Copyright 2022, Universal Tool Compiler */
 #include "MMGLibrary.h"
 
 #include "AssetRegistry/AssetRegistryModule.h"

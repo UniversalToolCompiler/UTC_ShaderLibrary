@@ -1,4 +1,4 @@
-﻿/** Created by Universal Tool Compiler */
+﻿/** Copyright 2022, Universal Tool Compiler */
 
 #pragma once
 #include "UI/MMGTreeView.h"
@@ -38,7 +38,7 @@ class UMMGConfigs : public UObject
 {
 	GENERATED_BODY()
 public:
-	UPROPERTY(EditAnywhere, meta=(ShowOnlyInnerProperties))
+	UPROPERTY(EditAnywhere, meta=(ShowOnlyInnerProperties), Category="MainSettings")
 	FMMGConfigStruct ConfigClass;
 };
 
@@ -89,13 +89,13 @@ USTRUCT()
 struct FMMGMaterialFunctionStruct : public FTableRowBase
 {
 	GENERATED_BODY()
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category="MaterialFunctionsInfos")
 	UMaterialFunction* MaterialFunction;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category="MaterialFunctionsInfos")
 	TEnumAsByte<EMAttributes> MaterialAttributeType;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category="MaterialFunctionsInfos")
 	FString MaterialGroup;
 	
 	FMMGMaterialFunctionStruct()
@@ -139,6 +139,6 @@ class UMMGMaterialSettings : public UObject
 {
 	GENERATED_BODY()
 public:
-	UPROPERTY(EditAnywhere, meta=(ShowOnlyInnerProperties))
+	UPROPERTY(EditAnywhere, meta=(ShowOnlyInnerProperties), Category="MaterialSettings")
 	FMMGMaterialSettingsStruct ConfigClass;
 };

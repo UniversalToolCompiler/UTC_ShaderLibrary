@@ -1,4 +1,4 @@
-/** Created by Universal Tool Compiler */
+/** Copyright 2022, Universal Tool Compiler */
 
 #include "UTC_ShaderLibrary.h"
 #include "UTC_ShaderLibraryStyle.h"
