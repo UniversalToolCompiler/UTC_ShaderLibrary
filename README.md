@@ -16,7 +16,8 @@ Follow the plugin’s development:
 * Twitter: https://twitter.com/UTCompiler 
 * Trello: https://trello.com/b/w91ommLH/utc-shader-library
 
-If you like my work you can support me here: https://www.paypal.com/paypalme/UTCompiler 
+If you like my work, you can support me here: https://www.paypal.com/paypalme/UTCompiler 
+Thanks ! 
 ## What is it used for?
 
 The UTC Shader Library helping you to create Master Materials and saving time by avoiding repetitive operations with a library of common material functions, an automation of nodes and parameters creation, and a material instances elements’ organization like autocomplete material group names and sort priorities.
