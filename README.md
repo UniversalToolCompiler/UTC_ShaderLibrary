@@ -8,7 +8,7 @@ This is a first version of this plugin, content is limited but it will grow up o
 
 ## Main Links
 
-Marketplace: https://www.unrealengine.com/marketplace/profile/Universal+Tool+Compiler
+Marketplace: https://www.unrealengine.com/marketplace/en-US/product/utc-shader-library
 
 Demo : https://www.youtube.com/watch?v=AxLDbQTHUMM
 
@@ -16,6 +16,7 @@ Follow the plugin’s development:
 * Twitter: https://twitter.com/UTCompiler 
 * Trello: https://trello.com/b/w91ommLH/utc-shader-library
 
+If you like my work you can support me here: https://www.paypal.com/paypalme/UTCompiler 
 ## What is it used for?
 
 The UTC Shader Library helping you to create Master Materials and saving time by avoiding repetitive operations with a library of common material functions, an automation of nodes and parameters creation, and a material instances elements’ organization like autocomplete material group names and sort priorities.
