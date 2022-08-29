@@ -41,6 +41,8 @@ Visual Studio will be required.
 
 You can find the Master Materials Generator in: `Window->Get Content->UTC Materials Generator`
 
+![](/Doc/Screens/UI/OpenMMG.png)
+
 ## Concept
 
 The MMG’s main idea is creating master materials by overlapping consecutive layers of material attributes and masks composed of material functions, to set the desired level of details to your material.
