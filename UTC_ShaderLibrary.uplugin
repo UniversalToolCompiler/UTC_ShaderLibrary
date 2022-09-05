@@ -18,7 +18,9 @@
 			"Name": "UTC_ShaderLibrary",
 			"Type": "Editor",
 			"LoadingPhase": "Default",
-			"WhitelistPlatforms": ["Win64", "Win32"]
+			"PlatformAllowList": [
+				"Win64"
+			]
 		}
 	],
 	"Plugins": [

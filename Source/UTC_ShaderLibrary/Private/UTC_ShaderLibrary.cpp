@@ -38,10 +38,14 @@ void FUTC_ShaderLibraryModule::StartupModule()
 		.SetMenuType(ETabSpawnerMenuType::Hidden)
 		.SetIcon(FSlateIcon(FUTC_ShaderLibraryStyle::GetStyleSetName(), "UTC_ShaderLibrary.OpenPluginWindow"));
 
-	//Add Generate Button to MainSettings Property View
-	FPropertyEditorModule& PropertyEditorModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
-	PropertyEditorModule.RegisterCustomClassLayout(FName("MMGConfigs"), FOnGetDetailCustomizationInstance::CreateStatic(&MMGCustomizer::MakeInstance));
+	//Add "Generate" Button to Generate Settings Property View
+	FPropertyEditorModule& GeneratePropertyEditorModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
+	GeneratePropertyEditorModule.RegisterCustomClassLayout(FName("MMGGenerateMaterial"), FOnGetDetailCustomizationInstance::CreateStatic(&MMGGenerateCustomizer::MakeInstance));
 
+	//Add "Add" Button to Add Settings Property View
+	FPropertyEditorModule& AddPropertyEditorModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
+	AddPropertyEditorModule.RegisterCustomClassLayout(FName("MMGAddToMaterial"), FOnGetDetailCustomizationInstance::CreateStatic(&MMGAddCustomizer::MakeInstance));
+	
 	//Custom Graph Node
 	FEdGraphUtilities::RegisterVisualNodeFactory(MakeShareable(new FMMGGraphNodeFactory));
 	
@@ -62,8 +66,11 @@ void FUTC_ShaderLibraryModule::ShutdownModule()
 
 	FGlobalTabmanager::Get()->UnregisterNomadTabSpawner(UTC_ShaderLibraryTabName);
 
-	FPropertyEditorModule& PropertyEditorModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
-	PropertyEditorModule.UnregisterCustomClassLayout(FName("MMGConfigs"));
+	FPropertyEditorModule& GeneratePropertyEditorModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
+	GeneratePropertyEditorModule.UnregisterCustomClassLayout(FName("MMGGenerateMaterial"));
+
+	FPropertyEditorModule& AddPropertyEditorModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
+	AddPropertyEditorModule.UnregisterCustomClassLayout(FName("MMGAddToMaterial"));
 }
 
 void FUTC_ShaderLibraryModule::RegisterMenus()
