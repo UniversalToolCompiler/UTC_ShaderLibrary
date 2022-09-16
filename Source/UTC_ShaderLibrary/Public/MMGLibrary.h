@@ -14,6 +14,7 @@
 #include "Materials/MaterialExpressionNamedReroute.h"
 #include "Materials/MaterialExpressionMaterialFunctionCall.h"
 #include "Materials/MaterialExpressionBlendMaterialAttributes.h"
+#include "Materials/MaterialExpressionTextureSampleParameter2D.h"
 
 class SMMGTreeView;
 class FUTC_Utils;
@@ -27,6 +28,9 @@ enum EExpressionType
 	EUVsFunction UMETA(DisplayName = "UVs Function"),
 	EParameter UMETA(DisplayName = "Parameter"),
 	EUVsParameter UMETA(DisplayName = "UVsParameter"),
+	EPackedTexture UMETA(DisplayName = "PackedTexture"),
+	EPackedRerouteDeclaration UMETA(DisplayName = "PackedTexture"),
+	EPackedCompMask UMETA(DisplayName = "PackedCompMask"),
 	
 	ERerouteDeclarationFunction UMETA(DisplayName = "Reroute Declaration Function"),
 	ERerouteUsageFunction UMETA(DisplayName = "Reroute Usage Function"),
@@ -49,6 +53,7 @@ public:
 
 	/** MA && Mask*/
 	void GenerateMaterialAttributeFunction();
+	void GenerateMaterialOutputs(FName RowName);
 	void GenerateMaskFunction();
 
 	/**UVs*/
@@ -67,6 +72,10 @@ public:
 	void GenerateVector4Parameter(UMaterialExpressionMaterialFunctionCall* MaterialFunction, UMaterialExpression* PreviewExpression, FFunctionExpressionInput CurrentInput, EFunctionInputType InputType, FString GroupName, const bool isUVsFunction = false);
 	void GenerateTexture2DParameter(UMaterialExpressionMaterialFunctionCall* MaterialFunction, UMaterialExpression* PreviewExpression, FFunctionExpressionInput CurrentInput, EFunctionInputType InputType, FString GroupName, const bool isUVsFunction = false);
 	void GenerateBoolParameter(UMaterialExpressionMaterialFunctionCall* MaterialFunction, UMaterialExpression* PreviewExpression, FFunctionExpressionInput CurrentInput, EFunctionInputType InputType, FString GroupName, const bool isUVsFunction = false);
+
+	/**Custom Packed*/
+	void SetCustomPackedRerouteUsage(UMaterialExpressionMaterialFunctionCall* MaterialFunction);
+	FString GetCustomPackedName();
 
 	/**Connctions && Positions*/
 	void ConnectFunctionToMaterialAttribute();
@@ -93,7 +102,7 @@ private:
 	FString PackageName;
 	FName ParameterName;
 	int32 InputIndex;
-	int32 FunctionIndex;
+	int32 SortPriority;
 	bool CommentYPositionDoOnce = true;
 
 	/**Add To Material */
@@ -138,6 +147,18 @@ private:
 	FVector2d MaterialParameterPosition = FVector2d(0, 0);
 	FVector2d UVsParameterPosition = FVector2d(0, 0);
 	int32 FirstCommentYPosition;
+
+	//Custom Packed
+	TArray<UMaterialExpression*> CustomPackedMFList;
+	UMaterialExpressionNamedRerouteDeclaration* PackedNamedRerouteDeclarationPtr;
+	UMaterialExpressionNamedRerouteUsage* PackedNamedRerouteUsagePtr;
+	UMaterialExpressionTextureSampleParameter2D* PackedTextureParamPtr;
+	int32 CustomPackedIndex = 0;
+	int32 CustomPackedInputIndex = 0;
+	bool ProceedCustomPacked = false;
+	bool DoOnceCustomPacked = true;
+	FString CurrentPackedOutput;
+	FString CustomPackedName;
 
 	SMMGTreeView TreeViewWidget;
 	FUTC_Utils* Utils;

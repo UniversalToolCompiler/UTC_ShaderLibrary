@@ -1,13 +1,15 @@
 ﻿/** Copyright 2022, Universal Tool Compiler */
 
 #include "UI/MMGTreeView.h"
+
+#include "SListViewSelectorDropdownMenu.h"
 #include "UTC_Manager.h"
 
 #include "Widgets/Layout/SScrollBox.h"
 #include "Widgets/Input/SComboBox.h"
 #include "Widgets/Text/SRichTextBlock.h"
-#include "Widgets/Text/SInlineEditableTextBlock.h"
 #include "Components/Button.h"
+#include "Widgets/Images/SLayeredImage.h"
 
 #define LOCTEXT_NAMESPACE "MMGTreeView"
 
@@ -88,7 +90,6 @@ void SMMGTreeView::Construct(const FArguments& TreeArgs)
 			+ SScrollBox::Slot()
 			.Padding(FMargin(0.f, 2.5f))
 			[
-				
 					SAssignNew(TreeViewWidget, FMMGTreeViewType)
 					.ItemHeight(24)
 					.TreeItemsSource(&MMGTreeViewSettings->ItemList)
@@ -256,43 +257,175 @@ TSharedRef<ITableRow> SMMGTreeView::OnGenerateListRow(FMMGTreeViewPtr Item, cons
 		}
 		else
 		{
-			TableRow = SNew(STableRow<TSharedPtr<FMMGTreeViewPtr>>, OwnerTable)
-			.Padding(2.0f)
-			[
-				SNew(SBorder)
-				.OnMouseButtonDown(this, &SMMGTreeView::OpenTreeViewContextMenu, Item)
-				.BorderImage(nullptr)
+			if(bGenerateCustomPack || Item->IsCustomPack)
+			{
+				TableRow = SNew(STableRow<TSharedPtr<FMMGTreeViewPtr>>, OwnerTable)
+				.Padding(2.0f)
+				.ShowSelection(false)
 				[
-					SNew(SHorizontalBox)
-					+SHorizontalBox::Slot()
-					.VAlign(VAlign_Center)
+					SNew(SBorder)
+					.BorderImage(nullptr)
 					[
-						SAssignNew(Item->ChildFunctionComboBox, SComboBox<TSharedPtr<FString>>)
-						.OptionsSource(&Item->ComboBoxChildrenOptions)
-						.OnSelectionChanged(this, &SMMGTreeView::OnSelectionChangedChildrenCombo, Item)
-						.OnGenerateWidget(this, &SMMGTreeView::MakeWidgetForOptionChildrenCombo)
-						.InitiallySelectedItem(Item->CurrentChildComboItem)
+						SNew(SVerticalBox)
+						+SVerticalBox::Slot()
+						.VAlign(VAlign_Center)
+						.Padding(2.0f)
 						[
-							SNew(STextBlock)
-							.Text(this, &SMMGTreeView::GetCurrentItemLabelChildrenCombo, Item)
+							SNew(SHorizontalBox)
+							+SHorizontalBox::Slot()
+							.VAlign(VAlign_Center)
+							.HAlign(HAlign_Left)
+							.AutoWidth()
+							.Padding(FMargin(5.f, 0))
+							[
+								SNew(SImage)
+								.Image(FSlateIcon(FEditorStyle::GetStyleSetName(), "Graph.Pin.Disconnected_VarA").GetIcon())
+								.ColorAndOpacity(FLinearColor(1,0,0,1))
+							]
+							+SHorizontalBox::Slot()
+							.VAlign(VAlign_Center)
+							[
+								SAssignNew(Item->RPackedFunctionComboBox, SComboBox<TSharedPtr<FString>>)
+								.OptionsSource(&Item->ComboBoxCustomPackedOptions)
+								.OnSelectionChanged(this, &SMMGTreeView::OnSelectionChangedRPackedCombo, Item)
+								.OnGenerateWidget(this, &SMMGTreeView::MakeWidgetForOptionPackedCombo)
+								.InitiallySelectedItem(Item->CurrentRPackedComboItem)
+								[
+									SNew(STextBlock)
+									.Text(this, &SMMGTreeView::GetCurrentItemLabelRPackedCombo, Item)
+								]
+							]
+						]
+						+SVerticalBox::Slot()
+						.VAlign(VAlign_Center)
+						.Padding(2.0f)
+						[
+							SNew(SHorizontalBox)
+							+SHorizontalBox::Slot()
+							.VAlign(VAlign_Center)
+							.HAlign(HAlign_Left)
+							.AutoWidth()
+							.Padding(FMargin(5.f, 0))
+							[
+								SNew(SImage)
+								.Image(FSlateIcon(FEditorStyle::GetStyleSetName(), "Graph.Pin.Disconnected_VarA").GetIcon())
+								.ColorAndOpacity(FLinearColor(0,1,0,1))
+							]
+							+SHorizontalBox::Slot()
+							.VAlign(VAlign_Center)
+							[
+								SAssignNew(Item->GPackedFunctionComboBox, SComboBox<TSharedPtr<FString>>)
+								.OptionsSource(&Item->ComboBoxCustomPackedOptions)
+								.OnSelectionChanged(this, &SMMGTreeView::OnSelectionChangedGPackedCombo, Item)
+								.OnGenerateWidget(this, &SMMGTreeView::MakeWidgetForOptionPackedCombo)
+								.InitiallySelectedItem(Item->CurrentGPackedComboItem)
+								[
+									SNew(STextBlock)
+									.Text(this, &SMMGTreeView::GetCurrentItemLabelGPackedCombo, Item)
+								]
+							]
+						]
+						+SVerticalBox::Slot()
+						.VAlign(VAlign_Center)
+						.Padding(2.0f)
+						[
+							SNew(SHorizontalBox)
+							+SHorizontalBox::Slot()
+							.VAlign(VAlign_Center)
+							.HAlign(HAlign_Left)
+							.AutoWidth()
+							.Padding(FMargin(5.f, 0))
+							[
+								SNew(SImage)
+								.Image(FSlateIcon(FEditorStyle::GetStyleSetName(), "Graph.Pin.Disconnected_VarA").GetIcon())
+								.ColorAndOpacity(FLinearColor(0,0,1,1))
+							]
+							+SHorizontalBox::Slot()
+							.VAlign(VAlign_Center)
+							[
+								SAssignNew(Item->BPackedFunctionComboBox, SComboBox<TSharedPtr<FString>>)
+								.OptionsSource(&Item->ComboBoxCustomPackedOptions)
+								.OnSelectionChanged(this, &SMMGTreeView::OnSelectionChangedBPackedCombo, Item)
+								.OnGenerateWidget(this, &SMMGTreeView::MakeWidgetForOptionPackedCombo)
+								.InitiallySelectedItem(Item->CurrentBPackedComboItem)
+								[
+									SNew(STextBlock)
+									.Text(this, &SMMGTreeView::GetCurrentItemLabelBPackedCombo, Item)
+								]
+							]
+						]
+						+SVerticalBox::Slot()
+						.VAlign(VAlign_Center)
+						.Padding(2.0f)
+						[
+							SNew(SHorizontalBox)
+							+SHorizontalBox::Slot()
+							.VAlign(VAlign_Center)
+							.HAlign(HAlign_Left)
+							.AutoWidth()
+							.Padding(FMargin(5.f, 0))
+							[
+								SNew(SImage)
+								.Image(FSlateIcon(FEditorStyle::GetStyleSetName(), "Graph.Pin.Disconnected_VarA").GetIcon())
+								.ColorAndOpacity(FLinearColor(1,1,1,1))
+							]
+							+SHorizontalBox::Slot()
+							.VAlign(VAlign_Center)
+							[
+								SAssignNew(Item->APackedFunctionComboBox, SComboBox<TSharedPtr<FString>>)
+								.OptionsSource(&Item->ComboBoxCustomPackedOptions)
+								.OnSelectionChanged(this, &SMMGTreeView::OnSelectionChangedAPackedCombo, Item)
+								.OnGenerateWidget(this, &SMMGTreeView::MakeWidgetForOptionPackedCombo)
+								.InitiallySelectedItem(Item->CurrentAPackedComboItem)
+								[
+									SNew(STextBlock)
+									.Text(this, &SMMGTreeView::GetCurrentItemLabelAPackedCombo, Item)
+								]
+							]
 						]
 					]
-					
-					+SHorizontalBox::Slot()
-					.VAlign(VAlign_Center)
-					.HAlign(HAlign_Right)
-					.AutoWidth()
-					.Padding(FMargin(5.f, 0))
+				];
+				bGenerateCustomPack = false;
+			}
+			else
+			{
+				TableRow = SNew(STableRow<TSharedPtr<FMMGTreeViewPtr>>, OwnerTable)
+				.Padding(2.0f)
+				[
+					SNew(SBorder)
+					.OnMouseButtonDown(this, &SMMGTreeView::OpenTreeViewContextMenu, Item)
+					.BorderImage(nullptr)
 					[
-						SAssignNew(Item->AffectUVsCheckWidget, SCheckBox)
-						.IsChecked(Item->AffectedByUVs)
-						.ToolTipText(FText::FromString("If true, UVs will affect this Material Function"))
-						.OnCheckStateChanged(this, &SMMGTreeView::OnChildCheckStateChanged, Item)
-						.IsEnabled(false)
+						SNew(SHorizontalBox)
+						+SHorizontalBox::Slot()
+						.VAlign(VAlign_Center)
+						[
+							SAssignNew(Item->ChildFunctionComboBox, SComboBox<TSharedPtr<FString>>)
+							.OptionsSource(&Item->ComboBoxChildrenOptions)
+							.OnSelectionChanged(this, &SMMGTreeView::OnSelectionChangedChildrenCombo, Item)
+							.OnGenerateWidget(this, &SMMGTreeView::MakeWidgetForOptionChildrenCombo)
+							.InitiallySelectedItem(Item->CurrentChildComboItem)
+							[
+								SNew(STextBlock)
+								.Text(this, &SMMGTreeView::GetCurrentItemLabelChildrenCombo, Item)
+							]
+						]
+						
+						+SHorizontalBox::Slot()
+						.VAlign(VAlign_Center)
+						.HAlign(HAlign_Right)
+						.AutoWidth()
+						.Padding(FMargin(5.f, 0))
+						[
+							SAssignNew(Item->AffectUVsCheckWidget, SCheckBox)
+							.IsChecked(Item->AffectedByUVs)
+							.ToolTipText(FText::FromString("If true, UVs will affect this Material Function"))
+							.OnCheckStateChanged(this, &SMMGTreeView::OnChildCheckStateChanged, Item)
+							.IsEnabled(false)
+						]
 					]
-
-				]
-			];
+				];
+			}
 		}
 	}
 	SetUVsComboBoxItem(Item);
@@ -328,7 +461,6 @@ bool SMMGTreeView::AddFunctionButtonStatement() const
 		return true;
 	return false;
 }
-
 
 //--------------------------------------------------------------------------------------------------------------
 /** ComboBox UVs function */
@@ -416,6 +548,34 @@ void SMMGTreeView::OnSelectionChangedChildrenCombo(TSharedPtr<FString> NewValue,
 			break;
 		}
 	}
+	
+	if(*Item->CurrentChildComboItem == CustomPack)
+	{
+		if(Item->ChildrenFunction.IsEmpty())
+		{
+			bGenerateCustomPack = true;
+			
+			auto NewChildTree = new FMMGTreeView;
+			NewChildTree->IsCustomPack = true;
+
+			for(FString Input : CustomPackInputs)
+				NewChildTree->CustomPackedSelectionSave.Add(Input, "null");
+			
+			Item->ChildrenFunction.Add(MakeShareable(NewChildTree));
+			TreeViewWidget->RequestTreeRefresh();
+			
+			bGenerateCustomPack = false;
+		}
+	}
+	else
+	{
+		if(!Item->ChildrenFunction.IsEmpty())
+		{
+			Item->ChildrenFunction.Empty();
+			Item->IsCustomPack = false;
+			TreeViewWidget->RequestTreeRefresh();
+		}
+	}
 }
 
 FText SMMGTreeView::GetCurrentItemLabelChildrenCombo(FMMGTreeViewPtr Item)const
@@ -425,7 +585,7 @@ FText SMMGTreeView::GetCurrentItemLabelChildrenCombo(FMMGTreeViewPtr Item)const
 		FString ChildItem = *Item->CurrentChildComboItem;
 		return FText::FromString(ChildItem);
 	}
-	return FText::FromString("- New Material Function -");
+	return FText::FromString(NewMaterialFunctionStr);
 }
 
 void SMMGTreeView::OnChildCheckStateChanged(ECheckBoxState CheckState, FMMGTreeViewPtr Item)
@@ -522,7 +682,122 @@ bool SMMGTreeView::LimitAddButton(FMMGTreeViewPtr Item) const
 	}
 	return true;
 }
+//--------------------------------------------------------------------------------------------------------------
 
+/** ComboBox packed function */
+
+TSharedRef<SWidget> SMMGTreeView::MakeWidgetForOptionPackedCombo(TSharedPtr<FString> InOption)
+{
+	return SNew(STextBlock).Text(FText::FromString(*InOption));
+}
+
+void SMMGTreeView::OnSelectionChangedRPackedCombo(TSharedPtr<FString> NewValue, ESelectInfo::Type, FMMGTreeViewPtr Item)
+{
+	if(NewValue.IsValid())
+	{
+		if(*NewValue == EmptyCustomPackStr)
+		{
+			Item->CurrentRPackedComboItem = nullptr;
+			Item->CustomPackedSelectionSave.Add("R", "null");
+		}
+		else
+		{
+			Item->CurrentRPackedComboItem = NewValue;
+			Item->CustomPackedSelectionSave.Add("R", *NewValue);
+		}
+	}
+}
+
+void SMMGTreeView::OnSelectionChangedGPackedCombo(TSharedPtr<FString> NewValue, ESelectInfo::Type, FMMGTreeViewPtr Item)
+{
+	if(NewValue.IsValid())
+	{
+		if(*NewValue == EmptyCustomPackStr)
+		{
+			Item->CurrentGPackedComboItem = nullptr;
+			Item->CustomPackedSelectionSave.Add("G", "null");
+		}
+		else
+		{
+			Item->CurrentGPackedComboItem = NewValue;
+			Item->CustomPackedSelectionSave.Add("G", *NewValue);
+		}
+	}
+}
+
+void SMMGTreeView::OnSelectionChangedBPackedCombo(TSharedPtr<FString> NewValue, ESelectInfo::Type, FMMGTreeViewPtr Item)
+{
+	if(NewValue.IsValid())
+	{
+		if(*NewValue == EmptyCustomPackStr)
+		{
+			Item->CurrentBPackedComboItem = nullptr;
+			Item->CustomPackedSelectionSave.Add("B", "null");
+		}
+		else
+		{
+			Item->CurrentBPackedComboItem = NewValue;
+			Item->CustomPackedSelectionSave.Add("B", *NewValue);
+		}
+	}
+}
+
+void SMMGTreeView::OnSelectionChangedAPackedCombo(TSharedPtr<FString> NewValue, ESelectInfo::Type, FMMGTreeViewPtr Item)
+{
+	if(NewValue.IsValid())
+	{
+		if(*NewValue == EmptyCustomPackStr)
+		{
+			Item->CurrentAPackedComboItem = nullptr;
+			Item->CustomPackedSelectionSave.Add("A", "null");
+		}
+		else
+		{
+			Item->CurrentAPackedComboItem = NewValue;
+			Item->CustomPackedSelectionSave.Add("A", *NewValue);
+		}
+	}
+}
+
+FText SMMGTreeView::GetCurrentItemLabelRPackedCombo(FMMGTreeViewPtr Item) const
+{
+	if (Item->CurrentRPackedComboItem.IsValid())
+	{
+		FString ChildItem = *Item->CurrentRPackedComboItem;
+		return FText::FromString(ChildItem);
+	}
+	return FText::FromString(NewMaterialFunctionStr);
+}
+
+FText SMMGTreeView::GetCurrentItemLabelGPackedCombo(FMMGTreeViewPtr Item) const
+{
+	if (Item->CurrentGPackedComboItem.IsValid())
+	{
+		FString ChildItem = *Item->CurrentGPackedComboItem;
+		return FText::FromString(ChildItem);
+	}
+	return FText::FromString(NewMaterialFunctionStr);
+}
+
+FText SMMGTreeView::GetCurrentItemLabelBPackedCombo(FMMGTreeViewPtr Item) const
+{
+	if (Item->CurrentBPackedComboItem.IsValid())
+	{
+		FString ChildItem = *Item->CurrentBPackedComboItem;
+		return FText::FromString(ChildItem);
+	}
+	return FText::FromString(NewMaterialFunctionStr);
+}
+
+FText SMMGTreeView::GetCurrentItemLabelAPackedCombo(FMMGTreeViewPtr Item) const
+{
+	if (Item->CurrentAPackedComboItem.IsValid())
+	{
+		FString ChildItem = *Item->CurrentAPackedComboItem;
+		return FText::FromString(ChildItem);
+	}
+	return FText::FromString(NewMaterialFunctionStr);
+}
 
 //--------------------------------------------------------------------------------------------------------------
 /** Treeview functions
@@ -602,72 +877,11 @@ FReply SMMGTreeView::FunctionTypeButtonPressed(FMMGTreeViewPtr Item)
 /** Set Treeview children */
 void SMMGTreeView::OnGetChildren(FMMGTreeViewPtr Item, TArray<FMMGTreeViewPtr>& OutChildren)
 {
+	
 	OutChildren = Item->ChildrenFunction;
 	
 	/** Set function ComboBox items */
-	for (auto Child : Item->ChildrenFunction)
-	{
-		if(*Item->FunctionType == MAType || *Item->FunctionType == MaskType)
-		{
-			TArray<TSharedPtr<FString>> DTElem;
-			if(*Item->FunctionType == MAType)
-			{
-				for (FName Row : MaterialOutputDT->GetRowNames())
-				{
-					FString CurrentElem = Utils->PascalToText(Row.ToString());
-					DTElem.Add(MakeShareable(new FString (CurrentElem)));
-				}
-					
-			}
-			else if (*Item->FunctionType == MaskType)
-			{
-				for (FName Row : MasksDT->GetRowNames())
-				{
-					FString CurrentElem = Utils->PascalToText(Row.ToString());
-					DTElem.Add(MakeShareable(new FString (CurrentElem)));
-				}
-					
-			}
-
-			FString SelectionSave;
-			bool ValidSelection =false;
-			if(Child->CurrentChildComboItem.IsValid())
-			{
-				SelectionSave = *Child->CurrentChildComboItem;
-				ValidSelection = true;
-			}
-			
-			Child->ComboBoxChildrenOptions = DTElem;
-
-			TSharedPtr<FString> SelectionSavePtr;
-			if(ValidSelection)
-			{
-				for(auto Option : Child->ComboBoxChildrenOptions)
-				{
-					if (*Option == SelectionSave)
-					{
-						SelectionSavePtr = Option;
-						break;
-					}
-				}
-				
-				Child->ChildFunctionComboBox->SetSelectedItem(SelectionSavePtr);
-			}
-		}
-		
-		/** UVs Checkbox visibility */
-		if(Item->CurrentUVsComboItem.IsValid() && Child->AffectUVsCheckWidget.IsValid())
-		{
-			if(*Item->CurrentUVsComboItem == NoUV)
-			{
-				Child->AffectUVsCheckWidget->SetEnabled(false);
-			}
-			else
-			{
-				Child->AffectUVsCheckWidget->SetEnabled(true);
-			}
-		}
-	}
+	EnsureComboBoxItems(Item);
 	
 	/** Set children function type */
 	for (auto ChildItem : OutChildren)
@@ -700,6 +914,128 @@ void SMMGTreeView::OnGetChildren(FMMGTreeViewPtr Item, TArray<FMMGTreeViewPtr>& 
 		}
 	}
 	ComboBoxMasksOptions = FunctionNameList;
+}
+
+void SMMGTreeView::EnsureComboBoxItems(FMMGTreeViewPtr Item)
+{
+	for (auto Child : Item->ChildrenFunction)
+	{
+		if(*Item->FunctionType == MAType || *Item->FunctionType == MaskType)
+		{
+			TArray<TSharedPtr<FString>> DTElem;
+			if(*Item->FunctionType == MAType)
+			{
+				for (FName Row : MaterialOutputDT->GetRowNames())
+				{
+					FString CurrentElem = Utils->PascalToText(Row.ToString());
+					DTElem.Add(MakeShareable(new FString (CurrentElem)));
+				}
+			}
+			else if (*Item->FunctionType == MaskType)
+			{
+				for (FName Row : MasksDT->GetRowNames())
+				{
+					FString CurrentElem = Utils->PascalToText(Row.ToString());
+					DTElem.Add(MakeShareable(new FString (CurrentElem)));
+				}
+					
+			}
+
+			Child->ComboBoxChildrenOptions = DTElem;
+			if(*Item->FunctionType == MAType)
+				Child->ComboBoxChildrenOptions.Insert(MakeShareable(new FString (CustomPack)),0);
+
+			if(Child->IsCustomPack)
+			{
+				Child->ComboBoxCustomPackedOptions = DTElem;
+				Child->ComboBoxCustomPackedOptions.Insert(MakeShareable(new FString (EmptyCustomPackStr)),0);
+			}
+			/** Retrieve Combo Box Selection */
+			if(Child->CurrentChildComboItem.IsValid())
+			{
+				Child->CustomPackedSelectionSave.Add("Main", *Child->CurrentChildComboItem);
+			}
+			
+			if(Child->IsCustomPack)
+			{
+				if(Child->CurrentRPackedComboItem.IsValid())
+				{
+					Child->CustomPackedSelectionSave.Add("R", *Child->CurrentRPackedComboItem);
+				}
+				
+				if(Child->CurrentGPackedComboItem.IsValid())
+				{
+					Child->CustomPackedSelectionSave.Add("G", *Child->CurrentGPackedComboItem);
+				}
+				
+				if(Child->CurrentBPackedComboItem.IsValid())
+				{
+					Child->CustomPackedSelectionSave.Add("B", *Child->CurrentBPackedComboItem);
+				}
+				
+				if(Child->CurrentAPackedComboItem.IsValid())
+				{
+					Child->CustomPackedSelectionSave.Add("A", *Child->CurrentAPackedComboItem);
+				}
+			}
+			
+			if(!Child->CustomPackedSelectionSave.IsEmpty())
+			{
+				int32 ElemNum = 0;
+				for(auto Option : Child->ComboBoxChildrenOptions)
+				{
+					if (Child->CustomPackedSelectionSave.Contains("Main") && *Option == *Child->CustomPackedSelectionSave.Find("Main"))
+					{
+						Child->ChildFunctionComboBox->SetSelectedItem(Option);
+						ElemNum++;
+					}
+					 if(Child->IsCustomPack)
+					 {
+					 	
+					 	if(Child->CustomPackedSelectionSave.Contains("R") && *Option == *Child->CustomPackedSelectionSave.Find("R"))
+					 	{
+					 		Child->RPackedFunctionComboBox->SetSelectedItem(Option);
+					 		ElemNum++;
+					 	}
+					 	
+					 	if(Child->CustomPackedSelectionSave.Contains("G") && *Option == *Child->CustomPackedSelectionSave.Find("G"))
+					 	{
+					 		Child->GPackedFunctionComboBox->SetSelectedItem(Option);
+					 		ElemNum++;
+					 	}
+					 	
+					 	if(Child->CustomPackedSelectionSave.Contains("B") && *Option == *Child->CustomPackedSelectionSave.Find("B"))
+					 	{
+					 		Child->BPackedFunctionComboBox->SetSelectedItem(Option);
+					 		ElemNum++;
+					 	}
+					 	
+					 	if(Child->CustomPackedSelectionSave.Contains("A") && *Option == *Child->CustomPackedSelectionSave.Find("A"))
+					 	{
+					 		Child->APackedFunctionComboBox->SetSelectedItem(Option);
+					 		ElemNum++;
+					 	}
+					}
+					
+					 if(ElemNum == Child->CustomPackedSelectionSave.Num())
+					 	break;
+				}
+			}
+		}
+		
+		/** UVs Checkbox visibility */
+		if(Item->CurrentUVsComboItem.IsValid() && Child->AffectUVsCheckWidget.IsValid())
+		{
+			if(*Item->CurrentUVsComboItem == NoUV)
+			{
+				Child->AffectUVsCheckWidget->SetEnabled(false);
+			}
+			else
+			{
+				Child->AffectUVsCheckWidget->SetEnabled(true);
+			}
+		}
+	}
 }
 
 //--------------------------------------------------------------------------------------------------------------
@@ -802,7 +1138,7 @@ void SMMGTreeView::DuplicateTreeViewItem(const FMMGTreeViewPtr SelectedItem, con
 			NewTree->FunctionName = Name;
 
 			MMGTreeViewSettings->GraphSettingsPtr->GraphObject->AddThisNode(NewTree);
-	
+			
 			for (TSharedPtr<FMMGTreeView> Child : Item->ChildrenFunction)
 			{
 				if(Child.IsValid())
@@ -810,7 +1146,17 @@ void SMMGTreeView::DuplicateTreeViewItem(const FMMGTreeViewPtr SelectedItem, con
 					TSharedPtr<FMMGTreeView> NewChild;
 
 					if(*NewTree->FunctionType == MAType)
+					{
 						NewChild = MakeShared<FMMGTreeView>(*Child);
+						
+						if(*Child->CurrentChildComboItem == CustomPack)
+						{
+							TSharedPtr<FMMGTreeView> CustomPackedChild = MakeShared<FMMGTreeView>(*Child->ChildrenFunction[0]);
+							NewChild->ChildrenFunction.Empty();
+							NewChild->ChildrenFunction.Add(CustomPackedChild);
+						}
+					}
+						
 					else
 						NewChild = MakeShareable(new FMMGTreeView);
 

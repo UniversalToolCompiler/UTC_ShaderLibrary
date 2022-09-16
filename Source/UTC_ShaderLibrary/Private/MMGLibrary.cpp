@@ -28,6 +28,7 @@
 #include "Materials/MaterialExpressionTextureSampleParameter.h"
 #include "Materials/MaterialExpressionTextureSampleParameter2D.h"
 #include "Materials/MaterialExpressionComment.h"
+#include "Materials/MaterialExpressionComponentMask.h"
 #include "Materials/MaterialExpressionMakeMaterialAttributes.h"
 #include "Materials/MaterialExpressionStaticBool.h"
 #include "Materials/MaterialExpressionStaticBoolParameter.h"
@@ -246,67 +247,43 @@ void FMMGLibrary::GenerateMaterialAttributeFunction()
 	if(TreeViewParentPtr->CurrentUVsComboItem.IsValid() && *TreeViewParentPtr->CurrentUVsComboItem != TreeViewWidget.NoUV && HasToGenerateUVsFunction())
 		GenerateUVsFunction();
 
-	FunctionIndex = 0;
+	/** Generate Material Outputs */
 	for(TSharedPtr<FMMGTreeView> TreeViewChild : TreeViewParentPtr->ChildrenFunction)
 	{
 		TreeViewChildPtr = TreeViewChild;
 
-		/** Get material function by ComboBox selection */
-		FName RowName = FName(Utils->TextToPascal(*TreeViewChildPtr->CurrentChildComboItem));
-		FunctionDataStruct = MaterialOutputDT->FindRow<FMMGMaterialFunctionStruct>(RowName, "");
-
-		GenerateMaterialFunctionNode(RowName.ToString());
-		ConnectFunctionToMaterialAttribute();
+		/** Custom Packed */ 
+		if(!TreeViewChildPtr->ChildrenFunction.IsEmpty() && TreeViewChildPtr->ChildrenFunction[0]->IsCustomPack)
+		{
+			ProceedCustomPacked = true;
+			CustomPackedIndex = 0;
+			CustomPackedInputIndex = 0;
+			CustomPackedName = GetCustomPackedName();
 			
-		/** Refresh */
-		UTCMaterial->PreEditChange(NULL);
-		UTCMaterial->PostEditChange();
-		
-		/** Get inputs' type */
-		InputIndex = 0;
-		TArray<FFunctionExpressionInput> InputsList = MaterialFunctionPtr->FunctionInputs;
-		for (FFunctionExpressionInput input : InputsList)
-		{
-			/** Parameter name */
-			if(TreeViewList.Num() > 1 || bAddToMaterial)
-				ParameterName = FName (*TreeViewParentPtr->FunctionName + FString(" - ") + RowName.ToString() + FString(" - ") + input.ExpressionInput->InputName.ToString());
-			else
-				ParameterName = FName (RowName.ToString() + FString(" - ") + input.ExpressionInput->InputName.ToString());
-
-			/** Generate parameter */
-			GenerateParameterByMFInputType(MaterialFunctionPtr, input);
-			++InputIndex;
+			for (const TPair<FString, FString>& Pair : TreeViewChildPtr->ChildrenFunction[0]->CustomPackedSelectionSave)
+			{
+				if(Pair.Value != "Custom Packed" && !Pair.Value.IsEmpty() && Pair.Value != "null")
+				{
+					CurrentPackedOutput = Pair.Key;
+					
+					/** Get material function by ComboBox selection */
+					FName RowName = FName(Utils->TextToPascal(Pair.Value));
+					GenerateMaterialOutputs(RowName);
+				}
+				CustomPackedIndex++;
+			}
+			DoOnceCustomPacked = true;
 		}
-
-		MaterialParameterPosition.Y += 100;
-		
-		/** function location */
-		SetNodePosition(MaterialFunctionPtr, EMaterialFunction);
-		/** Function reroute declaration location */
-		SetNodePosition(FunctionNamedRerouteDeclarationPtr, ERerouteDeclarationFunction);
-		/** Function reroute usage location */
-		SetNodePosition(FunctionNamedRerouteUsagePtr, ERerouteUsageFunction);
-
-		/** Comment node */
-		if(bAddToMaterial)
-		{
-			CommentPtr = MaterialEd->CreateNewMaterialExpressionComment(FVector2D(0,0), EdGraph);
-		}
+		/** Classic */ 
 		else
 		{
-			CommentPtr = NewObject<UMaterialExpressionComment>(UTCMaterial);
-			UTCMaterial->Expressions.Add(CommentPtr);
+			ProceedCustomPacked = false;
+			/** Get material function by ComboBox selection */
+			FName RowName = FName(Utils->TextToPascal(*TreeViewChildPtr->CurrentChildComboItem));
+			GenerateMaterialOutputs(RowName);
 		}
-
-		CommentPtr->CommentColor = FLinearColor(0.019,0.076,0.13,1);
-		CommentPtr->Text = RowName.ToString();
-
-		/** Comment location */
-		SetNodePosition(CommentPtr, EComment);
-		
-		ParamExpressionList.Empty();
-		++FunctionIndex;
-	}
+			
+	}	
 	
 	/** MA location */
 	SetNodePosition(MaterialAttributePtr, EMaterialAttribute);
@@ -332,7 +309,7 @@ void FMMGLibrary::GenerateMaterialAttributeFunction()
 			UTCMaterial->Expressions.Remove(UVsFunctionPtr);
 	}
 	
-	/** Reorder reroute usafe to fit with MA */
+	/** Reorder reroute usage to fit with MA */
 	for (EMAttributes Enum : TEnumRange<EMAttributes>())
 	{
 		if(RerouteUsageMap.Contains(Enum))
@@ -367,8 +344,74 @@ void FMMGLibrary::GenerateMaterialAttributeFunction()
 	MFExpressionList.Empty();
 	CommentYPositionDoOnce = true;
 	isUVsFunctionConnected = false;
+	PackedTextureParamPtr = nullptr;
 	
 	MaterialParameterPosition.Y += 200;
+}
+
+void FMMGLibrary::GenerateMaterialOutputs(FName RowName)
+{
+	FunctionDataStruct = MaterialOutputDT->FindRow<FMMGMaterialFunctionStruct>(RowName, "");
+
+	GenerateMaterialFunctionNode(RowName.ToString());
+	ConnectFunctionToMaterialAttribute();
+			
+	/** Refresh */
+	UTCMaterial->PreEditChange(NULL);
+	UTCMaterial->PostEditChange();
+		
+	/** Get inputs' type */
+	InputIndex = 0;
+	TArray<FFunctionExpressionInput> InputsList = MaterialFunctionPtr->FunctionInputs;
+	for (FFunctionExpressionInput input : InputsList)
+	{
+		if(ProceedCustomPacked && !MaterialFunctionPtr->FunctionInputs[InputIndex].ExpressionInput->InputName.ToString().StartsWith("Texture"))
+			CustomPackedInputIndex++;
+		
+		/** Parameter name */
+		if(TreeViewList.Num() > 1 || bAddToMaterial)
+			ParameterName = FName (*TreeViewParentPtr->FunctionName + FString(" - ") + RowName.ToString() + FString(" - ") + input.ExpressionInput->InputName.ToString());
+		else
+			ParameterName = FName (RowName.ToString() + FString(" - ") + input.ExpressionInput->InputName.ToString());
+
+		/** Generate parameter */
+		GenerateParameterByMFInputType(MaterialFunctionPtr, input);
+		++InputIndex;
+	}
+
+	MaterialParameterPosition.Y += 100;
+		
+	/** function location */
+	SetNodePosition(MaterialFunctionPtr, EMaterialFunction);
+	/** Custom Packed texture*/
+	if(ProceedCustomPacked)
+	{
+		SetNodePosition(PackedTextureParamPtr, EPackedTexture);
+		SetNodePosition(PackedNamedRerouteDeclarationPtr, EPackedRerouteDeclaration);
+	}
+	/** Function reroute declaration location */
+	SetNodePosition(FunctionNamedRerouteDeclarationPtr, ERerouteDeclarationFunction);
+	/** Function reroute usage location */
+	SetNodePosition(FunctionNamedRerouteUsagePtr, ERerouteUsageFunction);
+
+	/** Comment node */
+	if(bAddToMaterial)
+	{
+		CommentPtr = MaterialEd->CreateNewMaterialExpressionComment(FVector2D(0,0), EdGraph);
+	}
+	else
+	{
+		CommentPtr = NewObject<UMaterialExpressionComment>(UTCMaterial);
+		UTCMaterial->Expressions.Add(CommentPtr);
+	}
+
+	CommentPtr->CommentColor = FLinearColor(0.019,0.076,0.13,1);
+	CommentPtr->Text = RowName.ToString();
+
+	/** Comment location */
+	SetNodePosition(CommentPtr, EComment);
+		
+	ParamExpressionList.Empty();
 }
 
 void FMMGLibrary::GenerateMaskFunction()
@@ -642,15 +685,27 @@ void FMMGLibrary::GenerateParameterByMFInputType(UMaterialExpressionMaterialFunc
 	{
 		if(*TreeViewParentPtr->FunctionType == TreeViewWidget.MaskType)
 			GroupName = "~ " + *TreeViewParentPtr->FunctionName + " 00" + " - " + FunctionDataStruct->MaterialGroup + " ~";
-		if(*TreeViewParentPtr->FunctionType == TreeViewWidget.MAType)
+		else if(*TreeViewParentPtr->FunctionType == TreeViewWidget.MAType)
 			GroupName = "- " + *TreeViewParentPtr->FunctionName + " 00" + " - " + FunctionDataStruct->MaterialGroup + " -";
 	}
 	else
 	{
 		if(*TreeViewParentPtr->FunctionType == TreeViewWidget.MaskType)
+		{
 			GroupName = "~ " + *TreeViewParentPtr->FunctionName + " 01 - " +  FunctionDataStruct->MaterialGroup + " ~";
-		if (*TreeViewParentPtr->FunctionType == TreeViewWidget.MAType)
-			GroupName = "- " + *TreeViewParentPtr->FunctionName + " 0" + FString::FromInt(FunctionIndex + 1 ) + " - " + FunctionDataStruct->MaterialGroup + " -";
+			SortPriority = InputIndex;
+		}
+		else if (*TreeViewParentPtr->FunctionType == TreeViewWidget.MAType && !ProceedCustomPacked)
+		{
+			GroupName = "- " + *TreeViewParentPtr->FunctionName + " 0" + FString::FromInt(TreeViewParentPtr->ChildrenFunction.Find(TreeViewChildPtr) + 1 ) + " - " + FunctionDataStruct->MaterialGroup + " -";
+			SortPriority = InputIndex;
+		}
+		else if (*TreeViewParentPtr->FunctionType == TreeViewWidget.MAType && ProceedCustomPacked)
+		{
+			GroupName = "- " + *TreeViewParentPtr->FunctionName + " 0" + FString::FromInt(TreeViewParentPtr->ChildrenFunction.Find(TreeViewChildPtr) + 1 ) + " - " + CustomPackedName + " -";
+			SortPriority = CustomPackedInputIndex;
+		}
+			
 	}
 		
 		
@@ -660,7 +715,35 @@ void FMMGLibrary::GenerateParameterByMFInputType(UMaterialExpressionMaterialFunc
 		/** If Texture as vector parameter */
 		if(MaterialFunction->FunctionInputs[InputIndex].ExpressionInput->InputName.ToString().StartsWith("Texture"))
 		{
-			GenerateTextureSampleParameter(MaterialFunction, PreviewExpression, CurrentInput, InputType, GroupName, isUVsFunction);
+			/**Init custom packed texture */
+			if(ProceedCustomPacked && DoOnceCustomPacked)
+			{
+				PackedTextureParamPtr = nullptr;
+				CustomPackedMFList.Empty();
+				
+				GenerateTextureSampleParameter(MaterialFunction, PreviewExpression, CurrentInput, InputType, GroupName, isUVsFunction);
+				SetCustomPackedRerouteUsage(MaterialFunction);
+				
+				CustomPackedMFList.Add(MaterialFunction);
+				DoOnceCustomPacked = false;
+				return;
+			}
+			/** Set custom packed reroute usage*/
+			else if (ProceedCustomPacked && !DoOnceCustomPacked)
+			{
+				if(IsValid(PackedTextureParamPtr))
+				{
+					SetCustomPackedRerouteUsage(MaterialFunction);
+					CustomPackedMFList.Add(MaterialFunction);
+				}
+				return;
+			}
+			/** Classic texture sample*/
+			else if(!ProceedCustomPacked)
+			{
+				GenerateTextureSampleParameter(MaterialFunction, PreviewExpression, CurrentInput, InputType, GroupName, isUVsFunction);
+				return;
+			}
 			return;
 		}
 		/** If vector paramter */
@@ -760,12 +843,6 @@ void FMMGLibrary::GenerateTextureSampleParameter(UMaterialExpressionMaterialFunc
 		TextureParam->Coordinates.Expression = UVsFunctionPtr;
 		isUVsFunctionConnected = true;
 	}
-			
-	/** Parameter infos */
-	TextureParam->Desc = CurrentInput.ExpressionInput->Description;
-	TextureParam->ParameterName = ParameterName;
-	TextureParam->Group = FName( GroupName);
-	TextureParam->SortPriority = InputIndex;
 
 	int32 OutputIndex = 0;
 	if (InputType == EFunctionInputType(FunctionInput_Vector4))
@@ -777,11 +854,51 @@ void FMMGLibrary::GenerateTextureSampleParameter(UMaterialExpressionMaterialFunc
 		SetNodePosition(TextureParam, EUVsParameter);
 	}
 	else
-		SetNodePosition(TextureParam, EParameter);
-			
-	/** Connect */
-	MaterialFunction->FunctionInputs[InputIndex].Input.Connect(OutputIndex, TextureParam);
-
+	{
+		if(!ProceedCustomPacked)
+		{
+			SetNodePosition(TextureParam, EParameter);
+		}
+	}
+	
+	if(ProceedCustomPacked)
+	{
+		/** Custom packed texture reroute declararation*/ 
+		if(bAddToMaterial)
+		{
+			UMaterialExpression* PackedRNDExpression = MaterialEd->CreateNewMaterialExpression(UMaterialExpressionNamedRerouteDeclaration::StaticClass(), FVector2D(0,0), false, false, EdGraph);
+			PackedNamedRerouteDeclarationPtr = Cast<UMaterialExpressionNamedRerouteDeclaration>(PackedRNDExpression);
+		}
+		else
+		{
+			PackedNamedRerouteDeclarationPtr = NewObject<UMaterialExpressionNamedRerouteDeclaration>(UTCMaterial);
+			UTCMaterial->Expressions.Add(PackedNamedRerouteDeclarationPtr);
+		}
+		
+		/** Parameter infos */
+		TextureParam->Desc = CurrentInput.ExpressionInput->Description;
+		TextureParam->Group = FName( GroupName);
+		TextureParam->SortPriority = 0;
+		TextureParam->ParameterName = FName(*TreeViewParentPtr->FunctionName +  FString(" - ") + CustomPackedName + FString(" - Texture"));
+		
+		PackedNamedRerouteDeclarationPtr->Name = FName (*TreeViewParentPtr->FunctionName + FString(" - ") + CustomPackedName);
+		PackedTextureParamPtr = TextureParam;
+		
+		/** Connect */
+		PackedNamedRerouteDeclarationPtr->Input.Connect(5, PackedTextureParamPtr);
+	}
+	else
+	{
+		/** Parameter infos */
+		TextureParam->Desc = CurrentInput.ExpressionInput->Description;
+		TextureParam->Group = FName( GroupName);
+		TextureParam->SortPriority = SortPriority;
+		TextureParam->ParameterName = ParameterName;
+		
+		/** Connect */
+		MaterialFunction->FunctionInputs[InputIndex].Input.Connect(OutputIndex, TextureParam);
+	}
+	
 	ParamExpressionList.Add(TextureParam);
 }
 
@@ -811,7 +928,7 @@ void FMMGLibrary::GenerateScalarParameter(UMaterialExpressionMaterialFunctionCal
 	/** Parameter infos */
 	ScalarParam->Desc = CurrentInput.ExpressionInput->Description;
 	ScalarParam->ParameterName = ParameterName;
-	ScalarParam->SortPriority = InputIndex;
+	ScalarParam->SortPriority = SortPriority;
 	ScalarParam->Group = FName(GroupName);
 
 	/** Increment node location */
@@ -824,7 +941,6 @@ void FMMGLibrary::GenerateScalarParameter(UMaterialExpressionMaterialFunctionCal
 				
 	/** Connect */
 	MaterialFunction->FunctionInputs[InputIndex].Input.Expression = ScalarParam;
-				
 	ParamExpressionList.Add(ScalarParam);
 }
 
@@ -866,7 +982,7 @@ void FMMGLibrary::GenerateVector2n3Parameter(UMaterialExpressionMaterialFunction
 	VectorParam->Desc = CurrentInput.ExpressionInput->Description;
 	VectorParam->ParameterName = ParameterName;
 	VectorParam->Group = FName( GroupName);
-	VectorParam->SortPriority = InputIndex;
+	VectorParam->SortPriority = SortPriority;
 
 	/** Increment node location */
 	if(isUVsFunction)
@@ -914,7 +1030,7 @@ void FMMGLibrary::GenerateVector4Parameter(UMaterialExpressionMaterialFunctionCa
 	VectorParam->Desc = CurrentInput.ExpressionInput->Description;
 	VectorParam->ParameterName = ParameterName;
 	VectorParam->Group = FName( GroupName);
-	VectorParam->SortPriority = InputIndex;
+	VectorParam->SortPriority = SortPriority;
 
 	/** Increment node location */
 	if(isUVsFunction)
@@ -963,7 +1079,7 @@ void FMMGLibrary::GenerateTexture2DParameter(UMaterialExpressionMaterialFunction
 	TextureObjectParam->Desc = CurrentInput.ExpressionInput->Description;
 	TextureObjectParam->ParameterName = ParameterName;
 	TextureObjectParam->Group = FName( GroupName);
-	TextureObjectParam->SortPriority = InputIndex;
+	TextureObjectParam->SortPriority = SortPriority;
 		
 	/** Increment node location */
 	if(isUVsFunction)
@@ -1004,7 +1120,7 @@ void FMMGLibrary::GenerateBoolParameter(UMaterialExpressionMaterialFunctionCall*
 	BoolParam->Desc = CurrentInput.ExpressionInput->Description;
 	BoolParam->ParameterName = ParameterName;
 	BoolParam->Group = FName( GroupName);
-	BoolParam->SortPriority = InputIndex;
+	BoolParam->SortPriority = SortPriority;
 	
 	if(isUVsFunction)
 	{
@@ -1017,6 +1133,66 @@ void FMMGLibrary::GenerateBoolParameter(UMaterialExpressionMaterialFunctionCall*
 	MaterialFunction->FunctionInputs[InputIndex].Input.Expression = BoolParam;
 
 	ParamExpressionList.Add(BoolParam);
+}
+
+void FMMGLibrary::SetCustomPackedRerouteUsage(UMaterialExpressionMaterialFunctionCall* MaterialFunction)
+{
+	UMaterialExpressionComponentMask* PackedMaskExpressionPtr;
+	if(bAddToMaterial)
+	{
+		/**Reroute Usage*/
+		UMaterialExpression* PackedRNUExpression = MaterialEd->CreateNewMaterialExpression(UMaterialExpressionNamedRerouteUsage::StaticClass(), FVector2D(0,0), false, false, EdGraph);
+		PackedNamedRerouteUsagePtr = Cast<UMaterialExpressionNamedRerouteUsage>(PackedRNUExpression);
+
+		/** Mask */
+		UMaterialExpression* PackedMaskExpression = MaterialEd->CreateNewMaterialExpression(UMaterialExpressionComponentMask::StaticClass(), FVector2D(0,0), false, false, EdGraph);
+		PackedMaskExpressionPtr = Cast<UMaterialExpressionComponentMask>(PackedMaskExpression);
+		
+	}
+	else
+	{
+		/**Reroute Usage*/
+		PackedNamedRerouteUsagePtr = NewObject<UMaterialExpressionNamedRerouteUsage>(UTCMaterial);
+		UTCMaterial->Expressions.Add(PackedNamedRerouteUsagePtr);
+
+		/** Mask */
+		PackedMaskExpressionPtr = NewObject<UMaterialExpressionComponentMask>(UTCMaterial);
+		UTCMaterial->Expressions.Add(PackedMaskExpressionPtr);
+	}
+	PackedNamedRerouteUsagePtr->Declaration = PackedNamedRerouteDeclarationPtr;
+	
+	PackedMaskExpressionPtr->R = 0;
+	PackedMaskExpressionPtr->G = 0;
+	PackedMaskExpressionPtr->B = 0;
+	PackedMaskExpressionPtr->A = 0;
+
+	if(CurrentPackedOutput == "R")
+		PackedMaskExpressionPtr->R = 1;
+	else if (CurrentPackedOutput == "G")
+		PackedMaskExpressionPtr->G = 1;
+	else if (CurrentPackedOutput == "B")
+		PackedMaskExpressionPtr->B = 1;
+	else if (CurrentPackedOutput == "A")
+		PackedMaskExpressionPtr->A = 1;
+	
+	/**Connect*/
+	PackedMaskExpressionPtr->Input.Connect(0, PackedNamedRerouteUsagePtr);
+	MaterialFunction->FunctionInputs[InputIndex].Input.Connect(0, PackedMaskExpressionPtr);
+
+	/**Position*/
+	SetNodePosition(PackedNamedRerouteUsagePtr, EParameter, true);
+	SetNodePosition(PackedMaskExpressionPtr, EPackedCompMask);
+}
+
+FString FMMGLibrary::GetCustomPackedName()
+{
+	FString PackedName;
+	for (const TPair<FString, FString>& Pair : TreeViewChildPtr->ChildrenFunction[0]->CustomPackedSelectionSave)
+	{
+		if(Pair.Value != "Custom Packed" && !Pair.Value.IsEmpty() && Pair.Value != "null")
+			PackedName += Pair.Value.Left(1);
+	}
+	return PackedName;
 }
 
 void FMMGLibrary::ConnectFunctionToMaterialAttribute()
@@ -1193,6 +1369,7 @@ void FMMGLibrary::SetNodePosition(UMaterialExpression* Expression, EExpressionTy
 		
 		Expression->MaterialExpressionEditorX = 1550;
 		Expression->MaterialExpressionEditorY = ((MinY + MaxY)/2) - Expression->GetHeight();
+		return;
 	}
 
 	else if(ExpressionType == EMaterialFunction)
@@ -1202,6 +1379,7 @@ void FMMGLibrary::SetNodePosition(UMaterialExpression* Expression, EExpressionTy
 		
 		Expression->MaterialExpressionEditorX = MaterialParameterPosition.X + ParamExpressionList.Last()->GetWidth() *4 + 100;
 		Expression->MaterialExpressionEditorY = (MinY + MaxY)/2;
+		return;
 	}
 	
 	else if(ExpressionType == EUVsFunction)
@@ -1211,6 +1389,7 @@ void FMMGLibrary::SetNodePosition(UMaterialExpression* Expression, EExpressionTy
 
 		Expression->MaterialExpressionEditorX = ParamExpressionList.Last()->MaterialExpressionEditorX + ParamExpressionList.Last()->GetWidth() *3.5;
 		Expression->MaterialExpressionEditorY = (MinY + MaxY)/2;
+		return;
 	}
 	
 
@@ -1218,6 +1397,7 @@ void FMMGLibrary::SetNodePosition(UMaterialExpression* Expression, EExpressionTy
 	{
 		Expression->MaterialExpressionEditorX = MaterialFunctionPtr->MaterialExpressionEditorX + MaterialFunctionPtr->GetWidth() * 2.5;
 		Expression->MaterialExpressionEditorY = MaterialFunctionPtr->MaterialExpressionEditorY;
+		return;
 	}
 
 	else if(ExpressionType == ERerouteUsageFunction)
@@ -1233,7 +1413,7 @@ void FMMGLibrary::SetNodePosition(UMaterialExpression* Expression, EExpressionTy
 			Expression->MaterialExpressionEditorX = BlendAttributesPtr->MaterialExpressionEditorX - Expression->GetWidth() * 3 ;
 			Expression->MaterialExpressionEditorY = BlendAttributesPtr->MaterialExpressionEditorY + Expression->GetHeight() ;
 		}
-
+		return;
 	}
 
 	else if(ExpressionType == ERerouteDeclarationMA)
@@ -1248,18 +1428,21 @@ void FMMGLibrary::SetNodePosition(UMaterialExpression* Expression, EExpressionTy
 			Expression->MaterialExpressionEditorX = BlendAttributesPtr->MaterialExpressionEditorX + BlendAttributesPtr->GetWidth() + 100;
 			Expression->MaterialExpressionEditorY = BlendAttributesPtr->MaterialExpressionEditorY;
 		}
+		return;
 	}
 
 	else if(ExpressionType == ERerouteUsageBlendA)
 	{
 		Expression->MaterialExpressionEditorX = CurrentBlendAttribute->MaterialExpressionEditorX - Expression->GetWidth() *1.5;
 		Expression->MaterialExpressionEditorY = CurrentBlendAttribute->MaterialExpressionEditorY - Expression->GetHeight()/2;
+		return;
 	}
 
 	else if(ExpressionType == ERerouteUsageBlendB)
 	{
 		Expression->MaterialExpressionEditorX = CurrentBlendAttribute->MaterialExpressionEditorX - Expression->GetWidth() *1.5;
 		Expression->MaterialExpressionEditorY = CurrentBlendAttribute->MaterialExpressionEditorY + Expression->GetHeight()/4;
+		return;
 	}
 
 	else if(ExpressionType == EParameter)
@@ -1270,12 +1453,13 @@ void FMMGLibrary::SetNodePosition(UMaterialExpression* Expression, EExpressionTy
 			MaterialParameterPosition.Y += (Expression->GetHeight()/2)*1.5;
 		else
 			MaterialParameterPosition.Y += Expression->GetHeight()*1.5;
+		return;
 	}
 
 	else if(ExpressionType == EUVsParameter)
 	{
 		if(*TreeViewParentPtr->FunctionType == TreeViewWidget.MAType)
-			Expression->MaterialExpressionEditorX = MaterialAttributePtr->MaterialExpressionEditorX * -1 / 1.25 ;
+			Expression->MaterialExpressionEditorX = MaterialAttributePtr->MaterialExpressionEditorX * -1 / 1.25 - 250;
 		
 		else if(*TreeViewParentPtr->FunctionType == TreeViewWidget.MaskType)
 			Expression->MaterialExpressionEditorX = BlendAttributesPtr->MaterialExpressionEditorX * -1 / 1.25;
@@ -1287,6 +1471,32 @@ void FMMGLibrary::SetNodePosition(UMaterialExpression* Expression, EExpressionTy
 			UVsParameterPosition.Y += (Expression->GetHeight()/2)*1.5;
 		else
 			UVsParameterPosition.Y += Expression->GetHeight()*1.5;
+
+		return;
+	}
+
+	else if(ExpressionType == EPackedTexture)
+	{
+		int32 MinY = CustomPackedMFList[0]->MaterialExpressionEditorY;
+		int32 MaxY = CustomPackedMFList.Last()->MaterialExpressionEditorY;
+		
+		Expression->MaterialExpressionEditorX = MaterialParameterPosition.X + Expression->GetWidth() * -6;
+		Expression->MaterialExpressionEditorY = (MinY + MaxY)/2;
+		return;
+	}
+
+	else if(ExpressionType == EPackedRerouteDeclaration)
+	{
+		Expression->MaterialExpressionEditorX = PackedTextureParamPtr->MaterialExpressionEditorX + PackedTextureParamPtr->GetWidth() * 3;
+		Expression->MaterialExpressionEditorY = PackedTextureParamPtr->MaterialExpressionEditorY + PackedTextureParamPtr->GetHeight();
+		return;
+	}
+
+	else if(ExpressionType == EPackedCompMask)
+	{
+		Expression->MaterialExpressionEditorX = PackedNamedRerouteUsagePtr->MaterialExpressionEditorX + PackedNamedRerouteUsagePtr->GetWidth() *2;
+		Expression->MaterialExpressionEditorY = PackedNamedRerouteUsagePtr->MaterialExpressionEditorY;
+		return;
 	}
 
 	else if(ExpressionType == EComment)
@@ -1309,12 +1519,15 @@ void FMMGLibrary::SetNodePosition(UMaterialExpression* Expression, EExpressionTy
 			FirstCommentYPosition = CommentPtr->MaterialExpressionEditorY;
 			CommentYPositionDoOnce = false;
 		}
+		return;
 	}
 
 	else if(ExpressionType == EMainComment)
 	{
 		if(TreeViewParentPtr->CurrentUVsComboItem.IsValid() && *TreeViewParentPtr->CurrentUVsComboItem != TreeViewWidget.NoUV && HasToGenerateUVsFunction() && isUVsFunctionConnected)
 			Expression->MaterialExpressionEditorX = UVsParameterPosition.X - 50;
+		else if(IsValid(PackedTextureParamPtr))
+			Expression->MaterialExpressionEditorX = PackedTextureParamPtr->MaterialExpressionEditorX - 50;
 		else
 			Expression->MaterialExpressionEditorX = MaterialParameterPosition.X - 100;
 		
@@ -1322,6 +1535,7 @@ void FMMGLibrary::SetNodePosition(UMaterialExpression* Expression, EExpressionTy
 
 		MainCommentPtr->SizeX = abs(MANamedRerouteDeclarationPtr->MaterialExpressionEditorX - Expression->MaterialExpressionEditorX + MANamedRerouteDeclarationPtr->GetWidth() * 2.5);
 		MainCommentPtr->SizeY = abs(CommentPtr->MaterialExpressionEditorY + CommentPtr->SizeY - Expression->MaterialExpressionEditorY) + 25 ;
+		return;
 	}
 }
 
@@ -1376,6 +1590,8 @@ void FMMGLibrary::ReinitVar()
 	RerouteUsageMap.Empty();
 
 	bAddToMaterial = false;
+
+	CustomPackedMFList.Empty();
 }
 
 bool FMMGLibrary::ErrorDetector()
@@ -1448,7 +1664,7 @@ bool FMMGLibrary::ErrorDetector()
 				return false;
 			}
 			
-			/**  Check Function Child */
+			/**  Check function child */
 			if(!FunctionChildListCheck.Contains(*TreeViewChild->CurrentChildComboItem))
 				FunctionChildListCheck.Add(*TreeViewChild->CurrentChildComboItem);
 			else
@@ -1468,7 +1684,37 @@ bool FMMGLibrary::ErrorDetector()
 					return false;
 				}
 			}
-			
+
+			if(!TreeViewChild->ChildrenFunction.IsEmpty() && TreeViewChild->ChildrenFunction[0]->IsCustomPack)
+			{
+				bool isEmpty = false;
+				for (const TPair<FString, FString>& Pair : TreeViewChild->ChildrenFunction[0]->CustomPackedSelectionSave)
+				{
+					/** Check empty custom pack*/
+					if(Pair.Value != "Custom Packed" && !Pair.Value.IsEmpty() && Pair.Value != "null")
+					{
+						/**  Check custom pack function child */
+						if(!FunctionChildListCheck.Contains(Pair.Value))
+							FunctionChildListCheck.Add(Pair.Value);
+						else
+						{
+							FText InNotif = FText::FromString("Function: " + *TreeViewParent->FunctionName + ", has several times the same child " + "'" + Pair.Value + "'.");
+							SpawnErrorNotif(InNotif);
+							return false;
+						}
+						
+						isEmpty = true;
+					}
+						
+				}
+
+				if(!isEmpty)
+				{
+					FText InNotif = FText::FromString("Custom packed texture function in " + *TreeViewParent->FunctionName + " is empty.");
+					SpawnErrorNotif(InNotif);
+					return false;
+				}
+			}
 		}
 	}
 	return true;
