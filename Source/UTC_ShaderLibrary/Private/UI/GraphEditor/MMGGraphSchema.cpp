@@ -7,13 +7,7 @@ UMMGGraphSchema::UMMGGraphSchema(const FObjectInitializer& ObjectInitializer) : 
 {
 }
 
-void UMMGGraphSchema::GetGraphContextActions(FGraphContextMenuBuilder& ContextMenuBuilder) const
-{
-	TSharedPtr<FMMGGraphSchemaAction> NewAction(new FMMGGraphSchemaAction);
-	ContextMenuBuilder.AddAction(NewAction);
-}
-
 FLinearColor UMMGGraphSchema::GetPinTypeColor(const FEdGraphPinType& PinType) const
 {
-	return FLinearColor::White;
+	return FLinearColor(1.f,1.f,1.f,1.f);
 }

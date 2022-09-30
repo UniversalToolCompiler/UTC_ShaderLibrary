@@ -116,12 +116,16 @@ struct FMMGMaterialFunctionStruct : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, Category="MaterialFunctionInfos")
 	FString MaterialGroup;
+
+	UPROPERTY(EditAnywhere, Category="MaterialFunctionInfos")
+	FString MMG_MenuCategory;
 	
 	FMMGMaterialFunctionStruct()
 	{
 		MaterialFunction = nullptr;
 		MaterialAttributeType = Mask;
 		MaterialGroup = "";
+		MMG_MenuCategory = "";
 	};
 };
 //--------------------------------------------------------------------------------------------------------------

@@ -13,6 +13,7 @@
 #include "EdGraphUtilities.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "Settings/ContentBrowserSettings.h"
+#include "UI/Presets/MMGPresetMainUI.h"
 
 #define LOCTEXT_NAMESPACE "FUTC_ShaderLibraryModule"
 
@@ -32,7 +33,8 @@ void FUTC_ShaderLibraryModule::StartupModule()
 		FCanExecuteAction());
 
 	UToolMenus::RegisterStartupCallback(FSimpleMulticastDelegate::FDelegate::CreateRaw(this, &FUTC_ShaderLibraryModule::RegisterMenus));
-	
+
+	/**Main Plugin Tab*/
 	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(UTC_ShaderLibraryTabName, FOnSpawnTab::CreateRaw(this, &FUTC_ShaderLibraryModule::OnSpawnPluginTab))
 		.SetDisplayName(LOCTEXT("FUTC_ShaderLibraryTabTitle", "UTC Materials Generator"))
 		.SetMenuType(ETabSpawnerMenuType::Hidden)
@@ -48,6 +50,10 @@ void FUTC_ShaderLibraryModule::StartupModule()
 	
 	//Custom Graph Node
 	FEdGraphUtilities::RegisterVisualNodeFactory(MakeShareable(new FMMGGraphNodeFactory));
+
+	//MMG Presets Asset
+	MMGPresetsAssetTypeActions = MakeShared<FMMGPresetAssetTypeActions>();
+	FAssetToolsModule::GetModule().Get().RegisterAssetTypeActions(MMGPresetsAssetTypeActions.ToSharedRef());
 	
 }
 
@@ -71,6 +77,10 @@ void FUTC_ShaderLibraryModule::ShutdownModule()
 
 	FPropertyEditorModule& AddPropertyEditorModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
 	AddPropertyEditorModule.UnregisterCustomClassLayout(FName("MMGAddToMaterial"));
+
+	//MMG Presets Asset]
+	if(!FModuleManager::Get().IsModuleLoaded("AssetTools")) return;
+	FAssetToolsModule::GetModule().Get().UnregisterAssetTypeActions(MMGPresetsAssetTypeActions.ToSharedRef());
 }
 
 void FUTC_ShaderLibraryModule::RegisterMenus()
@@ -112,7 +122,6 @@ TSharedRef<SDockTab> FUTC_ShaderLibraryModule::OnSpawnPluginTab(const FSpawnTabA
 		.UTC_Manager(&UTC_Manager)
 	];
 }
-
 
 #undef LOCTEXT_NAMESPACE
 	

@@ -248,19 +248,19 @@ void FMMGLibrary::GenerateMaterialAttributeFunction()
 		GenerateUVsFunction();
 
 	/** Generate Material Outputs */
-	for(TSharedPtr<FMMGTreeView> TreeViewChild : TreeViewParentPtr->ChildrenFunction)
+	for(TSharedPtr<FMMGTreeView> TreeViewChild : TreeViewParentPtr->ChildFunctions)
 	{
 		TreeViewChildPtr = TreeViewChild;
 
 		/** Custom Packed */ 
-		if(!TreeViewChildPtr->ChildrenFunction.IsEmpty() && TreeViewChildPtr->ChildrenFunction[0]->IsCustomPack)
+		if(!TreeViewChildPtr->ChildFunctions.IsEmpty() && TreeViewChildPtr->ChildFunctions[0]->IsCustomPack)
 		{
 			ProceedCustomPacked = true;
 			CustomPackedIndex = 0;
 			CustomPackedInputIndex = 0;
 			CustomPackedName = GetCustomPackedName();
 			
-			for (const TPair<FString, FString>& Pair : TreeViewChildPtr->ChildrenFunction[0]->CustomPackedSelectionSave)
+			for (const TPair<FString, FString>& Pair : TreeViewChildPtr->ChildFunctions[0]->CustomPackedSelectionSave)
 			{
 				if(Pair.Value != "Custom Packed" && !Pair.Value.IsEmpty() && Pair.Value != "null")
 				{
@@ -453,7 +453,7 @@ void FMMGLibrary::GenerateMaskFunction()
 	if(TreeViewParentPtr->CurrentUVsComboItem.IsValid() && *TreeViewParentPtr->CurrentUVsComboItem != TreeViewWidget.NoUV && HasToGenerateUVsFunction())
 		GenerateUVsFunction();
 	
-	for(TSharedPtr<FMMGTreeView> TreeViewChild : TreeViewParentPtr->ChildrenFunction)
+	for(TSharedPtr<FMMGTreeView> TreeViewChild : TreeViewParentPtr->ChildFunctions)
 	{
 		TreeViewChildPtr = TreeViewChild;
 		
@@ -609,7 +609,7 @@ void FMMGLibrary::GenerateUVsParameters()
 
 bool FMMGLibrary::HasToGenerateUVsFunction() const
 {
-	for(auto Child : TreeViewParentPtr->ChildrenFunction)
+	for(auto Child : TreeViewParentPtr->ChildFunctions)
 	{
 		if(Child->AffectedByUVs)
 			return true;
@@ -697,12 +697,12 @@ void FMMGLibrary::GenerateParameterByMFInputType(UMaterialExpressionMaterialFunc
 		}
 		else if (*TreeViewParentPtr->FunctionType == TreeViewWidget.MAType && !ProceedCustomPacked)
 		{
-			GroupName = "- " + *TreeViewParentPtr->FunctionName + " 0" + FString::FromInt(TreeViewParentPtr->ChildrenFunction.Find(TreeViewChildPtr) + 1 ) + " - " + FunctionDataStruct->MaterialGroup + " -";
+			GroupName = "- " + *TreeViewParentPtr->FunctionName + " 0" + FString::FromInt(TreeViewParentPtr->ChildFunctions.Find(TreeViewChildPtr) + 1 ) + " - " + FunctionDataStruct->MaterialGroup + " -";
 			SortPriority = InputIndex;
 		}
 		else if (*TreeViewParentPtr->FunctionType == TreeViewWidget.MAType && ProceedCustomPacked)
 		{
-			GroupName = "- " + *TreeViewParentPtr->FunctionName + " 0" + FString::FromInt(TreeViewParentPtr->ChildrenFunction.Find(TreeViewChildPtr) + 1 ) + " - " + CustomPackedName + " -";
+			GroupName = "- " + *TreeViewParentPtr->FunctionName + " 0" + FString::FromInt(TreeViewParentPtr->ChildFunctions.Find(TreeViewChildPtr) + 1 ) + " - " + CustomPackedName + " -";
 			SortPriority = CustomPackedInputIndex;
 		}
 			
@@ -1187,7 +1187,7 @@ void FMMGLibrary::SetCustomPackedRerouteUsage(UMaterialExpressionMaterialFunctio
 FString FMMGLibrary::GetCustomPackedName()
 {
 	FString PackedName;
-	for (const TPair<FString, FString>& Pair : TreeViewChildPtr->ChildrenFunction[0]->CustomPackedSelectionSave)
+	for (const TPair<FString, FString>& Pair : TreeViewChildPtr->ChildFunctions[0]->CustomPackedSelectionSave)
 	{
 		if(Pair.Value != "Custom Packed" && !Pair.Value.IsEmpty() && Pair.Value != "null")
 			PackedName += Pair.Value.Left(1);
@@ -1254,14 +1254,14 @@ void FMMGLibrary::ConnectRerouteOutput()
 	{
 		if(*TreeViewParent->FunctionType == TreeViewWidget.MaskType)
 		{
-			bool bAValid = TreeViewParent->ChildrenFunction[0]->CurrentAComboItem.IsValid();
-			bool bBValid = TreeViewParent->ChildrenFunction[0]->CurrentBComboItem.IsValid();
+			bool bAValid = TreeViewParent->ChildFunctions[0]->CurrentAComboItem.IsValid();
+			bool bBValid = TreeViewParent->ChildFunctions[0]->CurrentBComboItem.IsValid();
 			
 			UMaterialExpressionNamedRerouteDeclaration* AMaskRerouteItem = nullptr;
 			FString AItem;
 			if(bAValid)
 			{
-				AItem = *TreeViewParent->ChildrenFunction[0]->CurrentAComboItem;
+				AItem = *TreeViewParent->ChildFunctions[0]->CurrentAComboItem;
 				AMaskRerouteItem = *RerouteDeclarationMap.Find(AItem);
 			}
 			
@@ -1269,7 +1269,7 @@ void FMMGLibrary::ConnectRerouteOutput()
 			FString BItem;
 			if(bBValid)
 			{
-				BItem = *TreeViewParent->ChildrenFunction[0]->CurrentBComboItem;
+				BItem = *TreeViewParent->ChildFunctions[0]->CurrentBComboItem;
 				BMaskRerouteItem = *RerouteDeclarationMap.Find(BItem);
 			}
 			
@@ -1646,7 +1646,7 @@ bool FMMGLibrary::ErrorDetector()
 		
 		
 		/** Empty function */
-		if(TreeViewParent->ChildrenFunction.IsEmpty())
+		if(TreeViewParent->ChildFunctions.IsEmpty())
 		{
 			FText InNotif = FText::FromString("Function: " + *TreeViewParent->FunctionName + ", is empty.");
 			SpawnErrorNotif(InNotif);
@@ -1654,7 +1654,7 @@ bool FMMGLibrary::ErrorDetector()
 		}
 		
 		TArray<FString> FunctionChildListCheck;
-		for (auto TreeViewChild : TreeViewParent->ChildrenFunction)
+		for (auto TreeViewChild : TreeViewParent->ChildFunctions)
 		{
 			/** Unassigned child function */
 			if(!TreeViewChild->CurrentChildComboItem.IsValid())
@@ -1685,10 +1685,10 @@ bool FMMGLibrary::ErrorDetector()
 				}
 			}
 
-			if(!TreeViewChild->ChildrenFunction.IsEmpty() && TreeViewChild->ChildrenFunction[0]->IsCustomPack)
+			if(!TreeViewChild->ChildFunctions.IsEmpty() && TreeViewChild->ChildFunctions[0]->IsCustomPack)
 			{
 				bool isEmpty = false;
-				for (const TPair<FString, FString>& Pair : TreeViewChild->ChildrenFunction[0]->CustomPackedSelectionSave)
+				for (const TPair<FString, FString>& Pair : TreeViewChild->ChildFunctions[0]->CustomPackedSelectionSave)
 				{
 					/** Check empty custom pack*/
 					if(Pair.Value != "Custom Packed" && !Pair.Value.IsEmpty() && Pair.Value != "null")

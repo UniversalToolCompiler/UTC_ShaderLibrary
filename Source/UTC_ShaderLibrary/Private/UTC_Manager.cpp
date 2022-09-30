@@ -60,6 +60,5 @@ void FUTC_Manager::GenerateMaterial()
 void FUTC_Manager::AddToMaterial()
 {
 	MMGLib.AddToMaterial(MMGAddToMaterial->AddToMaterialClass, MMGTreeViewSettings->ItemList);
-
 }
 

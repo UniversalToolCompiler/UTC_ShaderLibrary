@@ -22,7 +22,6 @@ private:
 
 	void InitGraphTab();
 	void InitTreeViewTab();
-	void InitMSTab();
 	void InitGenerateAddTab();
 	
 	/** Tabs */
@@ -31,16 +30,14 @@ private:
 		TSharedPtr<FTabManager> GraphTabManager;
 		TSharedPtr<FTabManager::FLayout> GraphTabLayout;
 	
+		/**Material Settings*/
+		TSharedRef<SDockTab> MSTabSpawn(const FSpawnTabArgs& SpawnTabArgs);
+	
 		/**TreeView*/
 		TSharedRef<SDockTab> TreeViewTabSpawn(const FSpawnTabArgs& SpawnTabArgs);
 		TSharedPtr<FTabManager> TreeViewTabManager;
 		TSharedPtr<FTabManager::FLayout> TreeViewTabLayout;
-
-		/**Material Settings*/
-		TSharedRef<SDockTab> MSTabSpawn(const FSpawnTabArgs& SpawnTabArgs);
-		TSharedPtr<FTabManager> MSTabManager;
-		TSharedPtr<FTabManager::FLayout> MSTabLayout;
-
+	
 		/**Generate*/
 		TSharedRef<SDockTab> GenerateTabSpawn(const FSpawnTabArgs& SpawnTabArgs);
 		TSharedRef<SDockTab> AddTabSpawn(const FSpawnTabArgs& SpawnTabArgs);
@@ -53,8 +50,11 @@ private:
 	TWeakPtr<class SMMGTreeView> MMGTreeView;
 	TWeakPtr<class SMMGGraph> MMGGraphPtr;
 	TWeakPtr<class SMMGMaterialSettings> MMGMaterialSettingsPtr;
+
+	/**Presets Context Menu*/
+	FReply OpenPresetsContextMenu(const FGeometry& Geometry, const FPointerEvent& PointerEvent);
 	
 	//UTC Manager
 	FUTC_Manager* UTC_Manager = nullptr;
-
+	
 };

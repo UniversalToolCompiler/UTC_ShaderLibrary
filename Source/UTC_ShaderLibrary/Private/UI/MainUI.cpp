@@ -18,7 +18,7 @@ static const FName MSTab = FName{ TEXT("MSTab") };
 static const FName GenerateTab = FName{ TEXT("GenerateTab") };
 static const FName AddTab = FName{ TEXT("AddTab") };
 
-#define LOCTEXT_NAMESPACE "FModule"
+#define LOCTEXT_NAMESPACE "MainUI"
 
 void SMainUI::Construct(const FArguments& InArgs)
 {
@@ -31,16 +31,12 @@ void SMainUI::Construct(const FArguments& InArgs)
 
 	InitTreeViewTab();
 	ensure(TreeViewTabManager.IsValid());
-
-	InitMSTab();
-	ensure(MSTabManager.IsValid());
-
+	
 	InitGenerateAddTab();
 	ensure(GenerateAddTabManager.IsValid());
 
 	const TSharedRef<SWidget> GraphTabContents = GraphTabManager->RestoreFrom( GraphTabLayout.ToSharedRef(), TSharedPtr<SWindow>()).ToSharedRef();
 	const TSharedRef<SWidget> TreeViewTabContents = TreeViewTabManager->RestoreFrom( TreeViewTabLayout.ToSharedRef(), TSharedPtr<SWindow>()).ToSharedRef();
-	const TSharedRef<SWidget> MSTabContents = MSTabManager->RestoreFrom( MSTabLayout.ToSharedRef(), TSharedPtr<SWindow>()).ToSharedRef();
 	const TSharedRef<SWidget> GenerateTabContents = GenerateAddTabManager->RestoreFrom( GenerateAddTabLayout.ToSharedRef(), TSharedPtr<SWindow>()).ToSharedRef();
 	
 	ChildSlot
@@ -53,7 +49,7 @@ void SMainUI::Construct(const FArguments& InArgs)
 			.PhysicalSplitterHandleSize(3.5f)
 			.Orientation(Orient_Vertical)
 			+SSplitter::Slot()
-			.Value(4.75f)
+			.Value(4.f)
 			[
 				SNew(SVerticalBox)
 				+ SVerticalBox::Slot()
@@ -64,42 +60,20 @@ void SMainUI::Construct(const FArguments& InArgs)
 					+SSplitter::Slot()
 					.Value(1.75f)
 					[
-						// SAssignNew(MMGGraphPtr, SMMGGraph)
-						// .MMGGraphSettings(UTC_Manager->GetMMGGraphSettings())
 						GraphTabContents
 					]
 					+SSplitter::Slot()
 					[
-						/** TreeView */
-						SNew(SSplitter)
-						.PhysicalSplitterHandleSize(3.5f)
-						.Orientation(Orient_Vertical)
-						+SSplitter::Slot()
-						.Value(5.f)
+						SNew(SBorder)
+						.BorderImage(nullptr)
+						.OnMouseButtonDown(this, &SMainUI::OpenPresetsContextMenu)
 						[
+							/** TreeView */
 							SNew(SScrollBox)
 							+SScrollBox::Slot()
 							[
-								// SAssignNew(MMGTreeView, SMMGTreeView)
-								// .MMGTreeViewSettings(UTC_Manager->GetMMGTreeViewSettings())
 								TreeViewTabContents
-							]
-						]
-						/** Material Settings */
-						+SSplitter::Slot()
-						[
-							SNew(SBorder)
-							.BorderImage(FEditorStyle::GetBrush("ToolPanel.GroupBorder"))
-							[
-								SNew(SScrollBox)
-								+SScrollBox::Slot()
-								.VAlign(VAlign_Bottom)
-								[
-									// SAssignNew(MMGMaterialSettingsPtr, SMMGMaterialSettings)
-									// .MMGMaterialSettings(UTC_Manager->GetMMGMaterialSettings())
-									MSTabContents
-								]
-							]
+							]						
 						]
 					]
 				]
@@ -113,8 +87,6 @@ void SMainUI::Construct(const FArguments& InArgs)
 					SNew(SScrollBox)
 					+SScrollBox::Slot()
 					[
-						// SAssignNew(MMGConfigsUI, SMMGConfigsUI)
-						// .MMGConfigs(UTC_Manager->GetMMGConfigs())
 						GenerateTabContents
 					]
 				]
@@ -129,7 +101,6 @@ SMainUI::~SMainUI()
 {
 	GraphTabManager->UnregisterTabSpawner(GraphTab);
 	TreeViewTabManager->UnregisterTabSpawner(TreeViewTab);
-	MSTabManager->UnregisterTabSpawner(MSTab);
 	GenerateAddTabManager->UnregisterTabSpawner(GenerateTab);
 }
 
@@ -149,11 +120,13 @@ void SMainUI::InitGraphTab()
 			FTabManager::NewStack()
 			->SetSizeCoefficient(0.4f)
 			->AddTab(GraphTab, ETabState::OpenedTab)
+			->AddTab(MSTab, ETabState::SidebarTab, ESidebarLocation::Left, 0.5f)
 			->SetHideTabWell(true)
 		)
 	);
 
 	GraphTabManager->RegisterTabSpawner(GraphTab, FOnSpawnTab::CreateRaw(this,&SMainUI::GraphTabSpawn));
+	GraphTabManager->RegisterTabSpawner(MSTab, FOnSpawnTab::CreateRaw(this,&SMainUI::MSTabSpawn));
 }
 
 TSharedRef<SDockTab> SMainUI::GraphTabSpawn(const FSpawnTabArgs& SpawnTabArgs)
@@ -203,33 +176,10 @@ TSharedRef<SDockTab> SMainUI::TreeViewTabSpawn(const FSpawnTabArgs& SpawnTabArgs
 	
 }
 
-/**Material Settings Tab*/
-void SMainUI::InitMSTab()
-{
-	const auto Tab = SNew(SDockTab).TabRole(ETabRole::NomadTab);
-	MSTabManager = FGlobalTabmanager::Get()->NewTabManager(Tab);
-	MSTabManager->SetCanDoDragOperation(false);
-	MSTabLayout = FTabManager::NewLayout("MSTabLayout")
-	->AddArea
-	(
-		FTabManager::NewPrimaryArea()
-		->SetOrientation(Orient_Vertical)
-		->Split
-		(
-			FTabManager::NewStack()
-			->SetSizeCoefficient(0.4f)
-			->AddTab(MSTab, ETabState::OpenedTab)
-			->SetHideTabWell(true)
-		)
-	);
-
-	MSTabManager->RegisterTabSpawner(MSTab, FOnSpawnTab::CreateRaw(this,&SMainUI::MSTabSpawn));
-}
-
 TSharedRef<SDockTab> SMainUI::MSTabSpawn(const FSpawnTabArgs& SpawnTabArgs)
 {
 	return SNew(SDockTab)
-	.TabRole(ETabRole::NomadTab)
+	.TabRole(ETabRole::PanelTab)
 	.Label(NSLOCTEXT("MSTab", "TabTitle", "Material Settings"))
 	[
 		SAssignNew(MMGMaterialSettingsPtr, SMMGMaterialSettings)
@@ -266,20 +216,19 @@ void SMainUI::InitGenerateAddTab()
 TSharedRef<SDockTab> SMainUI::GenerateTabSpawn(const FSpawnTabArgs& SpawnTabArgs)
 {
 	return SNew(SDockTab)
-	.TabRole(ETabRole::NomadTab)
+	.TabRole(ETabRole::PanelTab)
 	.Label(NSLOCTEXT("GenerateTab", "TabTitle", "Generate"))
 	[
 		SAssignNew(MMGGenerateMaterialUI, SMMGGenerateMaterialUI)
 		.MMGGenerateMaterial(UTC_Manager->GetMMGGenerateMaterial())
 	];
-	
 }
 
 /**Add Tab*/
 TSharedRef<SDockTab> SMainUI::AddTabSpawn(const FSpawnTabArgs& SpawnTabArgs)
 {
 	return SNew(SDockTab)
-	.TabRole(ETabRole::NomadTab)
+	.TabRole(ETabRole::PanelTab)
 	.Label(NSLOCTEXT("AddTab", "TabTitle", "Add To"))
 	[
 		SAssignNew(MMGAddUI, SMMGAddUI)
@@ -287,6 +236,19 @@ TSharedRef<SDockTab> SMainUI::AddTabSpawn(const FSpawnTabArgs& SpawnTabArgs)
 	];
 }
 
+/**Presets Context Menu*/
+FReply SMainUI::OpenPresetsContextMenu(const FGeometry& Geometry, const FPointerEvent& PointerEvent)
+{
+	if (PointerEvent.GetEffectingButton() == EKeys::RightMouseButton)
+	{
+		MMGTreeView.Pin()->CreatePresetsContextMenu(PointerEvent.GetScreenSpacePosition());
+	}
+	else if(PointerEvent.GetEffectingButton() == EKeys::LeftMouseButton)
+	{
+		MMGTreeView.Pin()->ClearTreeSelection();
+	}
+	return FReply::Unhandled();
+}
 
 void SMainUI::SetUTC_Manager(FUTC_Manager* UTC_ManagerPtr)
 {
