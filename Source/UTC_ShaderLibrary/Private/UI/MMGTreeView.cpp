@@ -16,6 +16,7 @@
 #include "UI/MMGSelectionMenu.h"
 #include "UI/Presets/MMGPresetMainUI.h"
 #include "Widgets/Images/SLayeredImage.h"
+#include "Widgets/Layout/SSeparator.h"
 #include "Widgets/Notifications/SNotificationList.h"
 
 #define LOCTEXT_NAMESPACE "MMGTreeView"
@@ -31,7 +32,6 @@ void SMMGTreeView::Construct(const FArguments& TreeArgs)
 		ComboBoxParentsOptions.Add(MakeShareable(new FString(MAType)));
 		ComboBoxParentsOptions.Add(MakeShareable(new FString(MaskType)));
 	}
-	
 	ChildSlot[
 		
 			SNew(SScrollBox)
@@ -69,6 +69,7 @@ void SMMGTreeView::Construct(const FArguments& TreeArgs)
 							[
 								SNew(STextBlock)
 								.Text(this, &SMMGTreeView::GetCurrentItemLabelParentCombo)
+								.Justification(ETextJustify::Center)
 							]
 						]
 					]
@@ -116,6 +117,7 @@ TSharedRef<ITableRow> SMMGTreeView::OnGenerateListRow(FMMGTreeViewPtr Item, cons
 	if(MMGTreeViewSettings->ItemList.Contains(Item))
 	{
 		TableRow = SNew(STableRow<TSharedPtr<FMMGTreeViewPtr>>, OwnerTable)
+		.ShowWires(false)
 	   .Padding(1.5f)
 	   [
 			SNew(SBorder)
@@ -125,13 +127,22 @@ TSharedRef<ITableRow> SMMGTreeView::OnGenerateListRow(FMMGTreeViewPtr Item, cons
 			[
 				SNew(SHorizontalBox)
 				+SHorizontalBox::Slot()
-				.Padding(FMargin(10.0f, 0.f))
+				.Padding(FMargin(10.0f, 2.5f))
 				.VAlign(VAlign_Center)
 				.HAlign(HAlign_Left)
 				[
-					SAssignNew(Item->FunctionNameTextBox, SEditableText)
-					.Text(FText::FromString(*Item->FunctionName))
-					.OnTextCommitted(this, &SMMGTreeView::HandleOnTextCommitted, Item)
+					SNew(SComboButton)
+					.HasDownArrow(false)
+					.ButtonColorAndOpacity(FLinearColor(0,0,0,2.5))
+					.ButtonStyle(FEditorStyle::Get(), "HoverHintOnly")
+					.ContentPadding(FMargin(5.f, 2.5f))
+					.ButtonContent()
+					[
+						SAssignNew(Item->FunctionNameTextBox, SEditableText)
+						.Text(FText::FromString(*Item->FunctionName))
+						.OnTextCommitted(this, &SMMGTreeView::HandleOnTextCommitted, Item)
+					]
+					
 				]
 
 				+SHorizontalBox::Slot()
@@ -145,6 +156,7 @@ TSharedRef<ITableRow> SMMGTreeView::OnGenerateListRow(FMMGTreeViewPtr Item, cons
 					[
 						SNew(STextBlock)
 						.Text(this, &SMMGTreeView::GetCurrentItemLabelUVsCombo, Item)
+						.Justification(ETextJustify::Center)
 					]
 				]
 
@@ -184,6 +196,7 @@ TSharedRef<ITableRow> SMMGTreeView::OnGenerateListRow(FMMGTreeViewPtr Item, cons
 		{
 			TableRow = SNew(STableRow<TSharedPtr<FMMGTreeViewPtr>>, OwnerTable)
 			.Padding(2.0f)
+			.ShowWires(false)
 			[
 				SNew(SBorder)
 				.OnMouseButtonDown(this, &SMMGTreeView::OpenTreeViewContextMenu, Item)
@@ -195,19 +208,31 @@ TSharedRef<ITableRow> SMMGTreeView::OnGenerateListRow(FMMGTreeViewPtr Item, cons
 					.Padding(FMargin(0, 2.5f))
 					[
 						SAssignNew(Item->ChildFunctionComboButton, SComboButton)
+						.ButtonColorAndOpacity(ComboButtonColor)
+						.ButtonStyle(FEditorStyle::Get(), "HoverHintOnly")
 						.ButtonContent()
 						[
-						   SNew(STextBlock).Text(this, &SMMGTreeView::GetCurrentItemLabelChildrenCombo, Item)
+						   SNew(STextBlock)
+						   .Text(this, &SMMGTreeView::GetCurrentItemLabelChildrenCombo, Item)
+						   .Justification(ETextJustify::Center)
 						]
 						.OnGetMenuContent(this, &SMMGTreeView::GetChildMenu, Item)
 						.OnComboBoxOpened(this, &SMMGTreeView::FocusSearchBox, Item)
+					]
+					+SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(10.f, 5.f, 44.f, 5.f)
+					[
+						SNew(SSeparator)
+						.SeparatorImage(FEditorStyle::Get().GetBrush("Menu.Separator"))
+						.Thickness(1.f)
 					]
 					
 					+SVerticalBox::Slot()
 					[
 						SNew(SHorizontalBox)
 						+SHorizontalBox::Slot()
-						.Padding(FMargin(10.0f, 5.f))
+						.Padding(FMargin(7.0f, 5.f))
 						.AutoWidth()
 						.VAlign(VAlign_Center)
 						[
@@ -222,9 +247,13 @@ TSharedRef<ITableRow> SMMGTreeView::OnGenerateListRow(FMMGTreeViewPtr Item, cons
 						.VAlign(VAlign_Center)
 						[
 							SAssignNew(Item->AMaskComboButton, SComboButton)
+							.ButtonColorAndOpacity(ComboButtonColor)
+							.ButtonStyle(FEditorStyle::Get(), "HoverHintOnly")
 							.ButtonContent()
 							[
-							   SNew(STextBlock).Text(this, &SMMGTreeView::GetCurrentItemLabelAMaskCombo, Item)
+							   SNew(STextBlock)
+							   .Text(this, &SMMGTreeView::GetCurrentItemLabelAMaskCombo, Item)
+							   .Justification(ETextJustify::Center)
 							]
 							.OnGetMenuContent(this, &SMMGTreeView::GetAMaskMenu, Item)
 							.OnComboBoxOpened(this, &SMMGTreeView::FocusSearchBox, Item)
@@ -246,9 +275,13 @@ TSharedRef<ITableRow> SMMGTreeView::OnGenerateListRow(FMMGTreeViewPtr Item, cons
 						.VAlign(VAlign_Center)
 						[
 							SAssignNew(Item->BMaskComboButton, SComboButton)
+							.ButtonColorAndOpacity(ComboButtonColor)
+							.ButtonStyle(FEditorStyle::Get(), "HoverHintOnly")
 							.ButtonContent()
 							[
-							   SNew(STextBlock).Text(this, &SMMGTreeView::GetCurrentItemLabelBMaskCombo, Item)
+							   SNew(STextBlock)
+							   .Text(this, &SMMGTreeView::GetCurrentItemLabelBMaskCombo, Item)
+							   .Justification(ETextJustify::Center)
 							]
 							.OnGetMenuContent(this, &SMMGTreeView::GetBMaskMenu, Item)
 							.OnComboBoxOpened(this, &SMMGTreeView::FocusSearchBox, Item)
@@ -263,7 +296,7 @@ TSharedRef<ITableRow> SMMGTreeView::OnGenerateListRow(FMMGTreeViewPtr Item, cons
 			if(bGenerateCustomPack || Item->IsCustomPack)
 			{
 				TableRow = SNew(STableRow<TSharedPtr<FMMGTreeViewPtr>>, OwnerTable)
-				.Padding(2.0f)
+				.Padding(FMargin(2,0,2,2))
 				.ShowSelection(false)
 				[
 					SNew(SBorder)
@@ -289,6 +322,9 @@ TSharedRef<ITableRow> SMMGTreeView::OnGenerateListRow(FMMGTreeViewPtr Item, cons
 							.VAlign(VAlign_Center)
 							[ 
 								SAssignNew(Item->RPackedFunctionComboButton, SComboButton)
+								.ButtonColorAndOpacity(ComboButtonColor)
+								.ButtonStyle(FEditorStyle::Get(), "HoverHintOnly")
+								.ContentPadding(FMargin(7,0,0,0))
 							   .ButtonContent()
 							   [
 								   SNew(STextBlock).Text(this, &SMMGTreeView::GetCurrentItemLabelRPackedCombo, Item)
@@ -316,6 +352,9 @@ TSharedRef<ITableRow> SMMGTreeView::OnGenerateListRow(FMMGTreeViewPtr Item, cons
 							.VAlign(VAlign_Center)
 							[
 								SAssignNew(Item->GPackedFunctionComboButton, SComboButton)
+								.ButtonColorAndOpacity(ComboButtonColor)
+								.ButtonStyle(FEditorStyle::Get(), "HoverHintOnly")
+								.ContentPadding(FMargin(7,0,0,0))
 							   .ButtonContent()
 							   [
 								   SNew(STextBlock).Text(this, &SMMGTreeView::GetCurrentItemLabelGPackedCombo, Item)
@@ -343,6 +382,9 @@ TSharedRef<ITableRow> SMMGTreeView::OnGenerateListRow(FMMGTreeViewPtr Item, cons
 							.VAlign(VAlign_Center)
 							[
 								SAssignNew(Item->BPackedFunctionComboButton, SComboButton)
+								.ButtonColorAndOpacity(ComboButtonColor)
+								.ButtonStyle(FEditorStyle::Get(), "HoverHintOnly")
+								.ContentPadding(FMargin(7,0,0,0))
 							   .ButtonContent()
 							   [
 								   SNew(STextBlock).Text(this, &SMMGTreeView::GetCurrentItemLabelBPackedCombo, Item)
@@ -370,6 +412,9 @@ TSharedRef<ITableRow> SMMGTreeView::OnGenerateListRow(FMMGTreeViewPtr Item, cons
 							.VAlign(VAlign_Center)
 							[
 								SAssignNew(Item->APackedFunctionComboButton, SComboButton)
+								.ButtonColorAndOpacity(ComboButtonColor)
+								.ButtonStyle(FEditorStyle::Get(), "HoverHintOnly")
+								.ContentPadding(FMargin(7,0,0,0))
 							   .ButtonContent()
 							   [
 								   SNew(STextBlock).Text(this, &SMMGTreeView::GetCurrentItemLabelAPackedCombo, Item)
@@ -377,6 +422,15 @@ TSharedRef<ITableRow> SMMGTreeView::OnGenerateListRow(FMMGTreeViewPtr Item, cons
 							   .OnGetMenuContent(this, &SMMGTreeView::GetAPackedMenu, Item)
 							   .OnComboBoxOpened(this, &SMMGTreeView::FocusSearchBox, Item)
 							]
+						]
+
+						+SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(12.f, 5.f, 44.f, 4.f)
+						[
+							SNew(SSeparator)
+							.SeparatorImage(FEditorStyle::Get().GetBrush("Menu.Separator"))
+							.Thickness(1.f)
 						]
 					]
 				];
@@ -387,6 +441,7 @@ TSharedRef<ITableRow> SMMGTreeView::OnGenerateListRow(FMMGTreeViewPtr Item, cons
 				/**Material Attribute */
 				TableRow = SNew(STableRow<TSharedPtr<FMMGTreeViewPtr>>, OwnerTable)
 				.Padding(2.0f)
+				.ShowWires(false)
 				[
 					SNew(SBorder)
 					.OnMouseButtonDown(this, &SMMGTreeView::OpenTreeViewContextMenu, Item)
@@ -397,9 +452,13 @@ TSharedRef<ITableRow> SMMGTreeView::OnGenerateListRow(FMMGTreeViewPtr Item, cons
 						.VAlign(VAlign_Center)
 						[
 							 SAssignNew(Item->ChildFunctionComboButton, SComboButton)
+							 .ButtonColorAndOpacity(ComboButtonColor)
+							 .ButtonStyle(FEditorStyle::Get(), "HoverHintOnly")
+							 .ContentPadding(FMargin(7,0,0,0))
 							.ButtonContent()
 							[
-								SNew(STextBlock).Text(this, &SMMGTreeView::GetCurrentItemLabelChildrenCombo, Item)
+								SNew(STextBlock)
+								.Text(this, &SMMGTreeView::GetCurrentItemLabelChildrenCombo, Item)
 							]
 							.OnGetMenuContent(this, &SMMGTreeView::GetChildMenu, Item)
 							.OnComboBoxOpened(this, &SMMGTreeView::FocusSearchBox, Item)
@@ -432,7 +491,10 @@ TSharedRef<ITableRow> SMMGTreeView::OnGenerateListRow(FMMGTreeViewPtr Item, cons
 /** ComboBox parent function */
 TSharedRef<SWidget> SMMGTreeView::MakeWidgetForOptionParentsCombo(TSharedPtr<FString> InOption)
 {
-	return SNew(STextBlock).Text(FText::FromString(*InOption));
+	return SNew(STextBlock)
+		.Text(FText::FromString(*InOption))
+		.Justification(ETextJustify::Center)
+		.Margin(FMargin(0,0,20,0));
 }
 
 void SMMGTreeView::OnSelectionChangedParentCombo(TSharedPtr<FString> NewValue, ESelectInfo::Type)
@@ -460,7 +522,10 @@ bool SMMGTreeView::AddFunctionButtonStatement() const
 /** ComboBox UVs function */
 TSharedRef<SWidget> SMMGTreeView::MakeWidgetForOptionUVsCombo(TSharedPtr<FString> InOption)
 {
-	return SNew(STextBlock).Text(FText::FromString(*InOption));
+	return SNew(STextBlock)
+	.Text(FText::FromString(*InOption))
+	.Justification(ETextJustify::Center)
+	.Margin(FMargin(0,0,20,0));
 }
 
 void SMMGTreeView::OnSelectionChangedUVsCombo(TSharedPtr<FString> NewValue, ESelectInfo::Type, FMMGTreeViewPtr Item)
@@ -533,6 +598,7 @@ TSharedRef<SWidget> SMMGTreeView::GetChildMenu(FMMGTreeViewPtr Item)
 		SAssignNew(Item->SelectionMenu, SMMGSelectionMenu)
 		.MenuCategories(Item->ComboButtonChildCategories)
 		.MenuItems(Item->ComboButtonChildOptions)
+		.MenuTips(Item->ComboButtonChildTipInputs)
 		.OnSelectChild(this, &SMMGTreeView::OnSelectionChangedChildrenCombo, Item)
 	];
 }
@@ -618,7 +684,7 @@ TSharedRef<SWidget> SMMGTreeView::GetAMaskMenu(FMMGTreeViewPtr Item)
 		.MenuItems(ComboBoxMasksOptions)
 		.OnSelectChild(this, &SMMGTreeView::OnSelectionChangedAMaskCombo, Item)
 		.ExpandCategoriesOnOpenMenu(true)
-		.MenuSize(FVector2d(100.f, 300.f))
+		.MinMenuSize(FVector2d(100.f, 300.f))
 	];
 }
 
@@ -634,7 +700,7 @@ TSharedRef<SWidget> SMMGTreeView::GetBMaskMenu(FMMGTreeViewPtr Item)
 		.MenuItems(ComboBoxMasksOptions)
 		.OnSelectChild(this, &SMMGTreeView::OnSelectionChangedBMaskCombo, Item)
 		.ExpandCategoriesOnOpenMenu(true)
-		.MenuSize(FVector2d(100.f, 300.f))
+		.MinMenuSize(FVector2d(100.f, 300.f))
 	];
 }
 
@@ -723,6 +789,7 @@ TSharedRef<SWidget> SMMGTreeView::GetRPackedMenu(FMMGTreeViewPtr Item)
 		.SetHeader(EmptyCustomPackPtr)
 		.MenuCategories(Item->ComboBoxCustomPackedCategories)
 		.MenuItems(Item->ComboBoxCustomPackedOptions)
+		.MenuTips(Item->ComboBoxCustomPackedTipInputs)
 		.OnSelectChild(this, &SMMGTreeView::OnSelectionChangedRPackedCombo, Item)
 		.OnSelectHeader(this, &SMMGTreeView::OnSelectionChangedRPackedCombo, Item)
 	];
@@ -739,6 +806,7 @@ TSharedRef<SWidget> SMMGTreeView::GetGPackedMenu(FMMGTreeViewPtr Item)
 		.SetHeader(EmptyCustomPackPtr)
 		.MenuCategories(Item->ComboBoxCustomPackedCategories)
 		.MenuItems(Item->ComboBoxCustomPackedOptions)
+		.MenuTips(Item->ComboBoxCustomPackedTipInputs)
 		.OnSelectChild(this, &SMMGTreeView::OnSelectionChangedGPackedCombo, Item)
 		.OnSelectHeader(this, &SMMGTreeView::OnSelectionChangedGPackedCombo, Item)
 	];
@@ -755,6 +823,7 @@ TSharedRef<SWidget> SMMGTreeView::GetBPackedMenu(FMMGTreeViewPtr Item)
 		.SetHeader(EmptyCustomPackPtr)
 		.MenuCategories(Item->ComboBoxCustomPackedCategories)
 		.MenuItems(Item->ComboBoxCustomPackedOptions)
+		.MenuTips(Item->ComboBoxCustomPackedTipInputs)
 		.OnSelectChild(this, &SMMGTreeView::OnSelectionChangedBPackedCombo, Item)
 		.OnSelectHeader(this, &SMMGTreeView::OnSelectionChangedBPackedCombo, Item)
 	];
@@ -771,6 +840,7 @@ TSharedRef<SWidget> SMMGTreeView::GetAPackedMenu(FMMGTreeViewPtr Item)
 		.SetHeader(EmptyCustomPackPtr)
 		.MenuCategories(Item->ComboBoxCustomPackedCategories)
 		.MenuItems(Item->ComboBoxCustomPackedOptions)
+		.MenuTips(Item->ComboBoxCustomPackedTipInputs)
 		.OnSelectChild(this, &SMMGTreeView::OnSelectionChangedAPackedCombo, Item)
 		.OnSelectHeader(this, &SMMGTreeView::OnSelectionChangedAPackedCombo, Item)
 	];
@@ -940,7 +1010,12 @@ void SMMGTreeView::HandleOnTextCommitted(const FText& InText, ETextCommit::Type,
 
 	NameList.Empty();
 	for (TSharedPtr<FString> Name : FunctionNameList)
-		NameList.AddUnique(*Name);
+	{
+		if(Item->FunctionName != Name)
+		{
+			NameList.AddUnique(*Name);
+		}
+	}
 	
 	if(NameList.Contains(NewName))
 	{
@@ -1030,6 +1105,7 @@ void SMMGTreeView::EnsureComboBoxItems(FMMGTreeViewPtr Item)
 		if(*Item->FunctionType == MAType || *Item->FunctionType == MaskType)
 		{
 			TArray<TSharedPtr<FString>> DTElem;
+			TArray<TSharedPtr<FString>> DTInputs;
 			TArray<TSharedPtr<FString>> DTCategories;
 
 			/**Find Elements in DT */
@@ -1038,10 +1114,12 @@ void SMMGTreeView::EnsureComboBoxItems(FMMGTreeViewPtr Item)
 				for (FName Row : MaterialOutputDT->GetRowNames())
 				{
 					FString InCat = MaterialOutputDT->FindRow<FMMGMaterialFunctionStruct>(Row,"")->MMG_MenuCategory;
+					FString InInput = UEnum::GetValueAsString(MaterialOutputDT->FindRow<FMMGMaterialFunctionStruct>(Row,"")->MaterialAttributeType);
 					if(!InCat.IsEmpty())
 					{
 						FString CurrentElem = Utils->PascalToText(Row.ToString());
 						DTElem.Add(MakeShareable(new FString (CurrentElem)));
+						DTInputs.Add(MakeShareable(new FString (Utils->PascalToText(InInput))));
 						DTCategories.Add(MakeShareable(new FString (InCat)));
 					}
 				}
@@ -1065,6 +1143,9 @@ void SMMGTreeView::EnsureComboBoxItems(FMMGTreeViewPtr Item)
 			
 			if(*Item->FunctionType == MAType)
 			{
+				Child->ComboButtonChildTipInputs = DTInputs;
+				Child->ComboButtonChildTipInputs.Insert(MakeShareable(new FString ("Custom")),0);
+				
 				Child->ComboButtonChildOptions.Insert(MakeShareable(new FString (CustomPack)),0);
 				Child->ComboButtonChildCategories.Insert(MakeShareable(new FString ("Custom Texture Pack")),0);
 			}
@@ -1072,6 +1153,7 @@ void SMMGTreeView::EnsureComboBoxItems(FMMGTreeViewPtr Item)
 			if(Child->IsCustomPack)
 			{
 				Child->ComboBoxCustomPackedOptions = DTElem;
+				Child->ComboBoxCustomPackedTipInputs = DTInputs;
 				Child->ComboBoxCustomPackedCategories = DTCategories;
 			}
 			
@@ -1361,7 +1443,8 @@ void SMMGTreeView::CreatePresetsContextMenu(const FVector2D& MouseLocation)
 			ContextMenuPresetNames.Add(MakeShareable(new FString(Preset.PresetName)));
 			ContextMenuPresetCategories.Add(MakeShareable(new FString(Preset.PresetCategory)));
 		}
-		TSharedPtr<FString> HeaderPtr = MakeShareable(new FString("Add the current tree as Preset"));
+		
+		TSharedPtr<FString> HeaderPtr = MakeShareable(new FString("Add current tree as Preset"));
 		MenuContent = SNew(SMenuOwner)
 		[
 			SAssignNew(SelectionMenu, SMMGSelectionMenu)
@@ -1370,7 +1453,7 @@ void SMMGTreeView::CreatePresetsContextMenu(const FVector2D& MouseLocation)
 			.SetHeader(HeaderPtr)
 			.OnSelectChild(this, &SMMGTreeView::AddPresetToTreeView)
 			.OnSelectHeader(this, &SMMGTreeView::OpenAddPresetWindow)
-			.MenuSize(FVector2d(300.f, 300.f))
+			.MinMenuSize(FVector2d(300.f, 300.f))
 		];
 	
 		PresetsMenuOwner = FSlateApplication::Get().PushMenu(
@@ -1387,7 +1470,6 @@ void SMMGTreeView::CreatePresetsContextMenu(const FVector2D& MouseLocation)
 
 void SMMGTreeView::AddPresetToTreeView(const TSharedPtr<FString> Selection)
 {
-	
 	PresetsMenuOwner->Dismiss();
 
 	FMMGPresetStruct SelectedPreset;

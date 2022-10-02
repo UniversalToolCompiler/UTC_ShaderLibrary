@@ -17,6 +17,7 @@ class FMMGSelectionMenuInfo : public TSharedFromThis<FMMGSelectionMenuInfo>
 public:
 	
 	TSharedPtr<FString> DisplayNamePtr;
+	TSharedPtr<FString> TipNamePtr;
 	TArray< TSharedPtr<FMMGSelectionMenuInfo> > Children;
 	bool isChild = false;
 	bool isHeader = false;
@@ -28,17 +29,19 @@ class SMMGSelectionMenu : public SCompoundWidget
 public:
 	SLATE_BEGIN_ARGS(SMMGSelectionMenu)
 		: _MenuItems()
+		, _MenuTips()
 		, _MenuCategories()
 		, _SetHeader()
 		, _ExpandCategoriesOnOpenMenu(false)
-		, _MenuSize(FVector2d(350.f))
+		, _MinMenuSize(FVector2d(350.f))
 	
 	{}
 		SLATE_ARGUMENT(TArray<TSharedPtr<FString>>, MenuItems)
+		SLATE_ARGUMENT(TArray<TSharedPtr<FString>>, MenuTips)
 		SLATE_ARGUMENT(TArray<TSharedPtr<FString>>, MenuCategories)
 		SLATE_ARGUMENT(TSharedPtr<FString>, SetHeader)
 		SLATE_ARGUMENT(bool, ExpandCategoriesOnOpenMenu)
-		SLATE_ARGUMENT(FVector2d, MenuSize)
+		SLATE_ARGUMENT(FVector2d, MinMenuSize)
 		SLATE_EVENT(FOnSelectChild, OnSelectChild)
 		SLATE_EVENT(FOnSelectHeader, OnSelectHeader)
 	SLATE_END_ARGS()
@@ -73,9 +76,10 @@ protected:
 
 	/**Args*/
 	TArray<TSharedPtr<FString>> ItemsToDisplay;
+	TArray<TSharedPtr<FString>> TipsToDisplay;
 	TArray<TSharedPtr<FString>> CategoriesToDisplay;
 	TSharedPtr<FString> HeaderStr;
-	FVector2d MenuSize;
+	FVector2d MinMenuSize;
 	bool bHeader = false;
 	bool ExpandOnOpen = false;
 

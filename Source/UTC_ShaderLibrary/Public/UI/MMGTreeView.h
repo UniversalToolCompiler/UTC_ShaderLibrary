@@ -38,6 +38,7 @@ public:
 	TSharedPtr<SComboButton> ChildFunctionComboButton;
 	TSharedPtr<FString> CurrentChildComboItem;
 	TArray<TSharedPtr<FString>> ComboButtonChildOptions;
+	TArray<TSharedPtr<FString>> ComboButtonChildTipInputs;
 	TArray<TSharedPtr<FString>> ComboButtonChildCategories;
 	TSharedPtr<SCheckBox>  AffectUVsCheckWidget;
 	bool AffectedByUVs = true;
@@ -57,6 +58,7 @@ public:
 	bool IsCustomPack = false;
 	TMap<FString, FString>  CustomPackedSelectionSave;
 	TArray<TSharedPtr<FString>> ComboBoxCustomPackedOptions;
+	TArray<TSharedPtr<FString>> ComboBoxCustomPackedTipInputs;
 	TArray<TSharedPtr<FString>> ComboBoxCustomPackedCategories;
 	
 	TSharedPtr<SComboButton> RPackedFunctionComboButton;
@@ -190,6 +192,7 @@ private:
 	TSharedPtr<FMMGTreeViewType> TreeViewWidget;
 	UMMGTreeViewSettings* MMGTreeViewSettings;
 	TArray<FString> NameList;
+	FLinearColor ComboButtonColor = FLinearColor(0,0,0,4);
 
 	/**Custom Packed*/
 	bool bGenerateCustomPack = false;

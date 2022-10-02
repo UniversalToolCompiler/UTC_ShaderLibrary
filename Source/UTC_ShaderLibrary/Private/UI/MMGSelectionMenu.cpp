@@ -11,10 +11,11 @@
 void SMMGSelectionMenu::Construct(const FArguments& InArgs)
 {
 	ItemsToDisplay = InArgs._MenuItems;
+	TipsToDisplay = InArgs._MenuTips;
 	CategoriesToDisplay = InArgs._MenuCategories;
 	OnSelectChild = InArgs._OnSelectChild;
 
-	MenuSize = InArgs._MenuSize;
+	MinMenuSize = InArgs._MinMenuSize;
 	
 	bHeader = InArgs._SetHeader.IsValid();
 	ExpandOnOpen = InArgs._ExpandCategoriesOnOpenMenu;
@@ -57,8 +58,8 @@ void SMMGSelectionMenu::Construct(const FArguments& InArgs)
 			.Padding(4.f, 4.f, 4.f, 4.f)
 			[
 				SNew(SBox)
-				.HeightOverride(MenuSize.Y)
-				.WidthOverride(MenuSize.X)
+				.HeightOverride(MinMenuSize.Y)
+				.WidthOverride(MinMenuSize.X)
 				[
 					TypeTreeView.ToSharedRef()
 				]
@@ -66,8 +67,11 @@ void SMMGSelectionMenu::Construct(const FArguments& InArgs)
 		]
 	];
 	/**Start expansion */
-	for(FMMGSelectionMenuItem Item : TreeViewSource)
-		TypeTreeView->SetItemExpansion(Item, ExpandOnOpen);
+	if(ExpandOnOpen)
+	{
+		for(FMMGSelectionMenuItem Item : TreeViewSource)
+			TypeTreeView->SetItemExpansion(Item, true);
+	}
 	
 	TreeViewSourceSave = TreeViewSource;
 	
@@ -181,8 +185,16 @@ TSharedRef<ITableRow> SMMGSelectionMenu::GenerateTreeRow(FMMGSelectionMenuItem I
 	TSharedPtr<STableRow<TSharedPtr<FMMGSelectionMenuItem>>> TableRowWidget;
 
 	FString DisplayName;
-	if(InItem->DisplayNamePtr.IsValid())	
+	if(InItem->DisplayNamePtr.IsValid())
+	{
 		DisplayName = *InItem->DisplayNamePtr;
+	}
+	
+	FString DisplayTip;
+	if(InItem->TipNamePtr.IsValid())
+	{
+		DisplayTip = "(Input: " + *InItem->TipNamePtr + ")";
+	}
 	
 	if(InItem->isHeader)
 	{
@@ -213,7 +225,7 @@ TSharedRef<ITableRow> SMMGSelectionMenu::GenerateTreeRow(FMMGSelectionMenuItem I
 				SNew(SSeparator)
 				.SeparatorImage(FEditorStyle::Get().GetBrush("Menu.Separator"))
 				.Thickness(1.f)
-				]
+			]
 		];
 	}	
 	else
@@ -231,6 +243,16 @@ TSharedRef<ITableRow> SMMGSelectionMenu::GenerateTreeRow(FMMGSelectionMenuItem I
 							.Text(FText::FromString(DisplayName))
 							.Font(FCoreStyle::GetDefaultFontStyle("Regular", 9) )
 					]
+				+SHorizontalBox::Slot()
+				//.AutoWidth()
+				.Padding(FMargin(1.75f,1.75f,7.f,1.75f))
+				.HAlign(HAlign_Right)
+				[
+					SNew(STextBlock)
+						.Text(FText::FromString(DisplayTip))
+						.Font(FCoreStyle::GetDefaultFontStyle("Italic", 9) )
+						.ColorAndOpacity(FLinearColor(1.f,1.f,1.f,.66f))
+				]
 			];
 		}
 		else
@@ -261,7 +283,7 @@ void SMMGSelectionMenu::OnSelectionChanged(FMMGSelectionMenuItem Selection, ESel
 		
 		if(Selection->isChild)
 			OnSelectChild.Execute(Selection->DisplayNamePtr);
-		if(Selection->isHeader)
+		else if(Selection->isHeader)
 			OnSelectHeader.Execute(Selection->DisplayNamePtr);
 	}
 }
@@ -311,6 +333,12 @@ void SMMGSelectionMenu::SetTreeViewItem()
 	{
 		FMMGSelectionMenuItem NewRow;
 		TSharedPtr<FString> ItemName = ItemsToDisplay[Index];
+
+		TSharedPtr<FString> TipName;
+		if(!TipsToDisplay.IsEmpty())
+		{
+			TipName = TipsToDisplay[Index];
+		}
 		
 		if(!ValidatedCategories.Contains(*ItemCategory))
 		{
@@ -323,6 +351,11 @@ void SMMGSelectionMenu::SetTreeViewItem()
 			
 			NewChildItem->DisplayNamePtr = ItemName;
 			NewChildItem->isChild = true;
+
+			if(TipName.IsValid())
+			{
+				NewChildItem->TipNamePtr = TipName;
+			}
 			
 			NewCategoryItem->Children.Add(MakeShareable(NewChildItem));
 			
@@ -344,6 +377,11 @@ void SMMGSelectionMenu::SetTreeViewItem()
 					
 						NewChildItem->DisplayNamePtr = ItemName;
 						NewChildItem->isChild = true;
+
+						if(TipName.IsValid())
+						{
+							NewChildItem->TipNamePtr = TipName;
+						}
 					
 						Item->Children.Add(MakeShareable(NewChildItem));
 

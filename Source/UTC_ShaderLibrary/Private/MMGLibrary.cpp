@@ -166,13 +166,11 @@ void FMMGLibrary::AddToMaterial(const FMMGAddToMaterialStruct MainSettings, cons
 	MaxNodeY += 750;
 	MaterialParameterPosition.Y = MaxNodeY;
 
+	PackedTextureParamPtr = nullptr;
 	/**Start Nodes Generation */ 
 	InitNodesGen();
 	
 	MatGraph->RebuildGraph();
-	//MaterialEd->UpdateMaterialAfterGraphChange();
-	//UTCMaterial->UpdateCachedExpressionData();
-	//UTCMaterial->UpdateMaterialShaderCacheAndTextureReferences();
 
 	if(IsValid(JumpToThisExpression))
 		MaterialEd->JumpToExpression(JumpToThisExpression);
@@ -370,9 +368,9 @@ void FMMGLibrary::GenerateMaterialOutputs(FName RowName)
 		
 		/** Parameter name */
 		if(TreeViewList.Num() > 1 || bAddToMaterial)
-			ParameterName = FName (*TreeViewParentPtr->FunctionName + FString(" - ") + RowName.ToString() + FString(" - ") + input.ExpressionInput->InputName.ToString());
+			ParameterName = FName (*TreeViewParentPtr->FunctionName + FString(" - ") + Utils->PascalToText(RowName.ToString()) + FString(" - ") + input.ExpressionInput->InputName.ToString());
 		else
-			ParameterName = FName (RowName.ToString() + FString(" - ") + input.ExpressionInput->InputName.ToString());
+			ParameterName = FName (Utils->PascalToText(RowName.ToString()) + FString(" - ") + input.ExpressionInput->InputName.ToString());
 
 		/** Generate parameter */
 		GenerateParameterByMFInputType(MaterialFunctionPtr, input);
@@ -1190,7 +1188,19 @@ FString FMMGLibrary::GetCustomPackedName()
 	for (const TPair<FString, FString>& Pair : TreeViewChildPtr->ChildFunctions[0]->CustomPackedSelectionSave)
 	{
 		if(Pair.Value != "Custom Packed" && !Pair.Value.IsEmpty() && Pair.Value != "null")
-			PackedName += Pair.Value.Left(1);
+		{
+			if(Pair.Value.StartsWith("Detail "))
+			{
+				FString NameTemp = Pair.Value;
+				NameTemp.RemoveFromStart("Detail ");
+				PackedName += NameTemp.Left(1);
+			}
+			else
+			{
+				PackedName += Pair.Value.Left(1);
+			}
+		}
+			
 	}
 	return PackedName;
 }
@@ -1526,7 +1536,7 @@ void FMMGLibrary::SetNodePosition(UMaterialExpression* Expression, EExpressionTy
 	{
 		if(TreeViewParentPtr->CurrentUVsComboItem.IsValid() && *TreeViewParentPtr->CurrentUVsComboItem != TreeViewWidget.NoUV && HasToGenerateUVsFunction() && isUVsFunctionConnected)
 			Expression->MaterialExpressionEditorX = UVsParameterPosition.X - 50;
-		else if(IsValid(PackedTextureParamPtr))
+		else if(PackedTextureParamPtr != nullptr && IsValid(PackedTextureParamPtr))
 			Expression->MaterialExpressionEditorX = PackedTextureParamPtr->MaterialExpressionEditorX - 50;
 		else
 			Expression->MaterialExpressionEditorX = MaterialParameterPosition.X - 100;
@@ -1664,14 +1674,23 @@ bool FMMGLibrary::ErrorDetector()
 				return false;
 			}
 			
-			/**  Check function child */
-			if(!FunctionChildListCheck.Contains(*TreeViewChild->CurrentChildComboItem))
-				FunctionChildListCheck.Add(*TreeViewChild->CurrentChildComboItem);
-			else
+			/**  Check function child attribute input*/
+			if(*TreeViewChild->CurrentChildComboItem != TreeViewWidget.CustomPack && *TreeViewParent->FunctionType == TreeViewWidget.MAType)
 			{
-				FText InNotif = FText::FromString("Function: " + *TreeViewParent->FunctionName + ", has several times the same child " + "'" + *TreeViewChild->CurrentChildComboItem + "'.");
-				SpawnErrorNotif(InNotif);
-				return false;
+				FName RowName = FName(Utils->TextToPascal(*TreeViewChild->CurrentChildComboItem));
+				FMMGMaterialFunctionStruct* DTStruct = MaterialOutputDT->FindRow<FMMGMaterialFunctionStruct>(RowName, "");
+				FString AttributeInput = UEnum::GetValueAsString(DTStruct->MaterialAttributeType);
+			
+				if(!FunctionChildListCheck.Contains(AttributeInput))
+				{
+					FunctionChildListCheck.Add(AttributeInput);
+				}
+				else
+				{
+					FText InNotif = FText::FromString("Function: " + *TreeViewParent->FunctionName + ", use several times the same attribute input " + "'" + AttributeInput + "'.");
+					SpawnErrorNotif(InNotif);
+					return false;
+				}
 			}
 
 			/** Check mask inputs */
@@ -1687,28 +1706,33 @@ bool FMMGLibrary::ErrorDetector()
 
 			if(!TreeViewChild->ChildFunctions.IsEmpty() && TreeViewChild->ChildFunctions[0]->IsCustomPack)
 			{
-				bool isEmpty = false;
+				bool isEmpty = true;
 				for (const TPair<FString, FString>& Pair : TreeViewChild->ChildFunctions[0]->CustomPackedSelectionSave)
 				{
 					/** Check empty custom pack*/
 					if(Pair.Value != "Custom Packed" && !Pair.Value.IsEmpty() && Pair.Value != "null")
 					{
 						/**  Check custom pack function child */
-						if(!FunctionChildListCheck.Contains(Pair.Value))
-							FunctionChildListCheck.Add(Pair.Value);
+						FName PackedRowName = FName(Utils->TextToPascal(Pair.Value));
+						FMMGMaterialFunctionStruct* PackedDTStruct = MaterialOutputDT->FindRow<FMMGMaterialFunctionStruct>(PackedRowName, "");
+						FString PackedAttributeInput = UEnum::GetValueAsString(PackedDTStruct->MaterialAttributeType);
+			
+						if(!FunctionChildListCheck.Contains(PackedAttributeInput))
+						{
+							FunctionChildListCheck.Add(PackedAttributeInput);
+						}
 						else
 						{
-							FText InNotif = FText::FromString("Function: " + *TreeViewParent->FunctionName + ", has several times the same child " + "'" + Pair.Value + "'.");
+							FText InNotif = FText::FromString("Custom Packed Function in: " + *TreeViewParent->FunctionName + ", use several times the same attribute input " + "'" + PackedAttributeInput + "'.");
 							SpawnErrorNotif(InNotif);
 							return false;
 						}
 						
-						isEmpty = true;
+						isEmpty = false;
 					}
-						
 				}
 
-				if(!isEmpty)
+				if(isEmpty)
 				{
 					FText InNotif = FText::FromString("Custom packed texture function in " + *TreeViewParent->FunctionName + " is empty.");
 					SpawnErrorNotif(InNotif);
