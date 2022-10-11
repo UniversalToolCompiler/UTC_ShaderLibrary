@@ -1482,7 +1482,8 @@ void SMMGTreeView::AddPresetToTreeView(const TSharedPtr<FString> Selection)
 			break;
 		}
 	}
-	
+
+	TMap<FMMGTreeView*, FString> MASave;
 	/** Functions*/
 	for (FMMGPresetFunctionStruct FunctionStruct : SelectedPreset.Functions)
 	{
@@ -1490,6 +1491,8 @@ void SMMGTreeView::AddPresetToTreeView(const TSharedPtr<FString> Selection)
 		
 		TSharedPtr<FString> FunctionName = MakeShareable(new FString(FunctionStruct.FunctionName));
 		NewFunction->FunctionName = FunctionName;
+
+		MASave.Add(NewFunction, FunctionStruct.FunctionName);
 
 		TSharedPtr<FString> FunctionType = MakeShareable(new FString(FunctionStruct.FunctionType));
 		NewFunction->FunctionType = FunctionType;
@@ -1569,7 +1572,7 @@ void SMMGTreeView::AddPresetToTreeView(const TSharedPtr<FString> Selection)
 					TSharedPtr<FString> AMask = MakeShareable(new FString(ChildMaskStruct.A_Mask));
 					NewChildMask->CurrentAComboItem = AMask;
 				}
-
+				
 				if(!ChildMaskStruct.B_Mask.IsEmpty())
 				{
 					TSharedPtr<FString> BMask = MakeShareable(new FString(ChildMaskStruct.B_Mask));
@@ -1596,6 +1599,18 @@ void SMMGTreeView::AddPresetToTreeView(const TSharedPtr<FString> Selection)
 		{
 			for(TSharedPtr<FMMGTreeView> ChildItem : FunctionItem->ChildFunctions)
 			{
+				/**Ensure Mask target*/
+				if(ChildItem->CurrentAComboItem.IsValid())
+				{
+					FMMGTreeView* AMaskTarget = *MASave.FindKey(*ChildItem->CurrentAComboItem);
+					ChildItem->CurrentAComboItem = AMaskTarget->FunctionName;
+				}
+				if(ChildItem->CurrentBComboItem.IsValid())
+				{
+					FMMGTreeView* AMaskTarget = *MASave.FindKey(*ChildItem->CurrentBComboItem);
+					ChildItem->CurrentBComboItem = AMaskTarget->FunctionName;
+				}
+				
 				MMGTreeViewSettings->GraphSettingsPtr->GraphObject->ConnectFunctionToMask(FunctionItem.Get(), ChildItem.Get());
 			}
 		}
