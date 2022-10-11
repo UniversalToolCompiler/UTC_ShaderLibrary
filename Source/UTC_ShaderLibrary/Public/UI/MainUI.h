@@ -15,16 +15,46 @@ public:
 	SLATE_END_ARGS()
 
 	void Construct(const FArguments& InArgs);
+	virtual ~SMainUI() override;
 	void SetUTC_Manager(FUTC_Manager* UTC_ManagerPtr);
 	
 private:
+
+	void InitGraphTab();
+	void InitTreeViewTab();
+	void InitGenerateAddTab();
 	
-	TWeakPtr<class SMMGConfigsUI> MMGConfigsUI;
+	/** Tabs */
+		/**Graph*/
+		TSharedRef<SDockTab> GraphTabSpawn(const FSpawnTabArgs& SpawnTabArgs);
+		TSharedPtr<FTabManager> GraphTabManager;
+		TSharedPtr<FTabManager::FLayout> GraphTabLayout;
+	
+		/**Material Settings*/
+		TSharedRef<SDockTab> MSTabSpawn(const FSpawnTabArgs& SpawnTabArgs);
+	
+		/**TreeView*/
+		TSharedRef<SDockTab> TreeViewTabSpawn(const FSpawnTabArgs& SpawnTabArgs);
+		TSharedPtr<FTabManager> TreeViewTabManager;
+		TSharedPtr<FTabManager::FLayout> TreeViewTabLayout;
+	
+		/**Generate*/
+		TSharedRef<SDockTab> GenerateTabSpawn(const FSpawnTabArgs& SpawnTabArgs);
+		TSharedRef<SDockTab> AddTabSpawn(const FSpawnTabArgs& SpawnTabArgs);
+		TSharedPtr<FTabManager> GenerateAddTabManager;
+		TSharedPtr<FTabManager::FLayout> GenerateAddTabLayout;
+	
+	/** UI Data */
+	TWeakPtr<class SMMGGenerateMaterialUI> MMGGenerateMaterialUI;
+	TWeakPtr<class SMMGAddUI> MMGAddUI;
 	TWeakPtr<class SMMGTreeView> MMGTreeView;
 	TWeakPtr<class SMMGGraph> MMGGraphPtr;
 	TWeakPtr<class SMMGMaterialSettings> MMGMaterialSettingsPtr;
+
+	/**Presets Context Menu*/
+	FReply OpenPresetsContextMenu(const FGeometry& Geometry, const FPointerEvent& PointerEvent);
 	
 	//UTC Manager
 	FUTC_Manager* UTC_Manager = nullptr;
-
+	
 };

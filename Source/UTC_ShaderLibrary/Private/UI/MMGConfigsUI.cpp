@@ -7,14 +7,15 @@
 
 #define LOCTEXT_NAMESPACE "ConfigUI"
 
-void SMMGConfigsUI::Construct(const FArguments& InArgs)
+/** Generate Material*/
+void SMMGGenerateMaterialUI::Construct(const FArguments& InArgs)
 {
-	MMGConfigs = InArgs._MMGConfigs;
-	ensure(MMGConfigs);
+	MMGGenerateMaterial = InArgs._MMGGenerateMaterial;
+	ensure(MMGGenerateMaterial);
 
-	if (MMGConfigs->ConfigClass.materialDestination.Path.IsEmpty())
+	if (MMGGenerateMaterial->GenerateMaterialClass.materialDestination.Path.IsEmpty())
 	{
-		MMGConfigs->ConfigClass.materialDestination.Path = "/Game";
+		MMGGenerateMaterial->GenerateMaterialClass.materialDestination.Path = "/Game";
 	}
 	
 	FPropertyEditorModule& PropertyEditor = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
@@ -25,7 +26,7 @@ void SMMGConfigsUI::Construct(const FArguments& InArgs)
 	DetailsViewArgs.bShowOptions = false;
 	DetailsViewArgs.bAllowFavoriteSystem = false;
 	ConfigsProperty = PropertyEditor.CreateDetailView(DetailsViewArgs);
-	ConfigsProperty->SetObject(MMGConfigs);
+	ConfigsProperty->SetObject(MMGGenerateMaterial);
 
 	ChildSlot
 	[
@@ -33,5 +34,28 @@ void SMMGConfigsUI::Construct(const FArguments& InArgs)
 	];
 	
 }
+
+/**Add To Material*/
+void SMMGAddUI::Construct(const FArguments& InArgs)
+{
+	MMGAddToMaterial = InArgs._MMGAddToMaterial;
+	ensure(MMGAddToMaterial);
+	
+	FPropertyEditorModule& PropertyEditor = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
+	FDetailsViewArgs DetailsViewArgs;
+	DetailsViewArgs.bUpdatesFromSelection = false;
+	DetailsViewArgs.bLockable = false;
+	DetailsViewArgs.bAllowSearch = false;
+	DetailsViewArgs.bShowOptions = false;
+	DetailsViewArgs.bAllowFavoriteSystem = false;
+	ConfigsProperty = PropertyEditor.CreateDetailView(DetailsViewArgs);
+	ConfigsProperty->SetObject(MMGAddToMaterial);
+
+	ChildSlot
+	[
+		ConfigsProperty.ToSharedRef()
+	];
+}
+
 
 #undef LOCTEXT_NAMESPACE

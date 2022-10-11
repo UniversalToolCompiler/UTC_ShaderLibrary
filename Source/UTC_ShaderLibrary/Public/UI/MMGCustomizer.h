@@ -8,7 +8,7 @@
 
 class FUTC_Manager;
 
-class MMGCustomizer : public IDetailCustomization
+class MMGGenerateCustomizer : public IDetailCustomization
 {
 public:
 	virtual void CustomizeDetails(IDetailLayoutBuilder& DetailBuilder) override;
@@ -16,5 +16,16 @@ public:
 
 private:
 	FReply GenerateMMBtnClicked();
+	FUTC_Manager UTCManager;
+};
+
+class MMGAddCustomizer : public IDetailCustomization
+{
+public:
+	virtual void CustomizeDetails(IDetailLayoutBuilder& DetailBuilder) override;
+	static TSharedRef<IDetailCustomization> MakeInstance();
+
+private:
+	FReply AddMMBtnClicked();
 	FUTC_Manager UTCManager;
 };

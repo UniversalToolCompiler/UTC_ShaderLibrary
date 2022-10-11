@@ -11,12 +11,16 @@
 #include "Widgets/Images/SImage.h"
 #include "SLevelOfDetailBranchNode.h"
 #include "SGraphNode.h"
+#include "SGraphPin.h"
+#include "Widgets/Layout/SWrapBox.h"
+#include "Widgets/Text/SInlineEditableTextBlock.h"
 
 
 void SMMGGraphNode::Construct(const FArguments& InArgs, UMMGEdGraphNode* InNode)
 {
 	GraphNode = InNode;
 	NewNodeInfos = InNode;
+	
 	UpdateGraphNode();
 }
 
@@ -106,6 +110,9 @@ void SMMGGraphNode::UpdateGraphNode()
 		[
 			CreateNodeContentArea()
 		];
+
+	LeftNodeBox->SetRenderOpacity(2);
+	RightNodeBox->SetRenderOpacity(2);
 	
 	this->GetOrAddSlot(ENodeZone::Center)
 	.HAlign(HAlign_Center)

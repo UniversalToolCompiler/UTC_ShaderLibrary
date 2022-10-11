@@ -16,30 +16,49 @@ public:
 	virtual ~IMMGUIActions(){}
 };
 //--------------------------------------------------------------------------------------------------------------
-//Main Settings
+//Generate Settings
 USTRUCT()
-struct FMMGConfigStruct
+struct FMMGGenerateMaterialStruct
 {
 
 	GENERATED_USTRUCT_BODY();
 	
-	UPROPERTY(DisplayName = "Material Name", EditAnywhere, Category="MainSettings")
+	UPROPERTY(DisplayName = "Material Name", EditAnywhere, Category="Settings")
 	FString materialName = "MM_Default";
 
-	UPROPERTY(DisplayName = "Material Path", EditAnywhere, Category="MainSettings", meta=(ContentDir))
+	UPROPERTY(DisplayName = "Material Path", EditAnywhere, Category="Settings", meta=(ContentDir))
 	FDirectoryPath materialDestination;
 
-	UPROPERTY(DisplayName = "Generate Material Instance", EditAnywhere, Category="MainSettings")
+	UPROPERTY(DisplayName = "Generate Material Instance", EditAnywhere, Category="Settings")
 	bool GenMaterialInst = true;
 };
 
 UCLASS(Transient)
-class UMMGConfigs : public UObject
+class UMMGGenerateMaterial : public UObject
 {
 	GENERATED_BODY()
 public:
-	UPROPERTY(EditAnywhere, meta=(ShowOnlyInnerProperties), Category="MainSettings")
-	FMMGConfigStruct ConfigClass;
+	UPROPERTY(EditAnywhere, meta=(ShowOnlyInnerProperties), Category="Settings")
+	FMMGGenerateMaterialStruct GenerateMaterialClass;
+};
+//--------------------------------------------------------------------------------------------------------------
+//Add Settings
+USTRUCT()
+struct FMMGAddToMaterialStruct
+{
+	GENERATED_USTRUCT_BODY();
+
+	UPROPERTY(DisplayName = "Target Material", EditAnywhere, Category="Settings")
+	UMaterial* TargetMaterial = nullptr;
+};
+
+UCLASS(Transient)
+class UMMGAddToMaterial : public UObject
+{
+	GENERATED_BODY()
+public:
+	UPROPERTY(EditAnywhere, meta=(ShowOnlyInnerProperties), Category="Settings")
+	FMMGAddToMaterialStruct AddToMaterialClass;
 };
 
 //-------------------------------------------------------------------------------------------------------------
@@ -89,20 +108,24 @@ USTRUCT()
 struct FMMGMaterialFunctionStruct : public FTableRowBase
 {
 	GENERATED_BODY()
-	UPROPERTY(EditAnywhere, Category="MaterialFunctionsInfos")
+	UPROPERTY(EditAnywhere, Category="MaterialFunctionInfos")
 	UMaterialFunction* MaterialFunction;
 
-	UPROPERTY(EditAnywhere, Category="MaterialFunctionsInfos")
+	UPROPERTY(EditAnywhere, Category="MaterialFunctionInfos")
 	TEnumAsByte<EMAttributes> MaterialAttributeType;
 
-	UPROPERTY(EditAnywhere, Category="MaterialFunctionsInfos")
+	UPROPERTY(EditAnywhere, Category="MaterialFunctionInfos")
 	FString MaterialGroup;
+
+	UPROPERTY(EditAnywhere, Category="MaterialFunctionInfos")
+	FString MMG_MenuCategory;
 	
 	FMMGMaterialFunctionStruct()
 	{
 		MaterialFunction = nullptr;
 		MaterialAttributeType = Mask;
 		MaterialGroup = "";
+		MMG_MenuCategory = "";
 	};
 };
 //--------------------------------------------------------------------------------------------------------------

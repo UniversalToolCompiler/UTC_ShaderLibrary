@@ -10,16 +10,16 @@
 
 #define LOCTEXT_NAMESPACE "MMGCustom"
 
-TSharedRef<IDetailCustomization> MMGCustomizer::MakeInstance()
+TSharedRef<IDetailCustomization> MMGGenerateCustomizer::MakeInstance()
 {
-	return MakeShareable(new MMGCustomizer);
+	return MakeShareable(new MMGGenerateCustomizer);
 }
 
-void MMGCustomizer::CustomizeDetails(IDetailLayoutBuilder& DetailBuilder)
+void MMGGenerateCustomizer::CustomizeDetails(IDetailLayoutBuilder& DetailBuilder)
 {
 	
-	IDetailCategoryBuilder& CustomCategory = DetailBuilder.EditCategory("MainSettings");
-	CustomCategory.AddCustomRow(NSLOCTEXT("MainSettings", "GenerateMM", "Generate Master Material"))
+	IDetailCategoryBuilder& CustomCategory = DetailBuilder.EditCategory("Settings");
+	CustomCategory.AddCustomRow(NSLOCTEXT("Settings", "GenerateMM", "Generate Master Material"))
 	[
 			SNew(SHorizontalBox)
 			+ SHorizontalBox::Slot()
@@ -30,16 +30,49 @@ void MMGCustomizer::CustomizeDetails(IDetailLayoutBuilder& DetailBuilder)
 				.DesiredSizeScale(FVector2d(10.f,1.5f))
 				.HAlign(HAlign_Center)
 				.VAlign(VAlign_Center)
-				.OnClicked(this, &MMGCustomizer::GenerateMMBtnClicked)
-				.Text(NSLOCTEXT("MainSettings", "GenerateMM", "Generate Master Material"))
+				.OnClicked(this, &MMGGenerateCustomizer::GenerateMMBtnClicked)
+				.Text(NSLOCTEXT("GenerateMaterial", "GenerateMM", "Generate Master Material"))
 			]
 	];
 }
 
-FReply MMGCustomizer::GenerateMMBtnClicked() 
+FReply MMGGenerateCustomizer::GenerateMMBtnClicked() 
 {
 	UTCManager.GenerateMaterial();
 	return FReply::Handled();
 }
+
+TSharedRef<IDetailCustomization> MMGAddCustomizer::MakeInstance()
+{
+	return MakeShareable(new MMGAddCustomizer);
+}
+
+void MMGAddCustomizer::CustomizeDetails(IDetailLayoutBuilder& DetailBuilder)
+{
+	
+	IDetailCategoryBuilder& CustomCategory = DetailBuilder.EditCategory("Settings");
+	CustomCategory.AddCustomRow(NSLOCTEXT("Settings", "AddToMM", "Add to Master Material"))
+	[
+			SNew(SHorizontalBox)
+			+ SHorizontalBox::Slot()
+			.Padding(10, 10, 10, 10)
+			[
+				SNew(SButton)
+				.ContentPadding(3)
+				.DesiredSizeScale(FVector2d(10.f,1.5f))
+				.HAlign(HAlign_Center)
+				.VAlign(VAlign_Center)
+				.OnClicked(this, &MMGAddCustomizer::AddMMBtnClicked)
+				.Text(NSLOCTEXT("AddToMaterial", "AddToMM", "Add to Master Material"))
+			]
+	];
+}
+
+FReply MMGAddCustomizer::AddMMBtnClicked() 
+{
+	UTCManager.AddToMaterial();
+	return FReply::Handled();
+}
+
 
 #undef LOCTEXT_NAMESPACE

@@ -20,7 +20,4 @@ public:
 	void CreateNode();
 	
 	UMMGGraphSettings* MMGGraphSettings;
-
-private:
-	TAttribute<FGraphAppearanceInfo> GraphAppearance;
 };

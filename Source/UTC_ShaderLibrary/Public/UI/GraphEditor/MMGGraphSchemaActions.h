@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/ObjectMacros.h"
 #include "EdGraph/EdGraphSchema.h"
+#include "UI/Presets/MMGPresets.h"
 #include "MMGGraphSchemaActions.generated.h"
 
 USTRUCT()
@@ -22,6 +23,10 @@ public:
 	// ,0 // Group -> Override alpha order
 	// ){};
 	//
-	virtual UEdGraphNode* PerformAction(UEdGraph* ParentGraph, UEdGraphPin* FromPin, const FVector2D Location, bool bSelectNewNode) override;
+	// virtual UEdGraphNode* PerformAction(UEdGraph* ParentGraph, UEdGraphPin* FromPin, const FVector2D Location, bool bSelectNewNode) override;
+	//
+	// /**Presets*/ 
+	// UMMGPresets* PresetList = LoadObject<UMMGPresets>(nullptr, TEXT("MMGPresets'/UTC_ShaderLibrary/MasterMaterialsGenerator/MMGP_Main.MMGP_Main'"));
+	// FMMGPresetsStruct NewPreset;
 	
 };
