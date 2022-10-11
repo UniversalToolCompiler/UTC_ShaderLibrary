@@ -13,6 +13,7 @@ If you like my work, you can support me here: https://www.paypal.com/paypalme/UT
 Marketplace: https://www.unrealengine.com/marketplace/en-US/product/utc-shader-library
 
 Trailer: https://www.youtube.com/watch?v=v8OMGxTqgyI
+
 Demo : https://www.youtube.com/watch?v=AxLDbQTHUMM
 
 Follow the plugin’s development: 
@@ -112,12 +113,14 @@ By right clicking under TreeView, you can open the preset menu. It gives you the
 
 ![](/Doc/Screens/UI/Preset1.png)
 
-You can add your own presets by selecting the menu header’s. 
+You can add your own presets by selecting the menu header’s.
+
 A message box will open; enter the preset name’s and his menu category (Select an existing one or write your own). This new preset is now available in the preset menu.
 
 ![](/Doc/Screens/UI/Preset2.PNG)
 
 You can manage your preset in the Preset Object located in `Plugin-> UTC Shader Library Content-> Master Materials Generator-> P_MainPresets`.
+
 Warning: You can change every preset parameters’ at your own risk.
 
 ![](/Doc/Screens/UI/Preset3.PNG)
@@ -145,10 +148,12 @@ Same as in a classic material. When the material is generated, he will have thes
 ### Main Settings
 
 **Generate Material**
+
 Here, it’s possible to set the Material Name that the generated material will have, his content browser generation path and if you want to generate a Material Instance with it.
 ![](/Doc/Screens/UI/GenerateMainSettings.PNG)
 
 **Add to Material**
+
 You can add the current TreeView functions directly in an existing material. Drag and drop the target material, push the button and voila !
 ![](/Doc/Screens/UI/AddMainSettings.PNG)
 
