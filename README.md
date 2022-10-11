@@ -33,7 +33,7 @@ If you added new material functions or modified default ones, save them and Data
 * `List Organization:` Lists that contain material functions in combo boxes are grouped for more visibility.
 * `UI`
 * `Add to:` You can now add directly functions in an existing material.
-* `Material function library:` Adding new MF like detailed functions, Fuzzy, PDO …
+* `Material function library:` New MF like detailed functions, Fuzzy, PDO …
 
 
 ## What is it used for?
