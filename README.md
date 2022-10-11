@@ -12,6 +12,7 @@ If you like my work, you can support me here: https://www.paypal.com/paypalme/UT
 
 Marketplace: https://www.unrealengine.com/marketplace/en-US/product/utc-shader-library
 
+Trailer: https://www.youtube.com/watch?v=v8OMGxTqgyI
 Demo : https://www.youtube.com/watch?v=AxLDbQTHUMM
 
 Follow the plugin’s development: 
@@ -22,7 +23,7 @@ Follow the plugin’s development:
 
 ### Warning
 
-If you added new material functions or modified default, save them and Data Tables before upgrade to v1.1 due to the big difference between v1.0 and v1.1.
+If you added new material functions or modified default ones, save them and Data Tables before upgrade to v1.1 due to the big difference between v1.0 and v1.1.
 
 ### What’s news?
 
@@ -105,7 +106,7 @@ It gives the possibility to blend 2 material attributes or 2 masks or one materi
 
 ![](/Doc/Screens/UI/MaskHeader.png)
 
-**Presets**
+**Presets:**
 
 By right clicking under TreeView, you can open the preset menu. It gives you the possibility of creating TreeView elements faster. 
 
@@ -114,12 +115,12 @@ By right clicking under TreeView, you can open the preset menu. It gives you the
 You can add your own presets by selecting the menu header’s. 
 A message box will open; enter the preset name’s and his menu category (Select an existing one or write your own). This new preset is now available in the preset menu.
 
-![](/Doc/Screens/UI/Preset2.png)
+![](/Doc/Screens/UI/Preset2.PNG)
 
 You can manage your preset in the Preset Object located in `Plugin-> UTC Shader Library Content-> Master Materials Generator-> P_MainPresets`.
 Warning: You can change every preset parameters’ at your own risk.
 
-![](/Doc/Screens/UI/Preset3.png)
+![](/Doc/Screens/UI/Preset3.PNG)
 
 
 ### Graph
