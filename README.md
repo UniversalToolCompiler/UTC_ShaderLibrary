@@ -109,7 +109,7 @@ It gives the possibility to blend 2 material attributes or 2 masks or one materi
 
 **Presets:**
 
-By right clicking under TreeView, you can open the preset menu. It gives you the possibility of creating TreeView elements faster. 
+By right clicking under TreeView, you can open the preset menu. It gives you the possibility to create TreeView elements faster. 
 
 ![](/Doc/Screens/UI/Preset1.png)
 
