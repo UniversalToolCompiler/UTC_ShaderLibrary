@@ -6,6 +6,7 @@ For Unreal Engine 5.0.
 
 Feel free to send me feedbacks to improve this plugin ! 
 
+
 ## Main Links
 
 If you like my work, you can support me here: https://www.paypal.com/paypalme/UTCompiler 
@@ -20,7 +21,8 @@ Follow the plugin’s development:
 * Twitter: https://twitter.com/UTCompiler 
 * Trello: https://trello.com/b/w91ommLH/utc-shader-library
 
-## Release UTC Shader Library 1.1
+
+## UTC Shader Library 1.1 Release
 
 ### Warning
 
@@ -29,11 +31,11 @@ If you added new material functions or modified default ones, save them and Data
 ### What’s news?
 
 * `Presets:` Create TreeView functions in one click by selecting presets and add your owns.
-* `Custom Packed Functions:` if you have packed textures, it gives you the possibility to create custom functions to fit with them.
-* `List Organization:` Lists that contain material functions in conbo boxes are grouped for more visibility.
+* `Custom Packed Texture Functions:` if you have packed textures, it gives you the possibility to create custom functions to fit with them.
+* `List Organization:` Lists that contain material functions in combo boxes are grouped for more visibility.
 * `UI`
 * `Add to:` You can now add directly functions in an existing material.
-* `Material function library:` Adding new MF like detailed functions, Fuzzy, PDO …
+* `Material function library:` New MF like detailed functions, Fuzzy, PDO …
 
 
 ## What is it used for?
