@@ -22,7 +22,7 @@ Follow the plugin’s development:
 * Trello: https://trello.com/b/w91ommLH/utc-shader-library
 
 
-## Release UTC Shader Library 1.1
+## UTC Shader Library 1.1 Release
 
 ### Warning
 
