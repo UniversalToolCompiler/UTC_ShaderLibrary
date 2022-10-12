@@ -29,7 +29,7 @@ If you added new material functions or modified default ones, save them and Data
 ### What’s news?
 
 * `Presets:` Create TreeView functions in one click by selecting presets and add your owns.
-* `Custom Packed Functions:` if you have packed textures, it gives you the possibility to create custom functions to fit with them.
+* `Custom Packed Texture Functions:` if you have packed textures, it gives you the possibility to create custom functions to fit with them.
 * `List Organization:` Lists that contain material functions in combo boxes are grouped for more visibility.
 * `UI`
 * `Add to:` You can now add directly functions in an existing material.
