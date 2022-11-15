@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "MaterialGraph/MaterialGraphNode.h"
+#include "IMaterialEditor.h"
 
 #include "UI/MMGSettings.h"
 #include "UI/MMGTreeView.h"
@@ -12,10 +14,11 @@
 #include "Materials/MaterialExpressionNamedReroute.h"
 #include "Materials/MaterialExpressionMaterialFunctionCall.h"
 #include "Materials/MaterialExpressionBlendMaterialAttributes.h"
+#include "Materials/MaterialExpressionTextureSampleParameter2D.h"
 
 class SMMGTreeView;
-enum EMAttributes;
 class FUTC_Utils;
+enum EMAttributes;
 
 UENUM()
 enum EExpressionType
@@ -25,6 +28,9 @@ enum EExpressionType
 	EUVsFunction UMETA(DisplayName = "UVs Function"),
 	EParameter UMETA(DisplayName = "Parameter"),
 	EUVsParameter UMETA(DisplayName = "UVsParameter"),
+	EPackedTexture UMETA(DisplayName = "PackedTexture"),
+	EPackedRerouteDeclaration UMETA(DisplayName = "PackedTexture"),
+	EPackedCompMask UMETA(DisplayName = "PackedCompMask"),
 	
 	ERerouteDeclarationFunction UMETA(DisplayName = "Reroute Declaration Function"),
 	ERerouteUsageFunction UMETA(DisplayName = "Reroute Usage Function"),
@@ -40,25 +46,46 @@ enum EExpressionType
 class FMMGLibrary
 {
 public:
-	void GenerateMaterial(const FMMGConfigStruct MainSettings, const TArray<FMMGTreeViewPtr> TreeViewParameters, const FMMGMaterialSettingsStruct MaterialSettings);
-	void SetMaterialNodes();
-	
+	void GenerateMaterial(const FMMGGenerateMaterialStruct MainSettings, const TArray<FMMGTreeViewPtr> TreeViewParameters, const FMMGMaterialSettingsStruct MaterialSettings);
+	void GenerateMaterialInstance();
+	void AddToMaterial(const FMMGAddToMaterialStruct MainSettings, const TArray<FMMGTreeViewPtr> TreeViewParameters);
+	void InitNodesGen();
+
+	/** MA && Mask*/
 	void GenerateMaterialAttributeFunction();
+	void GenerateMaterialOutputs(FName RowName);
 	void GenerateMaskFunction();
+
+	/**UVs*/
 	void GenerateUVsFunction();
 	void GenerateUVsParameters();
 	bool HasToGenerateUVsFunction()const;
 
+	/**Material Function*/
 	void GenerateMaterialFunctionNode(const FString FunctionName);
-	void GenerateParameterByMFInputType(UMaterialExpressionMaterialFunctionCall* MaterialFunction, FFunctionExpressionInput CurrentInput, const bool isUVsFunction = false);
-	void ConnectFunctionToMaterialAttribute();
-
-	void ConnectRerouteOutput();
 	
+	/**Input Types */
+	void GenerateParameterByMFInputType(UMaterialExpressionMaterialFunctionCall* MaterialFunction, FFunctionExpressionInput CurrentInput, const bool isUVsFunction = false);
+	void GenerateTextureSampleParameter(UMaterialExpressionMaterialFunctionCall* MaterialFunction, UMaterialExpression* PreviewExpression, FFunctionExpressionInput CurrentInput, EFunctionInputType InputType, FString GroupName, const bool isUVsFunction = false);
+	void GenerateScalarParameter(UMaterialExpressionMaterialFunctionCall* MaterialFunction, UMaterialExpression* PreviewExpression, FFunctionExpressionInput CurrentInput, EFunctionInputType InputType, FString GroupName, const bool isUVsFunction = false);
+	void GenerateVector2n3Parameter(UMaterialExpressionMaterialFunctionCall* MaterialFunction, UMaterialExpression* PreviewExpression, FFunctionExpressionInput CurrentInput, EFunctionInputType InputType, FString GroupName, const bool isUVsFunction = false);
+	void GenerateVector4Parameter(UMaterialExpressionMaterialFunctionCall* MaterialFunction, UMaterialExpression* PreviewExpression, FFunctionExpressionInput CurrentInput, EFunctionInputType InputType, FString GroupName, const bool isUVsFunction = false);
+	void GenerateTexture2DParameter(UMaterialExpressionMaterialFunctionCall* MaterialFunction, UMaterialExpression* PreviewExpression, FFunctionExpressionInput CurrentInput, EFunctionInputType InputType, FString GroupName, const bool isUVsFunction = false);
+	void GenerateBoolParameter(UMaterialExpressionMaterialFunctionCall* MaterialFunction, UMaterialExpression* PreviewExpression, FFunctionExpressionInput CurrentInput, EFunctionInputType InputType, FString GroupName, const bool isUVsFunction = false);
+
+	/**Custom Packed*/
+	void SetCustomPackedRerouteUsage(UMaterialExpressionMaterialFunctionCall* MaterialFunction);
+	FString GetCustomPackedName();
+
+	/**Connctions && Positions*/
+	void ConnectFunctionToMaterialAttribute();
+	void ConnectRerouteOutput();
 	void SetNodePosition(UMaterialExpression* Expression, EExpressionType ExpressionType, const bool ReduceNodeSize = false);
+
+	/**Utils*/
+	SGraphEditor* FindGraphEditorByMaterial(UMaterial* TargetMaterial);
 	
 	void ReinitVar();
-
 	bool ErrorDetector();
 	void SpawnErrorNotif(const FText NotifContent);
 	void SpawnWarningNotif(const FText NotifContent);
@@ -69,14 +96,21 @@ private:
 	TArray<FMMGTreeViewPtr> TreeViewList;
 	FMMGTreeViewPtr TreeViewParentPtr;
 	TSharedPtr<FMMGTreeView> TreeViewChildPtr;
-	FMMGConfigStruct Settings;
+	FMMGGenerateMaterialStruct Settings;
 
 	FMMGMaterialFunctionStruct* FunctionDataStruct;
 	FString PackageName;
 	FName ParameterName;
 	int32 InputIndex;
-	int32 FunctionIndex;
-	bool CommentYPositionDoOnce = true; 
+	int32 SortPriority;
+	bool CommentYPositionDoOnce = true;
+
+	/**Add To Material */
+	bool bAddToMaterial = false;
+	IMaterialEditor* MaterialEd;
+	UEdGraph* EdGraph;
+	UMaterialGraph* MatGraph;
+	UMaterialExpression* JumpToThisExpression;
 
 	//DT
 	UDataTable* MaterialOutputDT = LoadObject<UDataTable>(nullptr, TEXT("DataTable'/UTC_ShaderLibrary/MasterMaterialsGenerator/DT_MaterialOutputs.DT_MaterialOutputs'"));
@@ -113,6 +147,18 @@ private:
 	FVector2d MaterialParameterPosition = FVector2d(0, 0);
 	FVector2d UVsParameterPosition = FVector2d(0, 0);
 	int32 FirstCommentYPosition;
+
+	//Custom Packed
+	TArray<UMaterialExpression*> CustomPackedMFList;
+	UMaterialExpressionNamedRerouteDeclaration* PackedNamedRerouteDeclarationPtr;
+	UMaterialExpressionNamedRerouteUsage* PackedNamedRerouteUsagePtr;
+	UMaterialExpressionTextureSampleParameter2D* PackedTextureParamPtr;
+	int32 CustomPackedIndex = 0;
+	int32 CustomPackedInputIndex = 0;
+	bool ProceedCustomPacked = false;
+	bool DoOnceCustomPacked = true;
+	FString CurrentPackedOutput;
+	FString CustomPackedName;
 
 	SMMGTreeView TreeViewWidget;
 	FUTC_Utils* Utils;

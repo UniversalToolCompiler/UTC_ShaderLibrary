@@ -31,7 +31,5 @@ class UMMGGraphSchema : public UEdGraphSchema
 		return FPinConnectionResponse(CONNECT_RESPONSE_MAKE, TEXT("Ok"));
 	}
 	
-	virtual void GetGraphContextActions(FGraphContextMenuBuilder& ContextMenuBuilder) const override;
 	virtual FLinearColor GetPinTypeColor(const FEdGraphPinType& PinType) const override;
-
 };

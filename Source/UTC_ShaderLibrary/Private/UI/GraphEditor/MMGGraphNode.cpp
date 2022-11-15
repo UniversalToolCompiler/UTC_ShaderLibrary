@@ -11,6 +11,9 @@
 #include "Widgets/Images/SImage.h"
 #include "SLevelOfDetailBranchNode.h"
 #include "SGraphNode.h"
+#include "SGraphPin.h"
+#include "Widgets/Layout/SWrapBox.h"
+#include "Widgets/Text/SInlineEditableTextBlock.h"
 
 
 void SMMGGraphNode::Construct(const FArguments& InArgs, UMMGEdGraphNode* InNode)
@@ -24,7 +27,7 @@ void SMMGGraphNode::UpdateGraphNode()
 {
 	RightNodeBox.Reset();
 	LeftNodeBox.Reset();
-
+	
 	TSharedPtr<SNodeTitle> NodeTitle = SNew(SNodeTitle, GraphNode);
 	
 	TSharedRef<SOverlay> DefaultTitleAreaWidget =
@@ -32,14 +35,14 @@ void SMMGGraphNode::UpdateGraphNode()
 	+SOverlay::Slot()
 	[
 		SNew(SImage)
-		.Image(FEditorStyle::GetBrush("Graph.Node.TitleGloss"))
+		.Image(FAppStyle::GetBrush("Graph.Node.TitleGloss"))
 		.ColorAndOpacity(NewNodeInfos->TitleAreaColor)
 		
 	]
 	+SOverlay::Slot()
 	[
 		SNew(SImage)
-		.Image(FEditorStyle::GetBrush("Graph.Node.TitleGloss"))
+		.Image(FAppStyle::GetBrush("Graph.Node.TitleGloss"))
 		.ColorAndOpacity(NewNodeInfos->TitleAreaColor)
 			
 	]
@@ -75,7 +78,7 @@ void SMMGGraphNode::UpdateGraphNode()
 	[
 		SNew(SBorder)
 		.Visibility(EVisibility::HitTestInvisible)
-		.BorderImage(FEditorStyle::GetBrush("Graph.Node.TitleHighlight"))
+		.BorderImage(FAppStyle::GetBrush("Graph.Node.TitleHighlight"))
 		.BorderBackgroundColor(this, &SGraphNode::GetNodeTitleIconColor)
 		[
 			SNew(SSpacer)
@@ -106,6 +109,9 @@ void SMMGGraphNode::UpdateGraphNode()
 		[
 			CreateNodeContentArea()
 		];
+
+	LeftNodeBox->SetRenderOpacity(2);
+	RightNodeBox->SetRenderOpacity(2);
 	
 	this->GetOrAddSlot(ENodeZone::Center)
 	.HAlign(HAlign_Center)
@@ -138,7 +144,7 @@ void SMMGGraphNode::UpdateGraphNode()
 TSharedRef<SWidget> SMMGGraphNode::CreateNodeContentArea()
 {
 	return SNew(SBorder)
-	.BorderImage(FEditorStyle::GetBrush("NoBorder"))
+	.BorderImage(FAppStyle::GetBrush("NoBorder"))
 	.HAlign(HAlign_Fill)
 	.VAlign(VAlign_Fill)
 	.Padding(FMargin(0,3))

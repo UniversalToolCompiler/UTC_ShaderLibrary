@@ -26,6 +26,7 @@ void UMMGEdGraph::AddThisNode(FMMGTreeView* NewTreeView)
 	{
 		Node->NodeType = EMaterialAttributeNode;
 		Node->TitleAreaColor = FLinearColor(.14,.58,1,1);
+		
 	}
 	else if (*NewTreeView->FunctionType == MaskType)
 	{
@@ -180,8 +181,6 @@ void UMMGEdGraph::SetThisPinName(FMMGTreeView* ParentTreeView, FMMGTreeView* Chi
 		else
 			CurrentNode->OutputPin->PinName = FName("Select Mask Type");
 	}
-		
-	GraphEditorPtr->RefreshNode(*CurrentNode);
 }
 
 void UMMGEdGraph::RemoveThisPin(FMMGTreeView* ParentTreeView, FMMGTreeView* ChildTreeView)
@@ -267,7 +266,7 @@ void UMMGEdGraph::RefreshUVsNodeConnection(FMMGTreeView* TreeView)
 
 		if(UMMGEdGraphNode* UVsNode = UVsNodeMap.FindRef(RefFunctionNode))
 		{
-			for (TSharedPtr<FMMGTreeView> Child : TreeView->ChildrenFunction)
+			for (TSharedPtr<FMMGTreeView> Child : TreeView->ChildFunctions)
 			{
 				UEdGraphPin* Pin = RefFunctionNode->InputPinMap.FindRef(Child.Get());
 			
@@ -297,11 +296,11 @@ TArray<FMMGTreeView*> UMMGEdGraph::ReorderMaskList()
 			/** Check Validity*/
 			bool AValid = false;
 			bool BValid = false;
-			bool Empty = TreeView->ChildrenFunction.IsEmpty();
+			bool Empty = TreeView->ChildFunctions.IsEmpty();
 			if(!Empty)
 			{
-				AValid = TreeView->ChildrenFunction[0]->CurrentAComboItem.IsValid();
-				BValid = TreeView->ChildrenFunction[0]->CurrentBComboItem.IsValid();
+				AValid = TreeView->ChildFunctions[0]->CurrentAComboItem.IsValid();
+				BValid = TreeView->ChildFunctions[0]->CurrentBComboItem.IsValid();
 			}
 			//-------------------------------------------------------------------------------------------------------------------------------------
 			
@@ -317,7 +316,7 @@ TArray<FMMGTreeView*> UMMGEdGraph::ReorderMaskList()
 				
 				for (FMMGTreeView* FuncTreeView : FunctionNodeTreeList)
 				{
-					if(*TreeView->ChildrenFunction[0]->CurrentAComboItem == *FuncTreeView->FunctionName)
+					if(*TreeView->ChildFunctions[0]->CurrentAComboItem == *FuncTreeView->FunctionName)
 					{
 						if(*FuncTreeView->FunctionType == MAType)
 						{
@@ -328,7 +327,7 @@ TArray<FMMGTreeView*> UMMGEdGraph::ReorderMaskList()
 							AIsMask = true;
 						}
 					}
-					if(*TreeView->ChildrenFunction[0]->CurrentBComboItem == *FuncTreeView->FunctionName)
+					if(*TreeView->ChildFunctions[0]->CurrentBComboItem == *FuncTreeView->FunctionName)
 					{
 						if(*FuncTreeView->FunctionType == MAType)
 						{
@@ -345,13 +344,13 @@ TArray<FMMGTreeView*> UMMGEdGraph::ReorderMaskList()
 					FirstTreeViewMasks.Add(TreeView);
 			
 				else if(!AIsMA && BIsMA)
-					OtherTreeViewMasksMap.Add(TreeView, *TreeView->ChildrenFunction[0]->CurrentAComboItem);
+					OtherTreeViewMasksMap.Add(TreeView, *TreeView->ChildFunctions[0]->CurrentAComboItem);
 			
 				else if (AIsMA && !BIsMA)
-					OtherTreeViewMasksMap.Add(TreeView, *TreeView->ChildrenFunction[0]->CurrentBComboItem);
+					OtherTreeViewMasksMap.Add(TreeView, *TreeView->ChildFunctions[0]->CurrentBComboItem);
 
 				if(AIsMask && BIsMask)
-					OtherTreeViewMasksMap.Add(TreeView, *TreeView->ChildrenFunction[0]->CurrentBComboItem);
+					OtherTreeViewMasksMap.Add(TreeView, *TreeView->ChildFunctions[0]->CurrentBComboItem);
 			}
 			else
 				TreeViewMasksNotValid.Add(TreeView);
@@ -423,10 +422,10 @@ void UMMGEdGraph::SetNodeLocation()
 
 		bool AEqualB = false;
 
-		if(!TreeViewMask->ChildrenFunction.IsEmpty())
+		if(!TreeViewMask->ChildFunctions.IsEmpty())
 		{
 			ChildMaskValid = true;
-			MaskChild = TreeViewMask->ChildrenFunction[0];
+			MaskChild = TreeViewMask->ChildFunctions[0];
 		}
 		
 		if(ChildMaskValid)

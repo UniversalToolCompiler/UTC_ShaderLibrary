@@ -6,6 +6,7 @@
 #include "Modules/ModuleManager.h"
 #include "Modules/ModuleInterface.h"
 #include "UTC_Manager.h"
+#include "UI/Presets/MMGPresetActions.h"
 
 #define MMG_MODULE_NAME TEXT ("UTC_ShaderLibraryPlugin")
 
@@ -28,6 +29,8 @@ private:
 	void RegisterMenus();
 	TSharedRef<class SDockTab> OnSpawnPluginTab(const class FSpawnTabArgs& SpawnTabArgs);
 	TSharedPtr<class FUICommandList> PluginCommands;
+
+	TSharedPtr<FMMGPresetAssetTypeActions> MMGPresetsAssetTypeActions;
 
 	FUTC_Manager UTC_Manager;
 };

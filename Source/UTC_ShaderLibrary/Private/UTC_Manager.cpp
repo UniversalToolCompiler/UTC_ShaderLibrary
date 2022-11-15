@@ -7,8 +7,11 @@ DECLARE_DELEGATE(FOnMMGManagerUpdated);
 /** Get MMGSettings */
 FUTC_Manager::FUTC_Manager()
 {
-	MMGConfigs = GetMutableDefault<UMMGConfigs>();
-	ensure(MMGConfigs);
+	MMGGenerateMaterial = GetMutableDefault<UMMGGenerateMaterial>();
+	ensure(MMGGenerateMaterial);
+
+	MMGAddToMaterial = GetMutableDefault<UMMGAddToMaterial>();
+	ensure(MMGAddToMaterial);
 
 	MMGTreeViewSettings = GetMutableDefault<UMMGTreeViewSettings>();
 	ensure(MMGTreeViewSettings);
@@ -20,9 +23,14 @@ FUTC_Manager::FUTC_Manager()
 	ensure(MMGMaterialSettings);
 }
 
-UMMGConfigs* FUTC_Manager::GetMMGConfigs() const
+UMMGGenerateMaterial* FUTC_Manager::GetMMGGenerateMaterial() const
 {
-	return MMGConfigs;
+	return MMGGenerateMaterial;
+}
+
+UMMGAddToMaterial* FUTC_Manager::GetMMGAddToMaterial() const
+{
+	return MMGAddToMaterial;
 }
 
 UMMGTreeViewSettings* FUTC_Manager::GetMMGTreeViewSettings() const
@@ -45,6 +53,12 @@ UMMGMaterialSettings* FUTC_Manager::GetMMGMaterialSettings() const
 /** Generate Material */
 void FUTC_Manager::GenerateMaterial()
 {
-	MMGLib.GenerateMaterial(MMGConfigs->ConfigClass, MMGTreeViewSettings->ItemList, MMGMaterialSettings->ConfigClass);
+	MMGLib.GenerateMaterial(MMGGenerateMaterial->GenerateMaterialClass, MMGTreeViewSettings->ItemList, MMGMaterialSettings->ConfigClass);
+}
+
+/** Add to Material */
+void FUTC_Manager::AddToMaterial()
+{
+	MMGLib.AddToMaterial(MMGAddToMaterial->AddToMaterialClass, MMGTreeViewSettings->ItemList);
 }
 

@@ -53,7 +53,8 @@ public class UTC_ShaderLibrary : ModuleRules
 				"AssetTools",
 				"GraphEditor",
 				"KismetWidgets",
-				"EditorScriptingUtilities"
+				"EditorScriptingUtilities",
+				"MaterialEditor"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

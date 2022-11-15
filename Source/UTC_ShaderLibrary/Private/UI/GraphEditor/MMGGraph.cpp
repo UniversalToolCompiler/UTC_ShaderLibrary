@@ -1,6 +1,8 @@
 ﻿/** Copyright 2022, Universal Tool Compiler */
 
 #include "UI/GraphEditor/MMGGraph.h"
+
+#include "SGraphPanel.h"
 #include "UI/GraphEditor/MMGEdGraph.h"
 #include "UI/GraphEditor/MMGGraphSchema.h"
 
@@ -15,9 +17,12 @@ void SMMGGraph::Construct(const FArguments& InArgs)
 		MMGGraphSettings->GraphObject->Schema = UMMGGraphSchema::StaticClass();
 		MMGGraphSettings->GraphObject->AddToRoot();
 	}
-
+	
 	GraphEditor = SNew(SGraphEditor)
-		.GraphToEdit(MMGGraphSettings->GraphObject);
+		.GraphToEdit(MMGGraphSettings->GraphObject)
+		.IsEditable(false)
+		.ShowGraphStateOverlay(false)
+		.DisplayAsReadOnly(false);
 	
 	GraphEditor->SetViewLocation(FVector2d(-250,-250), .75);
 	MMGGraphSettings->GraphObject->GraphEditorPtr = GraphEditor;

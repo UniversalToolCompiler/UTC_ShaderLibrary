@@ -9,7 +9,8 @@
 #include "CoreMinimal.h"
 #include "Misc/FileHelper.h"
 
-class UMMGConfigs;
+class UMMGGenerateMaterial;
+class UMMGAddToMaterial;
 class UMMGTreeViewSettings;
 class FMMGLibrary;
 class UMMGGraphSettings;
@@ -22,14 +23,17 @@ class FUTC_Manager : public IMMGUIActions
 public:
 	FUTC_Manager();
 	
-	UMMGConfigs* GetMMGConfigs() const;
+	UMMGGenerateMaterial* GetMMGGenerateMaterial() const;
+	UMMGAddToMaterial* GetMMGAddToMaterial() const;
 	UMMGTreeViewSettings* GetMMGTreeViewSettings()const;
 	UMMGGraphSettings* GetMMGGraphSettings()const;
 	UMMGMaterialSettings* GetMMGMaterialSettings()const;
 	
 	void GenerateMaterial();
+	void AddToMaterial();
 	
-	UMMGConfigs* MMGConfigs;
+	UMMGGenerateMaterial* MMGGenerateMaterial;
+	UMMGAddToMaterial* MMGAddToMaterial;
 	UMMGTreeViewSettings* MMGTreeViewSettings;
 	UMMGGraphSettings* MMGGraphSettings;
 	UMMGMaterialSettings* MMGMaterialSettings;
