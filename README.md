@@ -15,7 +15,7 @@ Marketplace: https://www.unrealengine.com/marketplace/en-US/product/utc-shader-l
 
 Trailer: https://www.youtube.com/watch?v=v8OMGxTqgyI
 
-Demo : https://www.youtube.com/watch?v=AxLDbQTHUMM
+Demo/ Tuto : https://www.youtube.com/watch?v=5c1hgwKFKVM
 
 Follow the plugin’s development: 
 * Twitter: https://twitter.com/UTCompiler 
