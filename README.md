@@ -2,7 +2,7 @@
 
 Easily create Master Materials for Unreal Engine !
 
-For Unreal Engine 5.0.
+For Unreal Engine 5.1.
 
 This is a first version of this plugin, content is limited but it will grow up over time. Feel free to send me feedbacks to improve it ! 
 
