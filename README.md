@@ -2,22 +2,42 @@
 
 Easily create Master Materials for Unreal Engine !
 
-For Unreal Engine 5.1.
+For Unreal Engine 5.0.
 
-This is a first version of this plugin, content is limited but it will grow up over time. Feel free to send me feedbacks to improve it ! 
+Feel free to send me feedbacks to improve this plugin ! 
+
 
 ## Main Links
 
+If you like my work, you can support me here: https://www.paypal.com/paypalme/UTCompiler 
+
 Marketplace: https://www.unrealengine.com/marketplace/en-US/product/utc-shader-library
 
-Demo : https://www.youtube.com/watch?v=AxLDbQTHUMM
+Trailer: https://www.youtube.com/watch?v=v8OMGxTqgyI
+
+Demo/ Tuto : https://www.youtube.com/watch?v=5c1hgwKFKVM
 
 Follow the plugin’s development: 
 * Twitter: https://twitter.com/UTCompiler 
 * Trello: https://trello.com/b/w91ommLH/utc-shader-library
 
-If you like my work, you can support me here: https://www.paypal.com/paypalme/UTCompiler 
-Thanks ! 
+
+## UTC Shader Library 1.1 Release
+
+### Warning
+
+If you added new material functions or modified default ones, save them and Data Tables before upgrade to v1.1 due to the big difference between v1.0 and v1.1.
+
+### What’s news?
+
+* `Presets:` Create TreeView functions in one click by selecting presets and add your owns.
+* `Custom Packed Texture Functions:` if you have packed textures, it gives you the possibility to create custom functions to fit with them.
+* `List Organization:` Lists that contain material functions in combo boxes are grouped for more visibility.
+* `UI`
+* `Add to:` You can now add directly functions in an existing material.
+* `Material function library:` New MF like detailed functions, Fuzzy, PDO …
+
+
 ## What is it used for?
 
 The UTC Shader Library helping you to create Master Materials and saving time by avoiding repetitive operations with a library of common material functions, an automation of nodes and parameters creation, and a material instances elements’ organization like autocomplete material group names and sort priorities.
@@ -89,9 +109,28 @@ It gives the possibility to blend 2 material attributes or 2 masks or one materi
 
 ![](/Doc/Screens/UI/MaskHeader.png)
 
+**Presets:**
+
+By right clicking under TreeView, you can open the preset menu. It gives you the possibility to create TreeView elements faster. 
+
+![](/Doc/Screens/UI/Preset1.png)
+
+You can add your own presets by selecting the menu header’s.
+
+A message box will open; enter the preset name’s and his menu category (Select an existing one or write your own). This new preset is now available in the preset menu.
+
+![](/Doc/Screens/UI/Preset2.PNG)
+
+You can manage your preset in the Preset Object located in `Plugin-> UTC Shader Library Content-> Master Materials Generator-> P_MainPresets`.
+
+Warning: You can change every preset parameters’ at your own risk.
+
+![](/Doc/Screens/UI/Preset3.PNG)
+
+
 ### Graph
 
-The Graph is only for visualization at this moment. He reacts to the tree view.
+This graph is on read only statement, he reacts to the TreeView.
 
 ![](/Doc/Screens/UI/Graph1.png)
 
@@ -106,9 +145,19 @@ He displays 4 custom nodes
 
 Same as in a classic material. When the material is generated, he will have these selected parameters.
 
+![](/Doc/Screens/UI/MaterialSettings.png)
+
 ### Main Settings
 
+**Generate Material**
+
 Here, it’s possible to set the Material Name that the generated material will have, his content browser generation path and if you want to generate a Material Instance with it.
+![](/Doc/Screens/UI/GenerateMainSettings.PNG)
+
+**Add to Material**
+
+You can add the current TreeView functions directly in an existing material. Drag and drop the target material, push the button and voila !
+![](/Doc/Screens/UI/AddMainSettings.PNG)
 
 ## Add Custom Material Functions
 ### Data Tables
@@ -117,9 +166,10 @@ For each tree view combo box, it’s possible to add custom material functions. 
 
 They are located in: `Plugins->UTC Shader Library Content->Master Materials Generator`
 * The Row Name will be the display name in combo boxes of MMG. 
-* Drag and drop your material function into the slot Material Function
+* Drag and drop your material function into the slot Material Function.
 * The Material Attribute Type defines which material attribute input the material function will be connected to. 
-* The Material Group which will be displayed in the material instance arrangement
+* The Material Group which will be displayed in the material instance arrangement.
+* The MMG Menu Category will class the material function in the right category in TreeView combo boxes’.
 
 ![](/Doc/Screens/UI/DT.png)
 
@@ -190,21 +240,37 @@ Get Z normal direction, to add dust, snow … on the mesh.
 
 >Base Color
 
+>Detail Base Color
+
 >Metallic
 
->Specular 
+>Detail Metallic
+
+>Specular
+
+>Detail Specular
 
 >Roughness
+
+>Detail Roughness
 
 >Emissive
 
 >Opacity
 
+>Opacity Mask
+
 >Normal
+
+>Detail Normal
 
 >AO
 
 >Subsurface
+
+>Fuzzy
+
+>Distance Field PDO
 
 ## UVs
 >Local
