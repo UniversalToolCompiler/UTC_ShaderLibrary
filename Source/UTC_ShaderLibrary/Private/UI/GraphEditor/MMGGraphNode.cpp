@@ -28,6 +28,9 @@ void SMMGGraphNode::UpdateGraphNode()
 	RightNodeBox.Reset();
 	LeftNodeBox.Reset();
 	
+	InputPins.Reset();
+	OutputPins.Reset();
+	
 	TSharedPtr<SNodeTitle> NodeTitle = SNew(SNodeTitle, GraphNode);
 	
 	TSharedRef<SOverlay> DefaultTitleAreaWidget =
@@ -135,7 +138,6 @@ void SMMGGraphNode::UpdateGraphNode()
 			]
 		]
 	];
-
 	
 	CreatePinWidgets();
 
