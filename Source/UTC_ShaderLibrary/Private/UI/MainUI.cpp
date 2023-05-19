@@ -82,7 +82,7 @@ void SMainUI::Construct(const FArguments& InArgs)
 			+SSplitter::Slot()
 			[
 				SNew(SBorder)
-				.BorderImage(FEditorStyle::GetBrush("ToolPanel.GroupBorder"))
+				.BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
 				[
 					SNew(SScrollBox)
 					+SScrollBox::Slot()

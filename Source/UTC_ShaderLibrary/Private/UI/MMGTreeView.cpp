@@ -49,7 +49,7 @@ void SMMGTreeView::Construct(const FArguments& TreeArgs)
 							SNew(SRichTextBlock)
 							.Text(FText::FromString("Add Function"))
 							.TransformPolicy(ETextTransformPolicy::ToUpper)
-							.DecoratorStyleSet(&FEditorStyle::Get())
+							.DecoratorStyleSet(&FAppStyle::Get())
 							.TextStyle(FAppStyle::Get(), "DetailsView.CategoryTextStyle")
 					]
 
@@ -82,7 +82,7 @@ void SMMGTreeView::Construct(const FArguments& TreeArgs)
 					.AutoWidth()
 					[
 						SNew(SButton)
-						.ButtonStyle(FEditorStyle::Get(), "SimpleButton")
+						.ButtonStyle(FAppStyle::Get(), "SimpleButton")
 						.OnClicked(this, &SMMGTreeView::GenerateFunctionButtonPressed)
 						.IsEnabled(this, &SMMGTreeView::AddFunctionButtonStatement)
 						.ContentPadding(FMargin(1, 0))
@@ -134,7 +134,7 @@ TSharedRef<ITableRow> SMMGTreeView::OnGenerateListRow(FMMGTreeViewPtr Item, cons
 					SNew(SComboButton)
 					.HasDownArrow(false)
 					.ButtonColorAndOpacity(FLinearColor(0,0,0,2.5))
-					.ButtonStyle(FEditorStyle::Get(), "HoverHintOnly")
+					.ButtonStyle(FAppStyle::Get(), "HoverHintOnly")
 					.ContentPadding(FMargin(5.f, 2.5f))
 					.ButtonContent()
 					[
@@ -174,7 +174,7 @@ TSharedRef<ITableRow> SMMGTreeView::OnGenerateListRow(FMMGTreeViewPtr Item, cons
 				.AutoWidth()
 				[
 					   SNew(SButton)
-					   .ButtonStyle(FEditorStyle::Get(), "SimpleButton")
+					   .ButtonStyle(FAppStyle::Get(), "SimpleButton")
 					   .OnClicked(this, &SMMGTreeView::FunctionTypeButtonPressed, Item)
 					   .IsEnabled(this, &SMMGTreeView::LimitAddButton, Item)
 					   .ContentPadding(FMargin(1, 0))
@@ -209,7 +209,7 @@ TSharedRef<ITableRow> SMMGTreeView::OnGenerateListRow(FMMGTreeViewPtr Item, cons
 					[
 						SAssignNew(Item->ChildFunctionComboButton, SComboButton)
 						.ButtonColorAndOpacity(ComboButtonColor)
-						.ButtonStyle(FEditorStyle::Get(), "HoverHintOnly")
+						.ButtonStyle(FAppStyle::Get(), "HoverHintOnly")
 						.ButtonContent()
 						[
 						   SNew(STextBlock)
@@ -224,7 +224,7 @@ TSharedRef<ITableRow> SMMGTreeView::OnGenerateListRow(FMMGTreeViewPtr Item, cons
 					.Padding(10.f, 5.f, 44.f, 5.f)
 					[
 						SNew(SSeparator)
-						.SeparatorImage(FEditorStyle::Get().GetBrush("Menu.Separator"))
+						.SeparatorImage(FAppStyle::Get().GetBrush("Menu.Separator"))
 						.Thickness(1.f)
 					]
 					
@@ -239,7 +239,7 @@ TSharedRef<ITableRow> SMMGTreeView::OnGenerateListRow(FMMGTreeViewPtr Item, cons
 							SNew(SRichTextBlock)
 							.Text(FText::FromString("A:"))
 							.TransformPolicy(ETextTransformPolicy::ToUpper)
-							.DecoratorStyleSet(&FEditorStyle::Get())
+							.DecoratorStyleSet(&FAppStyle::Get())
 						]
 			
 						+SHorizontalBox::Slot()
@@ -248,7 +248,7 @@ TSharedRef<ITableRow> SMMGTreeView::OnGenerateListRow(FMMGTreeViewPtr Item, cons
 						[
 							SAssignNew(Item->AMaskComboButton, SComboButton)
 							.ButtonColorAndOpacity(ComboButtonColor)
-							.ButtonStyle(FEditorStyle::Get(), "HoverHintOnly")
+							.ButtonStyle(FAppStyle::Get(), "HoverHintOnly")
 							.ButtonContent()
 							[
 							   SNew(STextBlock)
@@ -267,7 +267,7 @@ TSharedRef<ITableRow> SMMGTreeView::OnGenerateListRow(FMMGTreeViewPtr Item, cons
 							SNew(SRichTextBlock)
 							.Text(FText::FromString("B:"))
 							.TransformPolicy(ETextTransformPolicy::ToUpper)
-							.DecoratorStyleSet(&FEditorStyle::Get())
+							.DecoratorStyleSet(&FAppStyle::Get())
 						]
 			
 						+SHorizontalBox::Slot()
@@ -276,7 +276,7 @@ TSharedRef<ITableRow> SMMGTreeView::OnGenerateListRow(FMMGTreeViewPtr Item, cons
 						[
 							SAssignNew(Item->BMaskComboButton, SComboButton)
 							.ButtonColorAndOpacity(ComboButtonColor)
-							.ButtonStyle(FEditorStyle::Get(), "HoverHintOnly")
+							.ButtonStyle(FAppStyle::Get(), "HoverHintOnly")
 							.ButtonContent()
 							[
 							   SNew(STextBlock)
@@ -315,7 +315,7 @@ TSharedRef<ITableRow> SMMGTreeView::OnGenerateListRow(FMMGTreeViewPtr Item, cons
 							.Padding(FMargin(5.f, 0))
 							[
 								SAssignNew(Item->RPinImage, SImage)
-								.Image(FSlateIcon(FEditorStyle::GetStyleSetName(), "Graph.Pin.Disconnected_VarA").GetIcon())
+								.Image(FAppStyle::GetBrush("Graph.Pin.Disconnected_VarA"))
 								.ColorAndOpacity(FLinearColor(1,0,0,1))
 							]
 							+SHorizontalBox::Slot()
@@ -323,7 +323,7 @@ TSharedRef<ITableRow> SMMGTreeView::OnGenerateListRow(FMMGTreeViewPtr Item, cons
 							[ 
 								SAssignNew(Item->RPackedFunctionComboButton, SComboButton)
 								.ButtonColorAndOpacity(ComboButtonColor)
-								.ButtonStyle(FEditorStyle::Get(), "HoverHintOnly")
+								.ButtonStyle(FAppStyle::Get(), "HoverHintOnly")
 								.ContentPadding(FMargin(7,0,0,0))
 							   .ButtonContent()
 							   [
@@ -345,7 +345,7 @@ TSharedRef<ITableRow> SMMGTreeView::OnGenerateListRow(FMMGTreeViewPtr Item, cons
 							.Padding(FMargin(5.f, 0))
 							[
 								SAssignNew(Item->GPinImage, SImage)
-								.Image(FSlateIcon(FEditorStyle::GetStyleSetName(), "Graph.Pin.Disconnected_VarA").GetIcon())
+								.Image(FAppStyle::GetBrush("Graph.Pin.Disconnected_VarA"))
 								.ColorAndOpacity(FLinearColor(0,1,0,1))
 							]
 							+SHorizontalBox::Slot()
@@ -353,7 +353,7 @@ TSharedRef<ITableRow> SMMGTreeView::OnGenerateListRow(FMMGTreeViewPtr Item, cons
 							[
 								SAssignNew(Item->GPackedFunctionComboButton, SComboButton)
 								.ButtonColorAndOpacity(ComboButtonColor)
-								.ButtonStyle(FEditorStyle::Get(), "HoverHintOnly")
+								.ButtonStyle(FAppStyle::Get(), "HoverHintOnly")
 								.ContentPadding(FMargin(7,0,0,0))
 							   .ButtonContent()
 							   [
@@ -375,7 +375,7 @@ TSharedRef<ITableRow> SMMGTreeView::OnGenerateListRow(FMMGTreeViewPtr Item, cons
 							.Padding(FMargin(5.f, 0))
 							[
 								SAssignNew(Item->BPinImage, SImage)
-								.Image(FSlateIcon(FEditorStyle::GetStyleSetName(), "Graph.Pin.Disconnected_VarA").GetIcon())
+								.Image(FAppStyle::GetBrush("Graph.Pin.Disconnected_VarA"))
 								.ColorAndOpacity(FLinearColor(0,0,1,1))
 							]
 							+SHorizontalBox::Slot()
@@ -383,7 +383,7 @@ TSharedRef<ITableRow> SMMGTreeView::OnGenerateListRow(FMMGTreeViewPtr Item, cons
 							[
 								SAssignNew(Item->BPackedFunctionComboButton, SComboButton)
 								.ButtonColorAndOpacity(ComboButtonColor)
-								.ButtonStyle(FEditorStyle::Get(), "HoverHintOnly")
+								.ButtonStyle(FAppStyle::Get(), "HoverHintOnly")
 								.ContentPadding(FMargin(7,0,0,0))
 							   .ButtonContent()
 							   [
@@ -405,7 +405,7 @@ TSharedRef<ITableRow> SMMGTreeView::OnGenerateListRow(FMMGTreeViewPtr Item, cons
 							.Padding(FMargin(5.f, 0))
 							[
 								SAssignNew(Item->APinImage, SImage)
-								.Image(FSlateIcon(FEditorStyle::GetStyleSetName(), "Graph.Pin.Disconnected_VarA").GetIcon())
+								.Image(FAppStyle::GetBrush("Graph.Pin.Disconnected_VarA"))
 								.ColorAndOpacity(FLinearColor(1,1,1,1))
 							]
 							+SHorizontalBox::Slot()
@@ -413,7 +413,7 @@ TSharedRef<ITableRow> SMMGTreeView::OnGenerateListRow(FMMGTreeViewPtr Item, cons
 							[
 								SAssignNew(Item->APackedFunctionComboButton, SComboButton)
 								.ButtonColorAndOpacity(ComboButtonColor)
-								.ButtonStyle(FEditorStyle::Get(), "HoverHintOnly")
+								.ButtonStyle(FAppStyle::Get(), "HoverHintOnly")
 								.ContentPadding(FMargin(7,0,0,0))
 							   .ButtonContent()
 							   [
@@ -429,7 +429,7 @@ TSharedRef<ITableRow> SMMGTreeView::OnGenerateListRow(FMMGTreeViewPtr Item, cons
 						.Padding(12.f, 5.f, 44.f, 4.f)
 						[
 							SNew(SSeparator)
-							.SeparatorImage(FEditorStyle::Get().GetBrush("Menu.Separator"))
+							.SeparatorImage(FAppStyle::Get().GetBrush("Menu.Separator"))
 							.Thickness(1.f)
 						]
 					]
@@ -453,7 +453,7 @@ TSharedRef<ITableRow> SMMGTreeView::OnGenerateListRow(FMMGTreeViewPtr Item, cons
 						[
 							 SAssignNew(Item->ChildFunctionComboButton, SComboButton)
 							 .ButtonColorAndOpacity(ComboButtonColor)
-							 .ButtonStyle(FEditorStyle::Get(), "HoverHintOnly")
+							 .ButtonStyle(FAppStyle::Get(), "HoverHintOnly")
 							 .ContentPadding(FMargin(7,0,0,0))
 							.ButtonContent()
 							[
@@ -855,13 +855,13 @@ void SMMGTreeView::OnSelectionChangedRPackedCombo(TSharedPtr<FString> NewValue, 
 		{
 			Item->CurrentRPackedComboItem = nullptr;
 			Item->CustomPackedSelectionSave.Add("R", "null");
-			Item->RPinImage->SetImage(FSlateIcon(FEditorStyle::GetStyleSetName(), "Graph.Pin.Disconnected_VarA").GetIcon());
+			Item->RPinImage->SetImage(FAppStyle::GetBrush("Graph.Pin.Disconnected_VarA"));
 		}
 		else
 		{
 			Item->CurrentRPackedComboItem = NewValue;
 			Item->CustomPackedSelectionSave.Add("R", *NewValue);
-			Item->RPinImage->SetImage(FSlateIcon(FEditorStyle::GetStyleSetName(), "Graph.Pin.Connected_VarA").GetIcon());
+			Item->RPinImage->SetImage(FAppStyle::GetBrush( "Graph.Pin.Connected_VarA"));
 		}
 	}
 }
@@ -874,13 +874,13 @@ void SMMGTreeView::OnSelectionChangedGPackedCombo(TSharedPtr<FString> NewValue, 
 		{
 			Item->CurrentGPackedComboItem = nullptr;
 			Item->CustomPackedSelectionSave.Add("G", "null");
-			Item->GPinImage->SetImage(FSlateIcon(FEditorStyle::GetStyleSetName(), "Graph.Pin.Disconnected_VarA").GetIcon());
+			Item->GPinImage->SetImage(FAppStyle::GetBrush("Graph.Pin.Disconnected_VarA"));
 		}
 		else
 		{
 			Item->CurrentGPackedComboItem = NewValue;
 			Item->CustomPackedSelectionSave.Add("G", *NewValue);
-			Item->GPinImage->SetImage(FSlateIcon(FEditorStyle::GetStyleSetName(), "Graph.Pin.Connected_VarA").GetIcon());
+			Item->GPinImage->SetImage(FAppStyle::GetBrush( "Graph.Pin.Connected_VarA"));
 		}
 	}
 }
@@ -893,13 +893,13 @@ void SMMGTreeView::OnSelectionChangedBPackedCombo(TSharedPtr<FString> NewValue, 
 		{
 			Item->CurrentBPackedComboItem = nullptr;
 			Item->CustomPackedSelectionSave.Add("B", "null");
-			Item->BPinImage->SetImage(FSlateIcon(FEditorStyle::GetStyleSetName(), "Graph.Pin.Disconnected_VarA").GetIcon());
+			Item->BPinImage->SetImage(FAppStyle::GetBrush("Graph.Pin.Disconnected_VarA"));
 		}
 		else
 		{
 			Item->CurrentBPackedComboItem = NewValue;
 			Item->CustomPackedSelectionSave.Add("B", *NewValue);
-			Item->BPinImage->SetImage(FSlateIcon(FEditorStyle::GetStyleSetName(), "Graph.Pin.Connected_VarA").GetIcon());
+			Item->BPinImage->SetImage(FAppStyle::GetBrush( "Graph.Pin.Connected_VarA"));
 		}
 	}
 }
@@ -913,13 +913,13 @@ void SMMGTreeView::OnSelectionChangedAPackedCombo(TSharedPtr<FString> NewValue, 
 		{
 			Item->CurrentAPackedComboItem = nullptr;
 			Item->CustomPackedSelectionSave.Add("A", "null");
-			Item->APinImage->SetImage(FSlateIcon(FEditorStyle::GetStyleSetName(), "Graph.Pin.Disconnected_VarA").GetIcon());
+			Item->APinImage->SetImage(FAppStyle::GetBrush("Graph.Pin.Disconnected_VarA"));
 		}
 		else
 		{
 			Item->CurrentAPackedComboItem = NewValue;
 			Item->CustomPackedSelectionSave.Add("A", *NewValue);
-			Item->APinImage->SetImage(FSlateIcon(FEditorStyle::GetStyleSetName(), "Graph.Pin.Connected_VarA").GetIcon());
+			Item->APinImage->SetImage(FAppStyle::GetBrush( "Graph.Pin.Connected_VarA"));
 		}
 	}
 }
@@ -1170,7 +1170,7 @@ void SMMGTreeView::EnsureComboBoxItems(FMMGTreeViewPtr Item)
 					Child->CustomPackedSelectionSave.Add("R", *Child->CurrentRPackedComboItem);
 					if(Child->RPinImage.IsValid())
 					{
-						Child->RPinImage->SetImage(FSlateIcon(FEditorStyle::GetStyleSetName(), "Graph.Pin.Connected_VarA").GetIcon());
+						Child->RPinImage->SetImage(FAppStyle::GetBrush( "Graph.Pin.Connected_VarA"));
 					}
 				}
 				
@@ -1179,7 +1179,7 @@ void SMMGTreeView::EnsureComboBoxItems(FMMGTreeViewPtr Item)
 					Child->CustomPackedSelectionSave.Add("G", *Child->CurrentGPackedComboItem);
 					if(Child->GPinImage.IsValid())
 					{
-						Child->GPinImage->SetImage(FSlateIcon(FEditorStyle::GetStyleSetName(), "Graph.Pin.Connected_VarA").GetIcon());
+						Child->GPinImage->SetImage(FAppStyle::GetBrush( "Graph.Pin.Connected_VarA"));
 					}
 				}
 				
@@ -1188,7 +1188,7 @@ void SMMGTreeView::EnsureComboBoxItems(FMMGTreeViewPtr Item)
 					Child->CustomPackedSelectionSave.Add("B", *Child->CurrentBPackedComboItem);
 					if(Child->BPinImage.IsValid())
 					{
-						Child->BPinImage->SetImage(FSlateIcon(FEditorStyle::GetStyleSetName(), "Graph.Pin.Connected_VarA").GetIcon());
+						Child->BPinImage->SetImage(FAppStyle::GetBrush( "Graph.Pin.Connected_VarA"));
 					}
 				}
 				
@@ -1197,7 +1197,7 @@ void SMMGTreeView::EnsureComboBoxItems(FMMGTreeViewPtr Item)
 					Child->CustomPackedSelectionSave.Add("A", *Child->CurrentAPackedComboItem);
 					if(Child->APinImage.IsValid())
 					{
-						Child->APinImage->SetImage(FSlateIcon(FEditorStyle::GetStyleSetName(), "Graph.Pin.Connected_VarA").GetIcon());
+						Child->APinImage->SetImage(FAppStyle::GetBrush( "Graph.Pin.Connected_VarA"));
 					}
 				}
 			}
@@ -1242,7 +1242,7 @@ void SMMGTreeView::CreateTreeViewContextMenu(const FVector2D& MouseLocation, FMM
 			MenuBuilder.AddMenuEntry(
 			FText::FromString("Delete Attribute"),
 			FText::FromString("Delete this attribute"),
-			FSlateIcon(FEditorStyle::GetStyleSetName(), "ContentBrowser.AssetActions.Delete"),
+			FSlateIcon(FAppStyle::GetAppStyleSetName(), "ContentBrowser.AssetActions.Delete"),
 			FUIAction(FExecuteAction::CreateSP(this, &SMMGTreeView::DeleteTreeViewItem, Item, false))
 			);
 		}
@@ -1255,14 +1255,14 @@ void SMMGTreeView::CreateTreeViewContextMenu(const FVector2D& MouseLocation, FMM
 			MenuBuilder.AddMenuEntry(
 			FText::FromString("Duplicate Function"),
 			FText::FromString("Duplicate this function"),
-			FSlateIcon(FEditorStyle::GetStyleSetName(), "ContentBrowser.AssetActions.Duplicate"),
+			FSlateIcon(FAppStyle::GetAppStyleSetName(), "ContentBrowser.AssetActions.Duplicate"),
 			FUIAction(FExecuteAction::CreateSP(this, &SMMGTreeView::DuplicateTreeViewItem, Item, false))
 			);
 
 			MenuBuilder.AddMenuEntry(
 			FText::FromString("Delete Function"),
 			FText::FromString("Delete this function"),
-			FSlateIcon(FEditorStyle::GetStyleSetName(), "ContentBrowser.AssetActions.Delete"),
+			FSlateIcon(FAppStyle::GetAppStyleSetName(), "ContentBrowser.AssetActions.Delete"),
 			FUIAction(FExecuteAction::CreateSP(this, &SMMGTreeView::DeleteTreeViewItem, Item, false))
 			);
 		}

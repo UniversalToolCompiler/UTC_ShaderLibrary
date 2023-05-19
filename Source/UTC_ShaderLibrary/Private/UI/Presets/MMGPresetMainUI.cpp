@@ -28,7 +28,7 @@ void FPresetMainUI::GenerateAddPresetUI(SMMGTreeView* MMGTreeView)
 		.SupportsMaximize(false)
 		[
 			SNew(SBorder)
-			.BorderImage(FEditorStyle::GetBrush("ToolPanel.GroupBorder"))
+			.BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
 			.Padding(10)
 			[
 				SNew(SVerticalBox)

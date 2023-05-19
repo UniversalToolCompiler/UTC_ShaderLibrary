@@ -13,6 +13,7 @@
 #include "Engine/AssetManager.h"
 #include "Subsystems/AssetEditorSubsystem.h"
 #include "Materials/MaterialInstanceConstant.h"
+#include "ComponentReregisterContext.h"
 
 #include "Factories/MaterialInstanceConstantFactoryNew.h"
 #include "Framework/Notifications/NotificationManager.h"
@@ -227,13 +228,13 @@ void FMMGLibrary::GenerateMaterialAttributeFunction()
 	{
 		/** Material attribute */
 		MaterialAttributePtr = NewObject<UMaterialExpressionMakeMaterialAttributes>(UTCMaterial);
-		UTCMaterial->Expressions.Add(MaterialAttributePtr);
+		UTCMaterial->GetEditorOnlyData()->ExpressionCollection.Expressions.Add(MaterialAttributePtr);
 
 		/** Material attribute reroute named node
 		 * Declaration
 		 */
 		MANamedRerouteDeclarationPtr = NewObject<UMaterialExpressionNamedRerouteDeclaration>(UTCMaterial);
-		UTCMaterial->Expressions.Add(MANamedRerouteDeclarationPtr);
+		UTCMaterial->GetEditorOnlyData()->ExpressionCollection.Expressions.Add(MANamedRerouteDeclarationPtr);
 	}
 
 	MANamedRerouteDeclarationPtr->Name = FName(*TreeViewParentPtr->FunctionName);
@@ -304,7 +305,7 @@ void FMMGLibrary::GenerateMaterialAttributeFunction()
 			ParamExpressionList.Empty();
 		}
 		else
-			UTCMaterial->Expressions.Remove(UVsFunctionPtr);
+			UTCMaterial->GetEditorOnlyData()->ExpressionCollection.Expressions.Remove(UVsFunctionPtr);
 	}
 	
 	/** Reorder reroute usage to fit with MA */
@@ -328,7 +329,7 @@ void FMMGLibrary::GenerateMaterialAttributeFunction()
 	else
 	{
 		MainCommentPtr = NewObject<UMaterialExpressionComment>(UTCMaterial);
-		UTCMaterial->Expressions.Add(MainCommentPtr);
+		UTCMaterial->GetEditorOnlyData()->ExpressionCollection.Expressions.Add(MainCommentPtr);
 	}
 	
 	MainCommentPtr->CommentColor = FLinearColor(0,0,0,1);
@@ -400,7 +401,7 @@ void FMMGLibrary::GenerateMaterialOutputs(FName RowName)
 	else
 	{
 		CommentPtr = NewObject<UMaterialExpressionComment>(UTCMaterial);
-		UTCMaterial->Expressions.Add(CommentPtr);
+		UTCMaterial->GetEditorOnlyData()->ExpressionCollection.Expressions.Add(CommentPtr);
 	}
 
 	CommentPtr->CommentColor = FLinearColor(0.019,0.076,0.13,1);
@@ -433,13 +434,13 @@ void FMMGLibrary::GenerateMaskFunction()
 	{
 		/** Blend attribute */
 		BlendAttributesPtr = NewObject<UMaterialExpressionBlendMaterialAttributes>(UTCMaterial);
-		UTCMaterial->Expressions.Add(BlendAttributesPtr);
+		UTCMaterial->GetEditorOnlyData()->ExpressionCollection.Expressions.Add(BlendAttributesPtr);
 
 		/** Blend attribute reroute named node
 		* Declaration
 		*/
 		MANamedRerouteDeclarationPtr = NewObject<UMaterialExpressionNamedRerouteDeclaration>(UTCMaterial);
-		UTCMaterial->Expressions.Add(MANamedRerouteDeclarationPtr);
+		UTCMaterial->GetEditorOnlyData()->ExpressionCollection.Expressions.Add(MANamedRerouteDeclarationPtr);
 	}
 
 	MANamedRerouteDeclarationPtr->Name = FName(*TreeViewParentPtr->FunctionName);
@@ -496,7 +497,7 @@ void FMMGLibrary::GenerateMaskFunction()
 		else
 		{
 			CommentPtr = NewObject<UMaterialExpressionComment>(UTCMaterial);
-			UTCMaterial->Expressions.Add(CommentPtr);
+			UTCMaterial->GetEditorOnlyData()->ExpressionCollection.Expressions.Add(CommentPtr);
 		}
 		
 		CommentPtr->CommentColor = FLinearColor(0.13,0.08,0.025,1);
@@ -529,7 +530,7 @@ void FMMGLibrary::GenerateMaskFunction()
 			ParamExpressionList.Empty();
 		}
 		else
-			UTCMaterial->Expressions.Remove(UVsFunctionPtr);
+			UTCMaterial->GetEditorOnlyData()->ExpressionCollection.Expressions.Remove(UVsFunctionPtr);
 	}
 	
 	/** Reroute usage location */
@@ -546,7 +547,7 @@ void FMMGLibrary::GenerateMaskFunction()
 	else
 	{
 		MainCommentPtr = NewObject<UMaterialExpressionComment>(UTCMaterial);
-		UTCMaterial->Expressions.Add(MainCommentPtr);
+		UTCMaterial->GetEditorOnlyData()->ExpressionCollection.Expressions.Add(MainCommentPtr);
 	}
 	
 	MainCommentPtr->CommentColor = FLinearColor(0,0,0,1);
@@ -580,7 +581,7 @@ void FMMGLibrary::GenerateUVsFunction()
 	else
 	{
 		UVsFunctionPtr = NewObject<UMaterialExpressionMaterialFunctionCall>(UTCMaterial);
-		UTCMaterial->Expressions.Add(UVsFunctionPtr);
+		UTCMaterial->GetEditorOnlyData()->ExpressionCollection.Expressions.Add(UVsFunctionPtr);
 		UVsFunctionPtr->MaterialFunction = FunctionDataStruct->MaterialFunction;
 	}
 	
@@ -647,7 +648,7 @@ void FMMGLibrary::GenerateMaterialFunctionNode(const FString FunctionName)
 		/** Generate the material function */
 		MaterialFunctionPtr = NewObject<UMaterialExpressionMaterialFunctionCall>(UTCMaterial);
 		MaterialFunctionPtr->MaterialFunction = FunctionDataStruct->MaterialFunction;
-		UTCMaterial->Expressions.Add(MaterialFunctionPtr);
+		UTCMaterial->GetEditorOnlyData()->ExpressionCollection.Expressions.Add(MaterialFunctionPtr);
 		MFExpressionList.Add(MaterialFunctionPtr);
 	
 		/** Function reroute named node
@@ -655,12 +656,12 @@ void FMMGLibrary::GenerateMaterialFunctionNode(const FString FunctionName)
 		 */
 		FunctionNamedRerouteDeclarationPtr = NewObject<UMaterialExpressionNamedRerouteDeclaration>(UTCMaterial);
 		FunctionNamedRerouteDeclarationPtr->Name = FName(*TreeViewParentPtr->FunctionName + FString(" - ") + FunctionName );
-		UTCMaterial->Expressions.Add(FunctionNamedRerouteDeclarationPtr);
+		UTCMaterial->GetEditorOnlyData()->ExpressionCollection.Expressions.Add(FunctionNamedRerouteDeclarationPtr);
 
 		/** Usage */
 		FunctionNamedRerouteUsagePtr = NewObject<UMaterialExpressionNamedRerouteUsage>(UTCMaterial);;
 		FunctionNamedRerouteUsagePtr->Declaration = FunctionNamedRerouteDeclarationPtr;
-		UTCMaterial->Expressions.Add(FunctionNamedRerouteUsagePtr);
+		UTCMaterial->GetEditorOnlyData()->ExpressionCollection.Expressions.Add(FunctionNamedRerouteUsagePtr);
 		
 		FunctionNamedRerouteDeclarationPtr->Input.Expression = MaterialFunctionPtr;	
 	}
@@ -824,7 +825,7 @@ void FMMGLibrary::GenerateTextureSampleParameter(UMaterialExpressionMaterialFunc
 	else
 	{
 		TextureParam = NewObject<UMaterialExpressionTextureSampleParameter2D>(UTCMaterial);
-		UTCMaterial->Expressions.Add(TextureParam);
+		UTCMaterial->GetEditorOnlyData()->ExpressionCollection.Expressions.Add(TextureParam);
 	}
 
 	/** Cast to preview value & set default */
@@ -870,7 +871,7 @@ void FMMGLibrary::GenerateTextureSampleParameter(UMaterialExpressionMaterialFunc
 		else
 		{
 			PackedNamedRerouteDeclarationPtr = NewObject<UMaterialExpressionNamedRerouteDeclaration>(UTCMaterial);
-			UTCMaterial->Expressions.Add(PackedNamedRerouteDeclarationPtr);
+			UTCMaterial->GetEditorOnlyData()->ExpressionCollection.Expressions.Add(PackedNamedRerouteDeclarationPtr);
 		}
 		
 		/** Parameter infos */
@@ -911,7 +912,7 @@ void FMMGLibrary::GenerateScalarParameter(UMaterialExpressionMaterialFunctionCal
 	else
 	{
 		ScalarParam = NewObject<UMaterialExpressionScalarParameter>(UTCMaterial);
-		UTCMaterial->Expressions.Add(ScalarParam);
+		UTCMaterial->GetEditorOnlyData()->ExpressionCollection.Expressions.Add(ScalarParam);
 	}
 	
 	/** Cast to preview value & set default */
@@ -953,7 +954,7 @@ void FMMGLibrary::GenerateVector2n3Parameter(UMaterialExpressionMaterialFunction
 	else
 	{
 		VectorParam = NewObject<UMaterialExpressionVectorParameter>(UTCMaterial);
-		UTCMaterial->Expressions.Add(VectorParam);
+		UTCMaterial->GetEditorOnlyData()->ExpressionCollection.Expressions.Add(VectorParam);
 	}
 	
 				
@@ -1011,10 +1012,10 @@ void FMMGLibrary::GenerateVector4Parameter(UMaterialExpressionMaterialFunctionCa
 	else
 	{
 		VectorParam = NewObject<UMaterialExpressionVectorParameter>(UTCMaterial);
-		UTCMaterial->Expressions.Add(VectorParam);
+		UTCMaterial->GetEditorOnlyData()->ExpressionCollection.Expressions.Add(VectorParam);
 		
 		AppendParam = NewObject<UMaterialExpressionAppendVector>(UTCMaterial);
-		UTCMaterial->Expressions.Add(AppendParam);
+		UTCMaterial->GetEditorOnlyData()->ExpressionCollection.Expressions.Add(AppendParam);
 	}
 	
 	/** Cast to preview value & set default */
@@ -1063,7 +1064,7 @@ void FMMGLibrary::GenerateTexture2DParameter(UMaterialExpressionMaterialFunction
 	else
 	{
 		TextureObjectParam = NewObject<UMaterialExpressionTextureObjectParameter>(UTCMaterial);
-		UTCMaterial->Expressions.Add(TextureObjectParam);
+		UTCMaterial->GetEditorOnlyData()->ExpressionCollection.Expressions.Add(TextureObjectParam);
 	}
 	/** Cast to preview value & set default */
 	UMaterialExpressionTextureObject* PreviewValue = Cast<UMaterialExpressionTextureObject>(PreviewExpression);
@@ -1104,7 +1105,7 @@ void FMMGLibrary::GenerateBoolParameter(UMaterialExpressionMaterialFunctionCall*
 	else
 	{
 		BoolParam = NewObject<UMaterialExpressionStaticBoolParameter>(UTCMaterial);
-		UTCMaterial->Expressions.Add(BoolParam);
+		UTCMaterial->GetEditorOnlyData()->ExpressionCollection.Expressions.Add(BoolParam);
 	}
 	
 	/** Cast to preview value & set default */
@@ -1151,11 +1152,11 @@ void FMMGLibrary::SetCustomPackedRerouteUsage(UMaterialExpressionMaterialFunctio
 	{
 		/**Reroute Usage*/
 		PackedNamedRerouteUsagePtr = NewObject<UMaterialExpressionNamedRerouteUsage>(UTCMaterial);
-		UTCMaterial->Expressions.Add(PackedNamedRerouteUsagePtr);
+		UTCMaterial->GetEditorOnlyData()->ExpressionCollection.Expressions.Add(PackedNamedRerouteUsagePtr);
 
 		/** Mask */
 		PackedMaskExpressionPtr = NewObject<UMaterialExpressionComponentMask>(UTCMaterial);
-		UTCMaterial->Expressions.Add(PackedMaskExpressionPtr);
+		UTCMaterial->GetEditorOnlyData()->ExpressionCollection.Expressions.Add(PackedMaskExpressionPtr);
 	}
 	PackedNamedRerouteUsagePtr->Declaration = PackedNamedRerouteDeclarationPtr;
 	
@@ -1306,11 +1307,11 @@ void FMMGLibrary::ConnectRerouteOutput()
 			{
 				/** A usage */
 				ANamedRerouteUsage = NewObject<UMaterialExpressionNamedRerouteUsage>(UTCMaterial);
-				UTCMaterial->Expressions.Add(ANamedRerouteUsage);
+				UTCMaterial->GetEditorOnlyData()->ExpressionCollection.Expressions.Add(ANamedRerouteUsage);
 
 				/** B usage */
 				BNamedRerouteUsage = NewObject<UMaterialExpressionNamedRerouteUsage>(UTCMaterial);
-				UTCMaterial->Expressions.Add(BNamedRerouteUsage);
+				UTCMaterial->GetEditorOnlyData()->ExpressionCollection.Expressions.Add(BNamedRerouteUsage);
 			}
 
 			if(bAValid)
@@ -1362,8 +1363,8 @@ void FMMGLibrary::ConnectRerouteOutput()
 	{
 		UMaterialExpressionNamedRerouteUsage* RestNamedRerouteUsage = NewObject<UMaterialExpressionNamedRerouteUsage>(UTCMaterial);
 		RestNamedRerouteUsage->Declaration = Rest[0];
-		UTCMaterial->Expressions.Add(RestNamedRerouteUsage);
-		UTCMaterial->MaterialAttributes.Expression = RestNamedRerouteUsage;
+		UTCMaterial->GetEditorOnlyData()->ExpressionCollection.Expressions.Add(RestNamedRerouteUsage);
+		UTCMaterial->GetEditorOnlyData()->MaterialAttributes.Expression = RestNamedRerouteUsage;
 
 		UTCMaterial->EditorX = 2400;
 		RestNamedRerouteUsage->MaterialExpressionEditorX = UTCMaterial->EditorX - RestNamedRerouteUsage->GetWidth()*2;

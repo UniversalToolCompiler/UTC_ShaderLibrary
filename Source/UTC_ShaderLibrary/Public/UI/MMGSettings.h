@@ -7,6 +7,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
+#include "MaterialDomain.h"
 #include "MMGSettings.generated.h"
 
 

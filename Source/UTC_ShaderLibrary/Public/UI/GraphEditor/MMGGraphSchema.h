@@ -32,5 +32,4 @@ class UMMGGraphSchema : public UEdGraphSchema
 	}
 	
 	virtual FLinearColor GetPinTypeColor(const FEdGraphPinType& PinType) const override;
-
 };

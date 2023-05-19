@@ -1,6 +1,8 @@
 ﻿/** Copyright 2022, Universal Tool Compiler */
 
 #include "UI/GraphEditor/MMGEdGraph.h"
+
+#include "SGraphPin.h"
 #include "UI/GraphEditor/MMGEdGraphNode.h"
 #include "UI/MMGTreeView.h"
 
@@ -26,7 +28,6 @@ void UMMGEdGraph::AddThisNode(FMMGTreeView* NewTreeView)
 	{
 		Node->NodeType = EMaterialAttributeNode;
 		Node->TitleAreaColor = FLinearColor(.14,.58,1,1);
-		
 	}
 	else if (*NewTreeView->FunctionType == MaskType)
 	{
@@ -157,7 +158,7 @@ void UMMGEdGraph::AddThisPin(FMMGTreeView* ParentTreeView, FMMGTreeView* ChildTr
 		}
 		CurrentNode->OutputPin->PinName = "Select Mask Type";
 	}
-		
+	
 	GraphEditorPtr->RefreshNode(*CurrentNode);
 	SetNodeLocation();
 }
@@ -181,7 +182,6 @@ void UMMGEdGraph::SetThisPinName(FMMGTreeView* ParentTreeView, FMMGTreeView* Chi
 		else
 			CurrentNode->OutputPin->PinName = FName("Select Mask Type");
 	}
-		
 	GraphEditorPtr->RefreshNode(*CurrentNode);
 }
 

@@ -23,5 +23,4 @@ public:
 	//Node Param
 	UMMGEdGraphNode* NewNodeInfos;
 	FLinearColor TitleAreaColor = FLinearColor(.14,.58,1,1);
-	
 };

@@ -223,7 +223,7 @@ TSharedRef<ITableRow> SMMGSelectionMenu::GenerateTreeRow(FMMGSelectionMenuItem I
 			.Padding(2.f, 4.f, 4.f, 3.f)
 			[
 				SNew(SSeparator)
-				.SeparatorImage(FEditorStyle::Get().GetBrush("Menu.Separator"))
+				.SeparatorImage(FAppStyle::Get().GetBrush("Menu.Separator"))
 				.Thickness(1.f)
 			]
 		];

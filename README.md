@@ -2,7 +2,7 @@
 
 Easily create Master Materials for Unreal Engine !
 
-For Unreal Engine 5.0.
+For Unreal Engine 5.1.
 
 Feel free to send me feedbacks to improve this plugin ! 
 
@@ -19,24 +19,6 @@ Demo/ Tuto : https://www.youtube.com/watch?v=5c1hgwKFKVM
 
 Follow the plugin’s development: 
 * Twitter: https://twitter.com/UTCompiler 
-* Trello: https://trello.com/b/w91ommLH/utc-shader-library
-
-
-## UTC Shader Library 1.1 Release
-
-### Warning
-
-If you added new material functions or modified default ones, save them and Data Tables before upgrade to v1.1 due to the big difference between v1.0 and v1.1.
-
-### What’s news?
-
-* `Presets:` Create TreeView functions in one click by selecting presets and add your owns.
-* `Custom Packed Texture Functions:` if you have packed textures, it gives you the possibility to create custom functions to fit with them.
-* `List Organization:` Lists that contain material functions in combo boxes are grouped for more visibility.
-* `UI`
-* `Add to:` You can now add directly functions in an existing material.
-* `Material function library:` New MF like detailed functions, Fuzzy, PDO …
-
 
 ## What is it used for?
 

@@ -10,7 +10,7 @@
 	"DocsURL": "https://github.com/UniversalToolCompiler/UTC_ShaderLibrary",
 	"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/1a9719778c054f22974e24ea2e4c4beb",
 	"SupportURL": "https://twitter.com/UTCompiler",
-	"EngineVersion": "5.0.0",
+	"EngineVersion": "5.2.0",
 	"CanContainContent": true,
 	"Installed": true,
 	"Modules": [
