@@ -1,7 +1,7 @@
 {
 	"FileVersion": 3,
 	"Version": 1,
-	"VersionName": "1.10",
+	"VersionName": "1.11",
 	"FriendlyName": "UTC Shader Library",
 	"Description": "Easily create Master Materials.",
 	"Category": "UTC Library",
@@ -10,10 +10,15 @@
 	"DocsURL": "https://github.com/UniversalToolCompiler/UTC_ShaderLibrary",
 	"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/1a9719778c054f22974e24ea2e4c4beb",
 	"SupportURL": "https://twitter.com/UTCompiler",
-	"EngineVersion": "5.2.0",
+	"EngineVersion": "5.3.0",
 	"CanContainContent": true,
 	"Installed": true,
 	"Modules": [
+		{
+			"Name": "UTC_RDGShaderLibrary",
+			"Type": "Runtime",
+			"LoadingPhase": "PostConfigInit"
+		},
 		{
 			"Name": "UTC_ShaderLibrary",
 			"Type": "Editor",

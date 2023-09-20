@@ -1,4 +1,4 @@
-﻿/** Copyright 2022, Universal Tool Compiler */
+﻿/** Copyright 2023, Universal Tool Compiler */
 
 #include "UI/GraphEditor/MMGGraphSchema.h"
 #include "UI/GraphEditor/MMGGraphSchemaActions.h"

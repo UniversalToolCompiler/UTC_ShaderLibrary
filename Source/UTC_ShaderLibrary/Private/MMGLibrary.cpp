@@ -1,4 +1,4 @@
-﻿/** Copyright 2022, Universal Tool Compiler */
+﻿/** Copyright 2023, Universal Tool Compiler */
 #include "MMGLibrary.h"
 
 #include "AssetViewUtils.h"
@@ -147,6 +147,15 @@ void FMMGLibrary::AddToMaterial(const FMMGAddToMaterialStruct MainSettings, cons
 	
 	/**Get Material Editor */ 
 	SGraphEditor* GraphWidget = FindGraphEditorByMaterial(UTCMaterial);
+
+	/** Material editor not found */
+	if(!GraphWidget)
+	{
+		FText InNotif = FText::FromString("Graph not found, try to undock the target material editor");
+		SpawnErrorNotif(InNotif);
+		return;
+	}
+	
 	EdGraph = GraphWidget->GetCurrentGraph();
 	MatGraph = static_cast<UMaterialGraph*>(EdGraph);
 	

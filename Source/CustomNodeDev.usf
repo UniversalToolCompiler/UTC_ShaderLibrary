@@ -1,0 +1,95 @@
+/** Copyright 2023, Universal Tool Compiler */
+
+#include "/Engine/Public/Platform.ush"
+#include "/Engine/Private/MaterialTemplate.ush"
+#include "/Engine/Private/DeferredShadingCommon.ush"
+
+float EdgeDetection()
+{
+	float3 x = ddx(VertexNormal);
+	float3 y = ddy(VertexNormal);
+
+	x /= PixelDepth;
+	y /= PixelDepth;
+
+	float ddxAngle = dot(x, x);
+	float ddyAngle = dot(y, y);
+	
+	float CurvatureApprox = pow(max(ddxAngle, ddyAngle), View.NormalCurvatureToRoughnessScaleBias.z);
+	return saturate(CurvatureApprox * View.NormalCurvatureToRoughnessScaleBias.x + View.NormalCurvatureToRoughnessScaleBias.y);
+}
+
+/* ---------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+float TileMask()
+{
+	/** Inset */
+	float HalfInset = Inset / 2.0;
+
+	/** Bevel */
+	float Bevel = max(BevelStrength, EXCLUDE_ZERO) / 2.0;
+	float InvBevel = 1.0 - Bevel;
+
+	/** UVs */
+	float2 Tiling = TilingOffset.xy;
+	float2 Offset = float2(-TilingOffset.z, TilingOffset.w);
+
+	float2 UVScale = float2(min(Tiling.x / Tiling.y, 1.0), 
+						    min(Tiling.y / Tiling.x, 1.0));
+
+	/** Line offset */
+	LineSteps = floor(LineSteps);
+	LineDirection = round(LineDirection);
+
+	int2 UVSteps;
+	if(LineDirection == 1.0)
+	{
+		int YUVSteps = floor(UV.x * Tiling.x + Offset.x) % LineSteps;
+		UVSteps = int2(0, YUVSteps);
+	}
+	else
+	{
+		int XUVSteps = -(floor(UV.y * Tiling.y + Offset.y) % LineSteps);
+		UVSteps = int2(XUVSteps, 0);
+	}
+	
+	float2 LineOffsetUVs = LineOffset / ( (LineSteps / 2.0) / UVSteps );
+
+	float2 UVTiles = frac((UV * Tiling) + (HalfInset * UVScale) + Offset + LineOffsetUVs);
+	float2 UVTilesScaled =  UVTiles / UVScale;
+
+	/** Draw only in Inset region */
+	if( (UVTilesScaled.x > HalfInset && HalfInset < UVTilesScaled.x - HalfInset) && 
+		(UVTilesScaled.y > HalfInset && HalfInset < UVTilesScaled.y - HalfInset) )
+	{
+		/** Bevel UV positions */
+		float2 RBevelPosition = float2(max( (UVTiles.x - (1.0 - UVScale.x)) / UVScale.x - InvBevel, 0.0 ) / Bevel, 
+								       max( (UVTiles.y - (1.0 - UVScale.y)) / UVScale.y - InvBevel, 0.0 ) / Bevel);
+
+		float2 LBevelPosition = float2(max(-UVTilesScaled.x + Bevel + Inset, 0.0) / Bevel, 
+									   max(-UVTilesScaled.y + Bevel + Inset, 0.0) / Bevel);
+	
+		/** Bevel Types */
+		BevelType = floor(BevelType);
+		float BevelAlpha = (BevelType == 0.0) ? max( max(RBevelPosition.x, RBevelPosition.y), max(LBevelPosition.x, LBevelPosition.y) ) : /* Sharp */
+						   (BevelType == 1.0) ? min( RBevelPosition.x + RBevelPosition.y + LBevelPosition.x + LBevelPosition.y, 1.0 )   : /*  Cut  */
+						   (BevelType == 2.0) ? min( saturate( length(RBevelPosition + LBevelPosition) ), 1.0 ) :                         /* Round */
+						    					min( saturate( length(RBevelPosition + LBevelPosition) ), 1.0 ) ;
+
+		Alpha = 1.0 - saturate( pow(BevelAlpha, BevelSmooth + 1.0) );
+
+		DebugUV = RBevelPosition + LBevelPosition;
+	}
+	else
+	{
+		Alpha = .0;
+	}
+
+	return 1.0;
+}
+
+
+	/** Add random offset */
+	//float2 Random = (frac( sin( dot(UVSteps, float2(12.9898,78.233) * 2.0) ) * 43758.5453));
+    //float2 RandomOffset = float2( abs(Random.x + Random.y) * 0.5, 0.0);
+/* ---------------------------------------------------------------------------------------------------------------------------------------------------*/

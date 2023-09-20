@@ -1,4 +1,4 @@
-﻿/** Copyright 2022, Universal Tool Compiler */
+﻿/** Copyright 2023, Universal Tool Compiler */
 
 
 #include "UI/MMGSelectionMenu.h"
@@ -193,7 +193,7 @@ TSharedRef<ITableRow> SMMGSelectionMenu::GenerateTreeRow(FMMGSelectionMenuItem I
 	FString DisplayTip;
 	if(InItem->TipNamePtr.IsValid())
 	{
-		DisplayTip = "(Input: " + *InItem->TipNamePtr + ")";
+		DisplayTip = "(" + *InItem->TipNamePtr + ")";
 	}
 	
 	if(InItem->isHeader)

@@ -1,4 +1,4 @@
-﻿/** Copyright 2022, Universal Tool Compiler */
+﻿/** Copyright 2023, Universal Tool Compiler */
 
 #pragma once
 #include "UI/GraphEditor/MMGGraphNode.h"

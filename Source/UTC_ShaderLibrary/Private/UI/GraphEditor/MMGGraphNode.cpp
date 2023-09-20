@@ -1,4 +1,4 @@
-﻿/** Copyright 2022, Universal Tool Compiler */
+﻿/** Copyright 2023, Universal Tool Compiler */
 
 #include "UI/GraphEditor/MMGGraphNode.h"
 #include "UI/GraphEditor/MMGEdGraphNode.h"
@@ -7,7 +7,7 @@
 #include "GraphEditorSettings.h"
 #include "Widgets/Input/SButton.h"
 #include "SNodePanel.h"
-#include "KismetWidgets/Public/SLevelOfDetailBranchNode.h"
+/*#include "KismetWidgets/Public/SLevelOfDetailBranchNode.h"*/
 #include "Widgets/Images/SImage.h"
 #include "SLevelOfDetailBranchNode.h"
 #include "SGraphNode.h"
