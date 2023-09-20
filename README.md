@@ -26,10 +26,11 @@ The UTC Shader Library helping you to create Master Materials and saving time by
 
 This Shader Library is for UE and shaders beginners, but also advanced users who want to speed up shaders’ creation.
 
-This plugin is composed of 2 different parts,
+This plugin is composed of 3 different parts,
 
 * `The Master Materials Generator` based on the Material Functions Library
 * `The Material Functions Library`
+* A simple RDG example for Compute, Pixel and Vertex Shader
 
 ## Plugin Installation
 
