@@ -11,15 +11,15 @@ Feedback is welcome and helps improve the plugin.
 * Marketplace: https://www.unrealengine.com/marketplace/en-US/product/utc-shader-library
 * Trailer: https://www.youtube.com/watch?v=v8OMGxTqgyI
 * Demo / tutorial: https://www.youtube.com/watch?v=5c1hgwKFKVM
-* Development news on X (Twitter): https://twitter.com/UTCompiler
+* Development news on X: https://x.com/UTCompiler
 
 ## What is it for?
 
 The UTC Shader Library saves time when building master materials by removing repetitive work. It provides:
 
-* a library of common material functions,
-* automatic creation of nodes and parameters,
-* organized material instances, with automatic parameter group names and sort priorities.
+* A library of common material functions,
+* Automatic creation of nodes and parameters,
+* Organized material instances, with automatic parameter group names and sort priorities.
 
 It is aimed at beginners in Unreal and shaders as well as advanced users who want to build shaders faster.
 
