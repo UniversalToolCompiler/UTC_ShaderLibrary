@@ -1,4 +1,4 @@
-﻿/** Copyright 2023, Universal Tool Compiler */
+﻿/** Copyright 2026, Universal Tool Compiler */
 
 #include "UI/GraphEditor/MMGConnectionDrawingPolicy.h"
 
