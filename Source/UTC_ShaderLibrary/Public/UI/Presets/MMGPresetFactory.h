@@ -12,5 +12,5 @@ class UMMGPresetFactory : public UFactory
 	GENERATED_BODY()
 public:
 	UMMGPresetFactory();
-	UObject* FactoryCreateNew(UClass* Class, UObject* InParent, FName Name, EObjectFlags Flags, UObject* Context, FFeedbackContext* Warn);
+	virtual UObject* FactoryCreateNew(UClass* Class, UObject* InParent, FName Name, EObjectFlags Flags, UObject* Context, FFeedbackContext* Warn) override;
 };

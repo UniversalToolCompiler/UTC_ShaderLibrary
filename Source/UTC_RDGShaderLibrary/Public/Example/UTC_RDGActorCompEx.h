@@ -4,37 +4,27 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Engine/TextureRenderTarget2D.h"
-#include "UTC_RDGShaderLibraryModule.h"
 #include "UTC_RDGActorCompEx.generated.h"
 
+class UTextureRenderTarget2D;
 
+/** Example: fills two render targets with Color every frame, one through the compute shader, one through the pixel shader */
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class UTC_RDGSHADERLIBRARY_API UUTC_RDGActorCompEx : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this component's properties
 	UUTC_RDGActorCompEx();
-	
+
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Compute Shader")
-	UTextureRenderTarget2D* CS_RenderTarget;
+	TObjectPtr<UTextureRenderTarget2D> CS_RenderTarget;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings|Pixel Shader")
-	UTextureRenderTarget2D* PS_RenderTarget;
+	TObjectPtr<UTextureRenderTarget2D> PS_RenderTarget;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
-	FVector3f Color;
-
-private:
-	FUTC_RDGShaderLibraryModule RDGModule;
-	
-protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
-
-public:
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	FVector3f Color = FVector3f::ZeroVector;
 };

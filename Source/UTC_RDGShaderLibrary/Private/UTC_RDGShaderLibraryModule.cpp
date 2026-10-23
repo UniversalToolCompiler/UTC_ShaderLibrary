@@ -3,71 +3,55 @@
 #include "UTC_RDGShaderLibraryModule.h"
 #include "Example/UTC_ShaderManagerEx.h"
 
+#include "Engine/TextureRenderTarget2D.h"
 #include "Interfaces/IPluginManager.h"
-
-#include "GlobalShader.h"
-#include "ShaderCore.h" 
-
-#define LOCTEXT_NAMESPACE "FUTC_RDGShaderLibraryModule"
+#include "Modules/ModuleManager.h"
+#include "ShaderCore.h"
+#include "TextureResource.h"
 
 void FUTC_RDGShaderLibraryModule::StartupModule()
 {
 	// Maps virtual shader source directory to the plugin's actual shaders directory.
-	FString PluginShaderDir = FPaths::Combine(IPluginManager::Get().FindPlugin(TEXT("UTC_ShaderLibrary"))->GetBaseDir(), TEXT("Shaders"));
+	const FString PluginShaderDir = FPaths::Combine(IPluginManager::Get().FindPlugin(TEXT("UTC_ShaderLibrary"))->GetBaseDir(), TEXT("Shaders"));
 	AddShaderSourceDirectoryMapping(TEXT("/UTC_Shaders"), PluginShaderDir);
 }
 
 void FUTC_RDGShaderLibraryModule::ShutdownModule()
 {
-	
 }
 
 /** ---------------------------------------------------- Examples ---------------------------------------------------- */
 
-/** Compute Shader */ 
+/** Compute Shader */
 void FUTC_RDGShaderLibraryModule::CSExample_EnqueueRenderCommand(UTextureRenderTarget2D* RenderTarget, FVector3f Color)
 {
-	TShaderMapRef<FRDGExampleCS> ComputeShader(GetGlobalShaderMap(GMaxRHIFeatureLevel));
+	FTextureRenderTargetResource* RenderTargetResource = RenderTarget ? RenderTarget->GameThread_GetRenderTargetResource() : nullptr;
+	if (!RenderTargetResource)
+	{
+		return;
+	}
 
-	UTextureRenderTarget2D* RenderTargetParam = RenderTarget;
-	FVector3f ColorParameter = Color;
-
-	ENQUEUE_RENDER_COMMAND(ComputeShader)(
-		[
-			ComputeShader,
-			RenderTargetParam,
-			ColorParameter
-		](FRHICommandListImmediate& RHICmdList)
+	ENQUEUE_RENDER_COMMAND(CSExample)(
+		[RenderTargetResource, Color](FRHICommandListImmediate& RHICmdList)
 		{
-			ComputeShader->Execute_CSExampleRenderThread(
-				RHICmdList,
-				RenderTargetParam,
-				ColorParameter);
+			FRDGExampleCS::Execute_RenderThread(RHICmdList, RenderTargetResource, Color);
 		});
 }
 
-/** Vertex & Pixel Shader */
+/** Pixel Shader */
 void FUTC_RDGShaderLibraryModule::PSExample_EnqueueRenderCommand(UTextureRenderTarget2D* RenderTarget, FVector3f Color)
 {
-	TShaderMapRef<FRDGExamplePS> PixelShader(GetGlobalShaderMap(GMaxRHIFeatureLevel));
-	
-	UTextureRenderTarget2D* RenderTargetParam = RenderTarget;
-	FVector3f ColorParameter = Color;
+	FTextureRenderTargetResource* RenderTargetResource = RenderTarget ? RenderTarget->GameThread_GetRenderTargetResource() : nullptr;
+	if (!RenderTargetResource)
+	{
+		return;
+	}
 
-	ENQUEUE_RENDER_COMMAND(PixelShader)(
-		[
-			PixelShader,
-			RenderTargetParam,
-			ColorParameter
-		](FRHICommandListImmediate& RHICmdList)
+	ENQUEUE_RENDER_COMMAND(PSExample)(
+		[RenderTargetResource, Color](FRHICommandListImmediate& RHICmdList)
 		{
-			PixelShader->Execute_PSExampleRenderThread(
-				RHICmdList,
-				RenderTargetParam,
-				ColorParameter);
+			FRDGExamplePS::Execute_RenderThread(RHICmdList, RenderTargetResource, Color);
 		});
 }
-
-#undef LOCTEXT_NAMESPACE
 
 IMPLEMENT_MODULE(FUTC_RDGShaderLibraryModule, UTC_RDGShaderLibrary)

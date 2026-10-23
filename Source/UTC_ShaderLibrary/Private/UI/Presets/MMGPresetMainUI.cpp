@@ -1,27 +1,33 @@
 ﻿/** Copyright 2023, Universal Tool Compiler */
+
 #include "UI/Presets/MMGPresetMainUI.h"
+#include "UI/MMGTreeView.h"
+#include "UI/Presets/MMGPresets.h"
+
+#include "Editor.h"
+#include "Widgets/Input/SButton.h"
+#include "Widgets/Input/SComboButton.h"
+#include "Widgets/Input/SEditableText.h"
+#include "Widgets/Input/SEditableTextBox.h"
 
 #define LOCTEXT_NAMESPACE "PresetMainUI"
-
 
 void FPresetMainUI::GenerateAddPresetUI(SMMGTreeView* MMGTreeView)
 {
 	CurrentMMGTreeView = MMGTreeView;
 
-	TArray<TSharedPtr<FString>> CurrentPresetCategoriesPtr;
-	/** Init existing preset names*/
-	for(FMMGPresetStruct Preset : PresetsObject->Presets)
+	/** Init existing preset names and categories */
+	for (const FMMGPresetStruct& Preset : MMGAssets::GetPresets()->Presets)
 	{
 		CurrentPresetNames.AddUnique(Preset.PresetName);
-		
-		if(!CurrentPresetCategories.Contains(Preset.PresetCategory))
+
+		if (!CurrentPresetCategories.ContainsByPredicate([&Preset](const TSharedPtr<FString>& Category) { return *Category == Preset.PresetCategory; }))
 		{
-			CurrentPresetCategories.AddUnique(Preset.PresetCategory);
-			CurrentPresetCategoriesPtr.AddUnique(MakeShareable(new FString (Preset.PresetCategory)));
+			CurrentPresetCategories.Add(MakeShared<FString>(Preset.PresetCategory));
 		}
 	}
-	
-	PresetWindow =  SNew(SWindow)
+
+	PresetWindow = SNew(SWindow)
 		.Title(LOCTEXT("AddCustomPreset", "Set Custom Preset Settings"))
 		.ClientSize(FVector2D(350, 120))
 		.SupportsMinimize(false)
@@ -34,47 +40,47 @@ void FPresetMainUI::GenerateAddPresetUI(SMMGTreeView* MMGTreeView)
 				SNew(SVerticalBox)
 				+SVerticalBox::Slot()
 				.AutoHeight()
-				.Padding(1,10,1,1)
+				.Padding(1, 10, 1, 1)
 				[
 					SNew(SHorizontalBox)
 					+SHorizontalBox::Slot()
 					.AutoWidth()
-					.Padding(0,1,0,0)
+					.Padding(0, 1, 0, 0)
 					[
 						SNew(STextBlock)
-						.Text(FText::FromString("Name:"))
-						.Font(FCoreStyle::GetDefaultFontStyle("Bold", 10) )
+						.Text(LOCTEXT("Name", "Name:"))
+						.Font(FCoreStyle::GetDefaultFontStyle("Bold", 10))
 					]
 					+SHorizontalBox::Slot()
-					.Padding(29,0,0,0)
+					.Padding(29, 0, 0, 0)
 					[
 						SNew(SEditableTextBox)
-						.HintText(FText::FromString("Preset Name"))
+						.HintText(LOCTEXT("NameHint", "Preset Name"))
 						.OnTextChanged_Raw(this, &FPresetMainUI::GetUserPresetName)
-						.Font(FCoreStyle::GetDefaultFontStyle("Regular", 9.5f) )
+						.Font(FCoreStyle::GetDefaultFontStyle("Regular", 9.5f))
 					]
 				]
 				+SVerticalBox::Slot()
 				.AutoHeight()
-				.Padding(1,5,1,1)
+				.Padding(1, 5, 1, 1)
 				[
 					SNew(SHorizontalBox)
 					+SHorizontalBox::Slot()
 					.AutoWidth()
-					.Padding(0,3,0,0)
+					.Padding(0, 3, 0, 0)
 					[
 						SNew(STextBlock)
-						.Text(FText::FromString("Category:"))
-						.Font(FCoreStyle::GetDefaultFontStyle("Bold", 10) )
+						.Text(LOCTEXT("Category", "Category:"))
+						.Font(FCoreStyle::GetDefaultFontStyle("Bold", 10))
 					]
 					+SHorizontalBox::Slot()
-					.Padding(10,0,0,0)
+					.Padding(10, 0, 0, 0)
 					[
 						SAssignNew(CategoryComboButton, SComboButton)
 						.ButtonContent()
 						[
 							SAssignNew(CategoryEditBox, SEditableText)
-							.HintText(FText::FromString("Preset Category"))
+							.HintText(LOCTEXT("CategoryHint", "Preset Category"))
 							.OnTextChanged_Raw(this, &FPresetMainUI::GetUserPresetCategory)
 						]
 						.MenuContent()
@@ -85,7 +91,7 @@ void FPresetMainUI::GenerateAddPresetUI(SMMGTreeView* MMGTreeView)
 							.MaxHeight(400.0f)
 							[
 								SAssignNew(CategoryListView, SListView<TSharedPtr<FString>>)
-								.ListItemsSource(&CurrentPresetCategoriesPtr)
+								.ListItemsSource(&CurrentPresetCategories)
 								.OnGenerateRow_Raw(this, &FPresetMainUI::MakeCategoryWidget)
 								.OnSelectionChanged_Raw(this, &FPresetMainUI::OnSelectionChanged)
 							]
@@ -101,7 +107,7 @@ void FPresetMainUI::GenerateAddPresetUI(SMMGTreeView* MMGTreeView)
 					.AutoWidth()
 					[
 						SNew(SButton)
-						.Text(FText::FromString("OK"))
+						.Text(LOCTEXT("OK", "OK"))
 						.OnClicked_Raw(this, &FPresetMainUI::OnValidateButtonClicked)
 						.IsEnabled_Raw(this, &FPresetMainUI::ValidateButtonStatement)
 					]
@@ -109,13 +115,14 @@ void FPresetMainUI::GenerateAddPresetUI(SMMGTreeView* MMGTreeView)
 					.AutoWidth()
 					[
 						SNew(SButton)
-						.Text(FText::FromString("Cancel"))
+						.Text(LOCTEXT("Cancel", "Cancel"))
 						.OnClicked_Raw(this, &FPresetMainUI::OnCancelButtonClicked)
 					]
 				]
 			]
 		];
-	
+
+	/** Modal: this object, on the caller's stack, outlives the window */
 	GEditor->EditorAddModalWindow(PresetWindow.ToSharedRef());
 }
 
@@ -133,30 +140,26 @@ void FPresetMainUI::GetUserPresetCategory(const FText& InText)
 TSharedRef<ITableRow> FPresetMainUI::MakeCategoryWidget(TSharedPtr<FString> Item, const TSharedRef<STableViewBase>& OwnerTable)
 {
 	return SNew(STableRow<TSharedPtr<FString>>, OwnerTable)
-	.Padding(FMargin(6,2,2,2))
+	.Padding(FMargin(6, 2, 2, 2))
 	[
 		SNew(STextBlock)
-		.Text(FText::FromString(*Item.Get()))
+		.Text(FText::FromString(*Item))
 	];
 }
 
 void FPresetMainUI::OnSelectionChanged(TSharedPtr<FString> Selection, ESelectInfo::Type)
 {
-	if(Selection.IsValid())
+	if (Selection.IsValid())
 	{
-		CategoryEditBox->SetText(FText::FromString(*Selection.Get()));
-		UserPresetCategoryStr = *Selection.Get();
+		CategoryEditBox->SetText(FText::FromString(*Selection));
+		UserPresetCategoryStr = *Selection;
 		CategoryComboButton->SetIsOpen(false);
 	}
 }
 
 bool FPresetMainUI::ValidateButtonStatement() const
 {
-	if(UserPresetNameStr.IsEmpty() || CurrentPresetNames.Contains(UserPresetNameStr) || UserPresetCategoryStr.IsEmpty())
-	{
-		return false;
-	}
-	return true;
+	return !UserPresetNameStr.IsEmpty() && !CurrentPresetNames.Contains(UserPresetNameStr) && !UserPresetCategoryStr.IsEmpty();
 }
 
 FReply FPresetMainUI::OnValidateButtonClicked()

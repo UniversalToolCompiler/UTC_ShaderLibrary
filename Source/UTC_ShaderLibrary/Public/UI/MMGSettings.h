@@ -1,37 +1,36 @@
 ﻿/** Copyright 2023, Universal Tool Compiler */
 
 #pragma once
-#include "UI/MMGTreeView.h"
-#include "UI/GraphEditor/MMGGraph.h"
-#include "UI/GraphEditor/MMGEdGraph.h"
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
+#include "Engine/EngineTypes.h"
 #include "MaterialDomain.h"
+#include "Misc/EnumRange.h"
 #include "MMGSettings.generated.h"
 
+class FMMGTreeView;
+class UMaterial;
+class UMaterialFunction;
+class UMMGEdGraph;
 
-class IMMGUIActions 
-{
-public:
-	virtual ~IMMGUIActions(){}
-};
+typedef TSharedPtr<FMMGTreeView> FMMGTreeViewPtr;
+
 //--------------------------------------------------------------------------------------------------------------
 //Generate Settings
 USTRUCT()
 struct FMMGGenerateMaterialStruct
 {
+	GENERATED_BODY()
 
-	GENERATED_USTRUCT_BODY();
-	
 	UPROPERTY(DisplayName = "Material Name", EditAnywhere, Category="Settings")
-	FString materialName = "MM_Default";
+	FString MaterialName = TEXT("MM_Default");
 
 	UPROPERTY(DisplayName = "Material Path", EditAnywhere, Category="Settings", meta=(ContentDir))
-	FDirectoryPath materialDestination;
+	FDirectoryPath MaterialDestination;
 
 	UPROPERTY(DisplayName = "Generate Material Instance", EditAnywhere, Category="Settings")
-	bool GenMaterialInst = true;
+	bool bGenerateMaterialInstance = true;
 };
 
 UCLASS(Transient)
@@ -42,15 +41,16 @@ public:
 	UPROPERTY(EditAnywhere, meta=(ShowOnlyInnerProperties), Category="Settings")
 	FMMGGenerateMaterialStruct GenerateMaterialClass;
 };
+
 //--------------------------------------------------------------------------------------------------------------
 //Add Settings
 USTRUCT()
 struct FMMGAddToMaterialStruct
 {
-	GENERATED_USTRUCT_BODY();
+	GENERATED_BODY()
 
 	UPROPERTY(DisplayName = "Target Material", EditAnywhere, Category="Settings")
-	UMaterial* TargetMaterial = nullptr;
+	TObjectPtr<UMaterial> TargetMaterial = nullptr;
 };
 
 UCLASS(Transient)
@@ -69,7 +69,8 @@ class UMMGGraphSettings : public UObject
 {
 	GENERATED_BODY()
 public:
-	class UMMGEdGraph* GraphObject;
+	UPROPERTY()
+	TObjectPtr<UMMGEdGraph> GraphObject = nullptr;
 };
 
 //--------------------------------------------------------------------------------------------------------------
@@ -80,13 +81,15 @@ class UMMGTreeViewSettings : public UObject
 	GENERATED_BODY()
 public:
 	TArray<FMMGTreeViewPtr> ItemList;
-	UMMGGraphSettings* GraphSettingsPtr;
+
+	UPROPERTY()
+	TObjectPtr<UMMGGraphSettings> GraphSettingsPtr = nullptr;
 };
 
 //--------------------------------------------------------------------------------------------------------------
 //DT Struct
 UENUM()
-enum EMAttributes
+enum EMAttributes : int
 {
 	Mask UMETA(DisplayName = "Mask"),
 	UVs UMETA(DisplayName = "UVs"),
@@ -105,57 +108,55 @@ enum EMAttributes
 };
 ENUM_RANGE_BY_FIRST_AND_LAST(EMAttributes, EMAttributes::Mask, EMAttributes::PixelDepthOffset);
 
+/** Row of the DT_MaterialOutputs, DT_Masks and DT_UVs tables: property names are saved in those assets */
 USTRUCT()
 struct FMMGMaterialFunctionStruct : public FTableRowBase
 {
 	GENERATED_BODY()
-	UPROPERTY(EditAnywhere, Category="MaterialFunctionInfos")
-	UMaterialFunction* MaterialFunction;
 
 	UPROPERTY(EditAnywhere, Category="MaterialFunctionInfos")
-	TEnumAsByte<EMAttributes> MaterialAttributeType;
+	TObjectPtr<UMaterialFunction> MaterialFunction = nullptr;
+
+	UPROPERTY(EditAnywhere, Category="MaterialFunctionInfos")
+	TEnumAsByte<EMAttributes> MaterialAttributeType = Mask;
 
 	UPROPERTY(EditAnywhere, Category="MaterialFunctionInfos")
 	FString MaterialGroup;
 
 	UPROPERTY(EditAnywhere, Category="MaterialFunctionInfos")
 	FString MMG_MenuCategory;
-	
-	FMMGMaterialFunctionStruct()
-	{
-		MaterialFunction = nullptr;
-		MaterialAttributeType = Mask;
-		MaterialGroup = "";
-		MMG_MenuCategory = "";
-	};
 };
+
 //--------------------------------------------------------------------------------------------------------------
 //Material Settings
 USTRUCT()
 struct FMMGMaterialSettingsStruct
 {
+	GENERATED_BODY()
 
-	GENERATED_USTRUCT_BODY();
-	
 	UPROPERTY(DisplayName = "Material Domain", EditAnywhere, Category="MaterialSettings")
-	TEnumAsByte<enum EMaterialDomain> MaterialDomain;
+	TEnumAsByte<EMaterialDomain> MaterialDomain = MD_Surface;
 
 	UPROPERTY(DisplayName = "Blend Mode", EditAnywhere, Category="MaterialSettings")
-	TEnumAsByte<enum EBlendMode> BlendMode;
+	TEnumAsByte<EBlendMode> BlendMode = BLEND_Opaque;
 
-	UPROPERTY(DisplayName = "Shading Model", EditAnywhere, Category="MaterialSettings")
-	TEnumAsByte<enum EMaterialShadingModel> ShadingModel;
-	
+	UPROPERTY(DisplayName = "Shading Model", EditAnywhere, Category="MaterialSettings", meta=(EditCondition="!bGenerateSubstrate || !bSubstrateEnabled"))
+	TEnumAsByte<EMaterialShadingModel> ShadingModel = MSM_DefaultLit;
+
 	UPROPERTY(DisplayName = "Two Sided", EditAnywhere, Category="MaterialSettings")
-	bool TwoSided;
+	bool TwoSided = false;
 
-	FMMGMaterialSettingsStruct()
-	{
-		MaterialDomain = MD_Surface;
-		BlendMode = BLEND_Opaque;
-		ShadingModel = MSM_DefaultLit;
-		TwoSided = false;
-	}
+	/** Each function becomes a Substrate Slab and masks Substrate Horizontal Blends, instead of letting the engine convert the legacy attributes */
+	UPROPERTY(DisplayName = "Generate Substrate Nodes", EditAnywhere, Category="MaterialSettings", meta=(EditCondition="bSubstrateEnabled", EditConditionHides, HideEditConditionToggle))
+	bool bGenerateSubstrate = true;
+
+	/** r.Substrate, read once: the project needs a restart to change it */
+	UPROPERTY(Transient)
+	bool bSubstrateEnabled = false;
+
+	FMMGMaterialSettingsStruct();
+
+	bool UseSubstrate() const { return bGenerateSubstrate && bSubstrateEnabled; }
 };
 
 UCLASS(Transient)

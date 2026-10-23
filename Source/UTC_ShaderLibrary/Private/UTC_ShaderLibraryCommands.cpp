@@ -7,7 +7,6 @@
 void FUTC_ShaderLibraryCommands::RegisterCommands()
 {
 	UI_COMMAND(OpenPluginWindow, "UTC Materials Generator", "Open Master Materials Generator", EUserInterfaceActionType::Button, FInputChord());
-	
 }
 
 #undef LOCTEXT_NAMESPACE

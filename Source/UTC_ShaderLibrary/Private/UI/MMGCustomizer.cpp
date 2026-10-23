@@ -1,78 +1,67 @@
 ﻿/** Copyright 2023, Universal Tool Compiler */
 
 #include "UI/MMGCustomizer.h"
-#include "UI/MMGSettings.h"
-#include "UI/MMGConfigsUI.h"
 
 #include "DetailCategoryBuilder.h"
 #include "DetailLayoutBuilder.h"
 #include "DetailWidgetRow.h"
+#include "Widgets/Input/SButton.h"
 
 #define LOCTEXT_NAMESPACE "MMGCustom"
 
-TSharedRef<IDetailCustomization> MMGGenerateCustomizer::MakeInstance()
+namespace
 {
-	return MakeShareable(new MMGGenerateCustomizer);
-}
-
-void MMGGenerateCustomizer::CustomizeDetails(IDetailLayoutBuilder& DetailBuilder)
-{
-	
-	IDetailCategoryBuilder& CustomCategory = DetailBuilder.EditCategory("Settings");
-	CustomCategory.AddCustomRow(NSLOCTEXT("Settings", "GenerateMM", "Generate Master Material"))
-	[
+	/** Wide button at the bottom of the "Settings" category */
+	void AddSettingsButton(IDetailLayoutBuilder& DetailBuilder, const FText& Label, FOnClicked OnClicked)
+	{
+		DetailBuilder.EditCategory("Settings").AddCustomRow(Label)
+		[
 			SNew(SHorizontalBox)
 			+ SHorizontalBox::Slot()
 			.Padding(10, 10, 10, 10)
 			[
 				SNew(SButton)
 				.ContentPadding(3)
-				.DesiredSizeScale(FVector2d(10.f,1.5f))
+				.DesiredSizeScale(FVector2D(10.f, 1.5f))
 				.HAlign(HAlign_Center)
 				.VAlign(VAlign_Center)
-				.OnClicked(this, &MMGGenerateCustomizer::GenerateMMBtnClicked)
-				.Text(NSLOCTEXT("GenerateMaterial", "GenerateMM", "Generate Master Material"))
+				.OnClicked(OnClicked)
+				.Text(Label)
 			]
-	];
+		];
+	}
 }
 
-FReply MMGGenerateCustomizer::GenerateMMBtnClicked() 
+TSharedRef<IDetailCustomization> FMMGGenerateCustomizer::MakeInstance()
+{
+	return MakeShared<FMMGGenerateCustomizer>();
+}
+
+void FMMGGenerateCustomizer::CustomizeDetails(IDetailLayoutBuilder& DetailBuilder)
+{
+	AddSettingsButton(DetailBuilder, LOCTEXT("GenerateMM", "Generate Master Material"), FOnClicked::CreateSP(this, &FMMGGenerateCustomizer::GenerateMMBtnClicked));
+}
+
+FReply FMMGGenerateCustomizer::GenerateMMBtnClicked()
 {
 	UTCManager.GenerateMaterial();
 	return FReply::Handled();
 }
 
-TSharedRef<IDetailCustomization> MMGAddCustomizer::MakeInstance()
+TSharedRef<IDetailCustomization> FMMGAddCustomizer::MakeInstance()
 {
-	return MakeShareable(new MMGAddCustomizer);
+	return MakeShared<FMMGAddCustomizer>();
 }
 
-void MMGAddCustomizer::CustomizeDetails(IDetailLayoutBuilder& DetailBuilder)
+void FMMGAddCustomizer::CustomizeDetails(IDetailLayoutBuilder& DetailBuilder)
 {
-	
-	IDetailCategoryBuilder& CustomCategory = DetailBuilder.EditCategory("Settings");
-	CustomCategory.AddCustomRow(NSLOCTEXT("Settings", "AddToMM", "Add to Master Material"))
-	[
-			SNew(SHorizontalBox)
-			+ SHorizontalBox::Slot()
-			.Padding(10, 10, 10, 10)
-			[
-				SNew(SButton)
-				.ContentPadding(3)
-				.DesiredSizeScale(FVector2d(10.f,1.5f))
-				.HAlign(HAlign_Center)
-				.VAlign(VAlign_Center)
-				.OnClicked(this, &MMGAddCustomizer::AddMMBtnClicked)
-				.Text(NSLOCTEXT("AddToMaterial", "AddToMM", "Add to Master Material"))
-			]
-	];
+	AddSettingsButton(DetailBuilder, LOCTEXT("AddToMM", "Add to Master Material"), FOnClicked::CreateSP(this, &FMMGAddCustomizer::AddMMBtnClicked));
 }
 
-FReply MMGAddCustomizer::AddMMBtnClicked() 
+FReply FMMGAddCustomizer::AddMMBtnClicked()
 {
 	UTCManager.AddToMaterial();
 	return FReply::Handled();
 }
-
 
 #undef LOCTEXT_NAMESPACE

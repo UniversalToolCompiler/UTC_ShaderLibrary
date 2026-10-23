@@ -5,8 +5,15 @@
 #include "CoreMinimal.h"
 #include "Widgets/SCompoundWidget.h"
 
+class IDetailsView;
 class UMMGGenerateMaterial;
 class UMMGAddToMaterial;
+
+namespace MMGConfigsUI
+{
+	/** Details panel of a settings object, without the search, options and favorites */
+	TSharedRef<IDetailsView> CreateSettingsView(UObject* Settings);
+}
 
 class SMMGGenerateMaterialUI : public SCompoundWidget
 {
@@ -16,10 +23,6 @@ public:
 	SLATE_END_ARGS()
 
 	void Construct(const FArguments& InArgs);
-
-private:
-	TSharedPtr<IDetailsView> ConfigsProperty;
-	UMMGGenerateMaterial* MMGGenerateMaterial = nullptr;
 };
 
 class SMMGAddUI : public SCompoundWidget
@@ -29,9 +32,5 @@ public:
 		SLATE_ARGUMENT(UMMGAddToMaterial*, MMGAddToMaterial)
 	SLATE_END_ARGS()
 
-void Construct(const FArguments& InArgs);
-
-private:
-	TSharedPtr<IDetailsView> ConfigsProperty;
-	UMMGAddToMaterial* MMGAddToMaterial = nullptr;
+	void Construct(const FArguments& InArgs);
 };

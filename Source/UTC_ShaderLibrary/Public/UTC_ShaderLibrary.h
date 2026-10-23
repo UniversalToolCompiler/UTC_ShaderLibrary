@@ -3,15 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Modules/ModuleManager.h"
 #include "Modules/ModuleInterface.h"
 #include "UTC_Manager.h"
-#include "UI/Presets/MMGPresetActions.h"
 
-#define MMG_MODULE_NAME TEXT ("UTC_ShaderLibraryPlugin")
-
-class FToolBarBuilder;
-class FMenuBuilder;
+class FMMGPresetAssetTypeActions;
+class FUICommandList;
+class SDockTab;
+class FSpawnTabArgs;
 
 class FUTC_ShaderLibraryModule : public IModuleInterface
 {
@@ -20,17 +18,15 @@ public:
 	/** IModuleInterface implementation */
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
-	
-	/** This function will be bound to Command (by default it will bring up plugin window) */
+
+	/** Opens the generator window, from the Window menu or the toolbar */
 	void PluginButtonClicked();
-	
+
 private:
-
 	void RegisterMenus();
-	TSharedRef<class SDockTab> OnSpawnPluginTab(const class FSpawnTabArgs& SpawnTabArgs);
-	TSharedPtr<class FUICommandList> PluginCommands;
+	TSharedRef<SDockTab> OnSpawnPluginTab(const FSpawnTabArgs& SpawnTabArgs);
 
+	TSharedPtr<FUICommandList> PluginCommands;
 	TSharedPtr<FMMGPresetAssetTypeActions> MMGPresetsAssetTypeActions;
-
 	FUTC_Manager UTC_Manager;
 };

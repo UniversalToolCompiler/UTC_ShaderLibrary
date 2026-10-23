@@ -1,32 +1,18 @@
 ﻿/** Copyright 2023, Universal Tool Compiler */
 
 #include "UI/MMGMaterialSettings.h"
+#include "UI/MMGConfigsUI.h"
 #include "UI/MMGSettings.h"
 
-#include "Widgets/Text/SRichTextBlock.h"
-
-#define LOCTEXT_NAMESPACE "MaterialSettings"
+#include "IDetailsView.h"
 
 void SMMGMaterialSettings::Construct(const FArguments& InArgs)
 {
-	MMGMaterialSettings = InArgs._MMGMaterialSettings;
+	UMMGMaterialSettings* MMGMaterialSettings = InArgs._MMGMaterialSettings;
 	ensure(MMGMaterialSettings);
-
-	FPropertyEditorModule& PropertyEditor = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
-	FDetailsViewArgs DetailsViewArgs;
-	DetailsViewArgs.bUpdatesFromSelection = false;
-	DetailsViewArgs.bLockable = false;
-	DetailsViewArgs.bAllowSearch = false;
-	DetailsViewArgs.bShowOptions = false;
-	DetailsViewArgs.bAllowFavoriteSystem = false;
-	ConfigsProperty = PropertyEditor.CreateDetailView(DetailsViewArgs);
-	ConfigsProperty->SetObject(MMGMaterialSettings);
 
 	ChildSlot
 	[
-		ConfigsProperty.ToSharedRef()
+		MMGConfigsUI::CreateSettingsView(MMGMaterialSettings)
 	];
 }
-
-#undef LOCTEXT_NAMESPACE
-

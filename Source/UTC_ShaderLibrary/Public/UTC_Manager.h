@@ -2,40 +2,35 @@
 
 #pragma once
 
-#include "UI/MMGSettings.h"
-#include "UI/MMGTreeView.h"
-#include "MMGLibrary.h"
-
 #include "CoreMinimal.h"
-#include "Misc/FileHelper.h"
+#include "MMGLibrary.h"
 
 class UMMGGenerateMaterial;
 class UMMGAddToMaterial;
 class UMMGTreeViewSettings;
-class FMMGLibrary;
 class UMMGGraphSettings;
 class UMMGMaterialSettings;
 
-DECLARE_DELEGATE(FOnManagerUpdated);
-
-class FUTC_Manager : public IMMGUIActions
+/** Gives the UI the generator settings (class default objects, shared by every window) and runs the generation */
+class FUTC_Manager
 {
 public:
 	FUTC_Manager();
-	
-	UMMGGenerateMaterial* GetMMGGenerateMaterial() const;
-	UMMGAddToMaterial* GetMMGAddToMaterial() const;
-	UMMGTreeViewSettings* GetMMGTreeViewSettings()const;
-	UMMGGraphSettings* GetMMGGraphSettings()const;
-	UMMGMaterialSettings* GetMMGMaterialSettings()const;
-	
+
+	UMMGGenerateMaterial* GetMMGGenerateMaterial() const { return MMGGenerateMaterial; }
+	UMMGAddToMaterial* GetMMGAddToMaterial() const { return MMGAddToMaterial; }
+	UMMGTreeViewSettings* GetMMGTreeViewSettings() const { return MMGTreeViewSettings; }
+	UMMGGraphSettings* GetMMGGraphSettings() const { return MMGGraphSettings; }
+	UMMGMaterialSettings* GetMMGMaterialSettings() const { return MMGMaterialSettings; }
+
 	void GenerateMaterial();
 	void AddToMaterial();
-	
-	UMMGGenerateMaterial* MMGGenerateMaterial;
-	UMMGAddToMaterial* MMGAddToMaterial;
-	UMMGTreeViewSettings* MMGTreeViewSettings;
-	UMMGGraphSettings* MMGGraphSettings;
-	UMMGMaterialSettings* MMGMaterialSettings;
+
+private:
+	UMMGGenerateMaterial* MMGGenerateMaterial = nullptr;
+	UMMGAddToMaterial* MMGAddToMaterial = nullptr;
+	UMMGTreeViewSettings* MMGTreeViewSettings = nullptr;
+	UMMGGraphSettings* MMGGraphSettings = nullptr;
+	UMMGMaterialSettings* MMGMaterialSettings = nullptr;
 	FMMGLibrary MMGLib;
 };

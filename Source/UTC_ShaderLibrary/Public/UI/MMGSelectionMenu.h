@@ -3,38 +3,35 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SPinTypeSelector.h"
 #include "Widgets/SCompoundWidget.h"
+#include "Widgets/Input/SSearchBox.h"
+#include "Widgets/Views/STreeView.h"
 
-typedef TSharedPtr<class FMMGSelectionMenuInfo > FMMGSelectionMenuItem;
+typedef TSharedPtr<class FMMGSelectionMenuInfo> FMMGSelectionMenuItem;
 typedef STreeView<FMMGSelectionMenuItem> SMMGSelectionMenuTreeView;
 
 DECLARE_DELEGATE_OneParam(FOnSelectChild, const TSharedPtr<FString>)
 DECLARE_DELEGATE_OneParam(FOnSelectHeader, const TSharedPtr<FString>)
 
+/** Entry of the menu: a category with its children, or the optional header and its separator */
 class FMMGSelectionMenuInfo : public TSharedFromThis<FMMGSelectionMenuInfo>
 {
 public:
-	
 	TSharedPtr<FString> DisplayNamePtr;
 	TSharedPtr<FString> TipNamePtr;
-	TArray< TSharedPtr<FMMGSelectionMenuInfo> > Children;
+	TArray<TSharedPtr<FMMGSelectionMenuInfo>> Children;
 	bool isChild = false;
 	bool isHeader = false;
 	bool isSeparator = false;
 };
 
+/** Searchable menu of items sorted by category, like the pin type selector */
 class SMMGSelectionMenu : public SCompoundWidget
 {
 public:
 	SLATE_BEGIN_ARGS(SMMGSelectionMenu)
-		: _MenuItems()
-		, _MenuTips()
-		, _MenuCategories()
-		, _SetHeader()
-		, _ExpandCategoriesOnOpenMenu(false)
+		: _ExpandCategoriesOnOpenMenu(false)
 		, _MinMenuSize(FVector2d(350.f))
-	
 	{}
 		SLATE_ARGUMENT(TArray<TSharedPtr<FString>>, MenuItems)
 		SLATE_ARGUMENT(TArray<TSharedPtr<FString>>, MenuTips)
@@ -47,46 +44,28 @@ public:
 	SLATE_END_ARGS()
 
 	void Construct(const FArguments& InArgs);
-	
+
+	TSharedPtr<SSearchBox> SearchBox;
+
 protected:
-	
-	/**TreeView Functions */ 
-	virtual TSharedRef<ITableRow> GenerateTreeRow(FMMGSelectionMenuItem InItem, const TSharedRef<STableViewBase>& OwnerTree);
+	/**TreeView Functions */
+	TSharedRef<ITableRow> GenerateTreeRow(FMMGSelectionMenuItem InItem, const TSharedRef<STableViewBase>& OwnerTree);
 	void OnSelectionChanged(FMMGSelectionMenuItem Selection, ESelectInfo::Type SelectInfo);
 	void GetTypeChildren(FMMGSelectionMenuItem InItem, TArray<FMMGSelectionMenuItem>& OutChildren);
-	void SetItemSource();
-	void SetHeaderItem();
-	void SetTreeViewItem();
-	
+	void BuildTreeViewSource(const TArray<TSharedPtr<FString>>& Items, const TArray<TSharedPtr<FString>>& Tips, const TArray<TSharedPtr<FString>>& Categories, const TSharedPtr<FString>& Header);
+
 	/**Search Box Functions*/
 	void GetSearchResults(const FText& InText);
-	TSharedRef<SEditableTextBox> GetFilterTextBox();
 	virtual FReply OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& KeyEvent) override;
 
-public:
-	/**Selection Menu TreeView */ 
 	TSharedPtr<SMMGSelectionMenuTreeView> TypeTreeView;
-	TSharedPtr<SSearchBox> SearchBox;
 	TArray<FMMGSelectionMenuItem> TreeViewSource;
-	
-protected:
+
 	/**Events*/
 	FOnSelectChild OnSelectChild;
 	FOnSelectHeader OnSelectHeader;
 
-	/**Args*/
-	TArray<TSharedPtr<FString>> ItemsToDisplay;
-	TArray<TSharedPtr<FString>> TipsToDisplay;
-	TArray<TSharedPtr<FString>> CategoriesToDisplay;
-	TSharedPtr<FString> HeaderStr;
-	FVector2d MinMenuSize;
-	bool bHeader = false;
-	bool ExpandOnOpen = false;
-
-	FMMGSelectionMenuItem HeaderPtr;
-	FMMGSelectionMenuItem SeparatorPtr;
-	
-	TArray<FMMGSelectionMenuItem> TidyItems;
+	/**Unfiltered source, restored when the search is cleared*/
 	TArray<FMMGSelectionMenuItem> TreeViewSourceSave;
-	TSharedPtr<FMMGSelectionMenuInfo> HighlightedItem;
+	FMMGSelectionMenuItem HighlightedItem;
 };

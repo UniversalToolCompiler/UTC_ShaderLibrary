@@ -1,102 +1,59 @@
 ﻿/** Copyright 2023, Universal Tool Compiler */
 
-#include "Example\UTC_ShaderManagerEx.h"
-#include "RHI.h"
-#include "CommonRenderResources.h"
+#include "Example/UTC_ShaderManagerEx.h"
+
 #include "PixelShaderUtils.h"
+#include "RenderGraphBuilder.h"
+#include "RenderGraphUtils.h"
+#include "RenderTargetPool.h"
+#include "TextureResource.h"
+
+/** Wraps the render target asset's texture so the graph can read and write it */
+static FRDGTextureRef RegisterRenderTarget(FRDGBuilder& GraphBuilder, FTextureRenderTargetResource* RenderTargetResource)
+{
+	return GraphBuilder.RegisterExternalTexture(CreateRenderTarget(RenderTargetResource->GetRenderTargetTexture(), TEXT("UTC_ExampleRenderTarget")));
+}
 
 /** ---------------------------------------------------- Compute Shader  ---------------------------------------------------- */
 IMPLEMENT_GLOBAL_SHADER(FRDGExampleCS, "/UTC_Shaders/Private/RDGExample/RDGExample.usf", "MainCS", SF_Compute);
 
-void FRDGExampleCS::Execute_CSExampleRenderThread(FRHICommandListImmediate& RHICmdList, UTextureRenderTarget2D* RenderTarget, FVector3f Color)
+void FRDGExampleCS::Execute_RenderThread(FRHICommandListImmediate& RHICmdList, FTextureRenderTargetResource* RenderTargetResource, FVector3f Color)
 {
-	/** Create RDG */
 	FRDGBuilder GraphBuilder(RHICmdList);
-	
-	TShaderMapRef<FRDGExampleCS> ComputeShader(GetGlobalShaderMap(GMaxRHIFeatureLevel));
-	
-	/** Input parameters */
-	FRDGTextureDesc OutTextureDesc = FRDGTextureDesc::Create2D(FIntPoint(RenderTarget->SizeX, RenderTarget->SizeY), PF_FloatRGBA, FClearValueBinding::Black, TexCreate_RenderTargetable | TexCreate_UAV, 1,1);
-	FRDGTextureRef OutTextureRef = GraphBuilder.CreateTexture(OutTextureDesc, TEXT("OutputTexture"));
-	FRDGTextureUAVDesc OutTextureUAVDesc(OutTextureRef);
+	FRDGTextureRef RenderTarget = RegisterRenderTarget(GraphBuilder, RenderTargetResource);
 
-	FRDGExampleCS::FParameters* PassParameters = GraphBuilder.AllocParameters<FRDGExampleCS::FParameters>();
-	PassParameters->OutputTexture = GraphBuilder.CreateUAV(OutTextureUAVDesc);
+	/** Render target assets have no UAV by default: write into a texture of the same format, then copy it over */
+	const FRDGTextureDesc OutputDesc = FRDGTextureDesc::Create2D(RenderTarget->Desc.Extent, RenderTarget->Desc.Format, FClearValueBinding::Black, TexCreate_ShaderResource | TexCreate_UAV);
+	FRDGTextureRef OutputTexture = GraphBuilder.CreateTexture(OutputDesc, TEXT("UTC_CSExampleOutput"));
+
+	FParameters* PassParameters = GraphBuilder.AllocParameters<FParameters>();
 	PassParameters->Color = Color;
+	PassParameters->OutputTexture = GraphBuilder.CreateUAV(OutputTexture);
 
-	/** Create pass */
-	FIntVector GroupCounts = FIntVector(RenderTarget->SizeX , RenderTarget->SizeY, 1);
-	FComputeShaderUtils::AddPass(GraphBuilder, RDG_EVENT_NAME("CS Example Event Pass"), ComputeShader, PassParameters, GroupCounts);
+	TShaderMapRef<FRDGExampleCS> ComputeShader(GetGlobalShaderMap(GMaxRHIFeatureLevel));
+	const FIntVector GroupCount = FComputeShaderUtils::GetGroupCount(OutputDesc.Extent, FIntPoint(ThreadGroupSizeX, ThreadGroupSizeY));
+	FComputeShaderUtils::AddPass(GraphBuilder, RDG_EVENT_NAME("UTC CS Example"), ComputeShader, PassParameters, GroupCount);
 
-	TRefCountPtr<IPooledRenderTarget> PooledComputeTarget;
-	GraphBuilder.QueueTextureExtraction(OutTextureRef, &PooledComputeTarget);
-		 
-	/** Execute CS pass*/
+	AddCopyTexturePass(GraphBuilder, OutputTexture, RenderTarget);
 	GraphBuilder.Execute();
-	
-	/** Copy Pooled Texture to Render Target */
-	FRHICopyTextureInfo CopyInfos;
-	RHICmdList.CopyTexture(PooledComputeTarget.GetReference()->GetRHI(), RenderTarget->GetRenderTargetResource()->TextureRHI, CopyInfos);
-	ClearRenderTarget(RHICmdList, PooledComputeTarget.GetReference()->GetRHI());
 }
 
-/** ---------------------------------------------------- Vertex & Pixel Shader  ---------------------------------------------------- */
-IMPLEMENT_GLOBAL_SHADER(FRDGExampleVS, "/UTC_Shaders/Private/RDGExample/RDGExample.usf", "MainVS", SF_Vertex);
+/** ---------------------------------------------------- Pixel Shader  ---------------------------------------------------- */
 IMPLEMENT_GLOBAL_SHADER(FRDGExamplePS, "/UTC_Shaders/Private/RDGExample/RDGExample.usf", "MainPS", SF_Pixel);
 
-void FRDGExamplePS::Execute_PSExampleRenderThread(FRHICommandListImmediate& RHICmdList, UTextureRenderTarget2D* RenderTarget, FVector3f Color)
+void FRDGExamplePS::Execute_RenderThread(FRHICommandListImmediate& RHICmdList, FTextureRenderTargetResource* RenderTargetResource, FVector3f Color)
 {
-	/** Create RDG */
 	FRDGBuilder GraphBuilder(RHICmdList);
-	
-	const FGlobalShaderMap* GlobalShaderMap = GetGlobalShaderMap(GMaxRHIFeatureLevel);
-	TShaderMapRef<FRDGExampleVS> VertexShader(GlobalShaderMap);
-	TShaderMapRef<FRDGExamplePS> PixelShader(GlobalShaderMap);
+	FRDGTextureRef RenderTarget = RegisterRenderTarget(GraphBuilder, RenderTargetResource);
 
-	/** Input parameters */
-	FRDGTextureDesc OutTextureDesc = FRDGTextureDesc::Create2D(FIntPoint(RenderTarget->SizeX, RenderTarget->SizeY), PF_FloatRGBA, FClearValueBinding::Black, TexCreate_RenderTargetable, 1,1);
-	FRDGTextureRef OutTextureRef = GraphBuilder.CreateTexture(OutTextureDesc, TEXT("OutputTexture"));
-	
-	FRDGExamplePS::FParameters* PassParameters = GraphBuilder.AllocParameters<FRDGExamplePS::FParameters>();
+	FParameters* PassParameters = GraphBuilder.AllocParameters<FParameters>();
 	PassParameters->Color = Color;
-	PassParameters->RenderTargets[0] = FRenderTargetBinding(OutTextureRef, ERenderTargetLoadAction::ELoad, 0);
+	PassParameters->RenderTargets[0] = FRenderTargetBinding(RenderTarget, ERenderTargetLoadAction::ENoAction);
 
-	/** Create pass */
-	const FIntPoint DestTextureSize(OutTextureDesc.Extent.X, OutTextureDesc.Extent.Y);
-	GraphBuilder.AddPass(
-		RDG_EVENT_NAME("Pixel Shader Example"),
-		PassParameters,
-		ERDGPassFlags::Raster,
-		[VertexShader, PixelShader, PassParameters, DestTextureSize, GlobalShaderMap](FRHICommandList& RHICmdList)
-		{
-			RHICmdList.SetViewport(0.0f, 0.0f, 0.0f, (float)DestTextureSize.X, (float)DestTextureSize.Y, 1.0f);
+	/** The engine's fullscreen triangle covers the whole viewport, so the pixel shader runs once per texel */
+	const FGlobalShaderMap* GlobalShaderMap = GetGlobalShaderMap(GMaxRHIFeatureLevel);
+	TShaderMapRef<FRDGExamplePS> PixelShader(GlobalShaderMap);
+	FPixelShaderUtils::AddFullscreenPass(GraphBuilder, GlobalShaderMap, RDG_EVENT_NAME("UTC PS Example"), PixelShader, PassParameters, FIntRect(FIntPoint::ZeroValue, RenderTarget->Desc.Extent));
 
-			FGraphicsPipelineStateInitializer GraphicsPSOInit;
-			GraphicsPSOInit.DepthStencilState = TStaticDepthStencilState<false, CF_Always>::GetRHI();
-			GraphicsPSOInit.RasterizerState = TStaticRasterizerState<>::GetRHI();
-			GraphicsPSOInit.BlendState = TStaticBlendStateWriteMask<CW_RGBA, CW_NONE, CW_NONE, CW_NONE, CW_NONE, CW_NONE, CW_NONE, CW_NONE>::GetRHI();
-			GraphicsPSOInit.PrimitiveType = PT_TriangleStrip;
-			GraphicsPSOInit.BoundShaderState.VertexDeclarationRHI = GFilterVertexDeclaration.VertexDeclarationRHI;
-			GraphicsPSOInit.BoundShaderState.VertexShaderRHI = VertexShader.GetVertexShader();
-			GraphicsPSOInit.BoundShaderState.PixelShaderRHI = PixelShader.GetPixelShader();
-			RHICmdList.ApplyCachedRenderTargets(GraphicsPSOInit);
-			SetGraphicsPipelineState(RHICmdList, GraphicsPSOInit, 0);
-
-			//SetShaderParameters(RHICmdList, VertexShader, VertexShader.GetVertexShader(), *PassParameters);
-			SetShaderParameters(RHICmdList, PixelShader, PixelShader.GetPixelShader(), *PassParameters);
-			
-			FPixelShaderUtils::DrawFullscreenTriangle(RHICmdList, 1);
-		});
-
-	TRefCountPtr<IPooledRenderTarget> PooledComputeTarget;
-	GraphBuilder.QueueTextureExtraction(OutTextureRef, &PooledComputeTarget);
-
-	/** Execute PS pass*/
 	GraphBuilder.Execute();
-
-	/** Copy Pooled Texture to Render Target */
-	FRHICopyTextureInfo CopyInfos;
-	RHICmdList.CopyTexture(PooledComputeTarget.GetReference()->GetRHI(), RenderTarget->GetRenderTargetResource()->TextureRHI, CopyInfos);
-	ClearRenderTarget(RHICmdList, PooledComputeTarget.GetReference()->GetRHI());
 }
-

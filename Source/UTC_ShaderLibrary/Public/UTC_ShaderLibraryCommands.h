@@ -9,7 +9,6 @@
 class FUTC_ShaderLibraryCommands : public TCommands<FUTC_ShaderLibraryCommands>
 {
 public:
-
 	FUTC_ShaderLibraryCommands()
 		: TCommands<FUTC_ShaderLibraryCommands>(TEXT("UTC_ShaderLibrary"), NSLOCTEXT("Contexts", "UTC_ShaderLibrary", "UTC_ShaderLibrary Plugin"), NAME_None, FUTC_ShaderLibraryStyle::GetStyleSetName())
 	{
@@ -18,6 +17,5 @@ public:
 	// TCommands<> interface
 	virtual void RegisterCommands() override;
 
-public:
-	TSharedPtr< FUICommandInfo > OpenPluginWindow;
+	TSharedPtr<FUICommandInfo> OpenPluginWindow;
 };

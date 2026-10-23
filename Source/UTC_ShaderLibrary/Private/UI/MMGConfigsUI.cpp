@@ -3,21 +3,12 @@
 #include "UI/MMGConfigsUI.h"
 #include "UI/MMGSettings.h"
 
-#include "Widgets/Layout/SScrollBox.h"
+#include "IDetailsView.h"
+#include "Modules/ModuleManager.h"
+#include "PropertyEditorModule.h"
 
-#define LOCTEXT_NAMESPACE "ConfigUI"
-
-/** Generate Material*/
-void SMMGGenerateMaterialUI::Construct(const FArguments& InArgs)
+TSharedRef<IDetailsView> MMGConfigsUI::CreateSettingsView(UObject* Settings)
 {
-	MMGGenerateMaterial = InArgs._MMGGenerateMaterial;
-	ensure(MMGGenerateMaterial);
-
-	if (MMGGenerateMaterial->GenerateMaterialClass.materialDestination.Path.IsEmpty())
-	{
-		MMGGenerateMaterial->GenerateMaterialClass.materialDestination.Path = "/Game";
-	}
-	
 	FPropertyEditorModule& PropertyEditor = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
 	FDetailsViewArgs DetailsViewArgs;
 	DetailsViewArgs.bUpdatesFromSelection = false;
@@ -25,37 +16,37 @@ void SMMGGenerateMaterialUI::Construct(const FArguments& InArgs)
 	DetailsViewArgs.bAllowSearch = false;
 	DetailsViewArgs.bShowOptions = false;
 	DetailsViewArgs.bAllowFavoriteSystem = false;
-	ConfigsProperty = PropertyEditor.CreateDetailView(DetailsViewArgs);
-	ConfigsProperty->SetObject(MMGGenerateMaterial);
+
+	TSharedRef<IDetailsView> DetailsView = PropertyEditor.CreateDetailView(DetailsViewArgs);
+	DetailsView->SetObject(Settings);
+	return DetailsView;
+}
+
+/** Generate Material*/
+void SMMGGenerateMaterialUI::Construct(const FArguments& InArgs)
+{
+	UMMGGenerateMaterial* MMGGenerateMaterial = InArgs._MMGGenerateMaterial;
+	ensure(MMGGenerateMaterial);
+
+	if (MMGGenerateMaterial->GenerateMaterialClass.MaterialDestination.Path.IsEmpty())
+	{
+		MMGGenerateMaterial->GenerateMaterialClass.MaterialDestination.Path = TEXT("/Game");
+	}
 
 	ChildSlot
 	[
-		ConfigsProperty.ToSharedRef()
+		MMGConfigsUI::CreateSettingsView(MMGGenerateMaterial)
 	];
-	
 }
 
 /**Add To Material*/
 void SMMGAddUI::Construct(const FArguments& InArgs)
 {
-	MMGAddToMaterial = InArgs._MMGAddToMaterial;
+	UMMGAddToMaterial* MMGAddToMaterial = InArgs._MMGAddToMaterial;
 	ensure(MMGAddToMaterial);
-	
-	FPropertyEditorModule& PropertyEditor = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
-	FDetailsViewArgs DetailsViewArgs;
-	DetailsViewArgs.bUpdatesFromSelection = false;
-	DetailsViewArgs.bLockable = false;
-	DetailsViewArgs.bAllowSearch = false;
-	DetailsViewArgs.bShowOptions = false;
-	DetailsViewArgs.bAllowFavoriteSystem = false;
-	ConfigsProperty = PropertyEditor.CreateDetailView(DetailsViewArgs);
-	ConfigsProperty->SetObject(MMGAddToMaterial);
 
 	ChildSlot
 	[
-		ConfigsProperty.ToSharedRef()
+		MMGConfigsUI::CreateSettingsView(MMGAddToMaterial)
 	];
 }
-
-
-#undef LOCTEXT_NAMESPACE

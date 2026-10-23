@@ -2,24 +2,16 @@
 
 #include "UI/GraphEditor/MMGGraphNode.h"
 #include "UI/GraphEditor/MMGEdGraphNode.h"
-#include "UI/GraphEditor/MMGEdGraph.h"
 
 #include "GraphEditorSettings.h"
-#include "Widgets/Input/SButton.h"
-#include "SNodePanel.h"
-/*#include "KismetWidgets/Public/SLevelOfDetailBranchNode.h"*/
-#include "Widgets/Images/SImage.h"
 #include "SLevelOfDetailBranchNode.h"
-#include "SGraphNode.h"
-#include "SGraphPin.h"
-#include "Widgets/Layout/SWrapBox.h"
-#include "Widgets/Text/SInlineEditableTextBlock.h"
-
+#include "Widgets/Images/SImage.h"
+#include "Widgets/Layout/SSpacer.h"
 
 void SMMGGraphNode::Construct(const FArguments& InArgs, UMMGEdGraphNode* InNode)
 {
 	GraphNode = InNode;
-	NewNodeInfos = InNode;
+	MMGNode = InNode;
 	UpdateGraphNode();
 }
 
@@ -27,27 +19,26 @@ void SMMGGraphNode::UpdateGraphNode()
 {
 	RightNodeBox.Reset();
 	LeftNodeBox.Reset();
-	
+
 	InputPins.Reset();
 	OutputPins.Reset();
-	
+
 	TSharedPtr<SNodeTitle> NodeTitle = SNew(SNodeTitle, GraphNode);
-	
+
+	/** The gloss is drawn twice for a stronger title color */
 	TSharedRef<SOverlay> DefaultTitleAreaWidget =
-		SNew(SOverlay)
+	SNew(SOverlay)
 	+SOverlay::Slot()
 	[
 		SNew(SImage)
 		.Image(FAppStyle::GetBrush("Graph.Node.TitleGloss"))
-		.ColorAndOpacity(NewNodeInfos->TitleAreaColor)
-		
+		.ColorAndOpacity(MMGNode->TitleAreaColor)
 	]
 	+SOverlay::Slot()
 	[
 		SNew(SImage)
 		.Image(FAppStyle::GetBrush("Graph.Node.TitleGloss"))
-		.ColorAndOpacity(NewNodeInfos->TitleAreaColor)
-			
+		.ColorAndOpacity(MMGNode->TitleAreaColor)
 	]
 	+SOverlay::Slot()
 	.HAlign(HAlign_Left)
@@ -55,8 +46,8 @@ void SMMGGraphNode::UpdateGraphNode()
 	[
 		SNew(SBorder)
 		.BorderImage(nullptr)
-		.Padding(FMargin(10,5,30,3))
-		.BorderBackgroundColor(NewNodeInfos->TitleAreaColor)
+		.Padding(FMargin(10, 5, 30, 3))
+		.BorderBackgroundColor(MMGNode->TitleAreaColor)
 		[
 			SNew(SHorizontalBox)
 			+SHorizontalBox::Slot()
@@ -73,8 +64,7 @@ void SMMGGraphNode::UpdateGraphNode()
 					NodeTitle.ToSharedRef()
 				]
 			]
-	]
-		
+		]
 	]
 	+SOverlay::Slot()
 	.VAlign(VAlign_Top)
@@ -85,37 +75,37 @@ void SMMGGraphNode::UpdateGraphNode()
 		.BorderBackgroundColor(this, &SGraphNode::GetNodeTitleIconColor)
 		[
 			SNew(SSpacer)
-			.Size(FVector2D(20,20))
+			.Size(FVector2D(20, 20))
 		]
 	];
-//-------------------------------------------------------------------------------------------------------
+
 	TSharedRef<SWidget> TitleAreaWidget =
 	SNew(SLevelOfDetailBranchNode)
 	.HighDetail()
 	[
 		DefaultTitleAreaWidget
 	];
-	
-	InnerVerticalBox = SNew(SVerticalBox)
-		+SVerticalBox::Slot()
-		.AutoHeight()
-		.HAlign(HAlign_Fill)
-		.VAlign(VAlign_Top)
-		.Padding(Settings->GetNonPinNodeBodyPadding())
-		[
-			TitleAreaWidget
-		]
-		+SVerticalBox::Slot()
-		.AutoHeight()
-		.HAlign(HAlign_Fill)
-		.VAlign(VAlign_Top)
-		[
-			CreateNodeContentArea()
-		];
+
+	TSharedRef<SVerticalBox> InnerVerticalBox = SNew(SVerticalBox)
+	+SVerticalBox::Slot()
+	.AutoHeight()
+	.HAlign(HAlign_Fill)
+	.VAlign(VAlign_Top)
+	.Padding(Settings->GetNonPinNodeBodyPadding())
+	[
+		TitleAreaWidget
+	]
+	+SVerticalBox::Slot()
+	.AutoHeight()
+	.HAlign(HAlign_Fill)
+	.VAlign(VAlign_Top)
+	[
+		CreateNodeContentArea()
+	];
 
 	LeftNodeBox->SetRenderOpacity(2);
 	RightNodeBox->SetRenderOpacity(2);
-	
+
 	this->GetOrAddSlot(ENodeZone::Center)
 	.HAlign(HAlign_Center)
 	.VAlign(VAlign_Center)
@@ -134,13 +124,12 @@ void SMMGGraphNode::UpdateGraphNode()
 			]
 			+SOverlay::Slot()
 			[
-				InnerVerticalBox.ToSharedRef()
+				InnerVerticalBox
 			]
 		]
 	];
-	
-	CreatePinWidgets();
 
+	CreatePinWidgets();
 }
 
 TSharedRef<SWidget> SMMGGraphNode::CreateNodeContentArea()
@@ -149,7 +138,7 @@ TSharedRef<SWidget> SMMGGraphNode::CreateNodeContentArea()
 	.BorderImage(FAppStyle::GetBrush("NoBorder"))
 	.HAlign(HAlign_Fill)
 	.VAlign(VAlign_Fill)
-	.Padding(FMargin(0,3))
+	.Padding(FMargin(0, 3))
 	[
 		SNew(SHorizontalBox)
 		+SHorizontalBox::Slot()

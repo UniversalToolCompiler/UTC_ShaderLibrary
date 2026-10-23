@@ -11,13 +11,8 @@ class SMMGMaterialSettings : public SCompoundWidget
 {
 public:
 	SLATE_BEGIN_ARGS(SMMGMaterialSettings){}
-	SLATE_ARGUMENT(UMMGMaterialSettings*, MMGMaterialSettings)
-SLATE_END_ARGS()
+		SLATE_ARGUMENT(UMMGMaterialSettings*, MMGMaterialSettings)
+	SLATE_END_ARGS()
 
-void Construct(const FArguments& InArgs);
-
-private:
-	TSharedPtr<IDetailsView> ConfigsProperty;
-	UMMGMaterialSettings* MMGMaterialSettings = nullptr;
-	
+	void Construct(const FArguments& InArgs);
 };

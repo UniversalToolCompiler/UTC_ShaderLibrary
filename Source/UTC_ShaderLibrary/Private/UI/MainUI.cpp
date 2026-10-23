@@ -1,14 +1,14 @@
 ﻿/** Copyright 2023, Universal Tool Compiler */
 
 #include "UI/MainUI.h"
-#include "UTC_ShaderLibraryStyle.h"
+#include "UTC_Manager.h"
 #include "UI/MMGConfigsUI.h"
-#include "UI/MMGTreeView.h"
 #include "UI/MMGMaterialSettings.h"
+#include "UI/MMGSettings.h"
+#include "UI/MMGTreeView.h"
 #include "UI/GraphEditor/MMGGraph.h"
 
-#include "ToolMenus.h"
-#include "Widgets/Input/SButton.h"
+#include "Widgets/Docking/SDockTab.h"
 #include "Widgets/Layout/SScrollBox.h"
 #include "Widgets/Layout/SSplitter.h"
 
@@ -22,23 +22,17 @@ static const FName AddTab = FName{ TEXT("AddTab") };
 
 void SMainUI::Construct(const FArguments& InArgs)
 {
-
-	SetUTC_Manager(InArgs._UTC_Manager);
+	UTC_Manager = InArgs._UTC_Manager;
 	ensure(UTC_Manager);
 
 	InitGraphTab();
-	ensure(GraphTabManager.IsValid());
-
 	InitTreeViewTab();
-	ensure(TreeViewTabManager.IsValid());
-	
 	InitGenerateAddTab();
-	ensure(GenerateAddTabManager.IsValid());
 
-	const TSharedRef<SWidget> GraphTabContents = GraphTabManager->RestoreFrom( GraphTabLayout.ToSharedRef(), TSharedPtr<SWindow>()).ToSharedRef();
-	const TSharedRef<SWidget> TreeViewTabContents = TreeViewTabManager->RestoreFrom( TreeViewTabLayout.ToSharedRef(), TSharedPtr<SWindow>()).ToSharedRef();
-	const TSharedRef<SWidget> GenerateTabContents = GenerateAddTabManager->RestoreFrom( GenerateAddTabLayout.ToSharedRef(), TSharedPtr<SWindow>()).ToSharedRef();
-	
+	const TSharedRef<SWidget> GraphTabContents = GraphTabManager->RestoreFrom(GraphTabLayout.ToSharedRef(), TSharedPtr<SWindow>()).ToSharedRef();
+	const TSharedRef<SWidget> TreeViewTabContents = TreeViewTabManager->RestoreFrom(TreeViewTabLayout.ToSharedRef(), TSharedPtr<SWindow>()).ToSharedRef();
+	const TSharedRef<SWidget> GenerateTabContents = GenerateAddTabManager->RestoreFrom(GenerateAddTabLayout.ToSharedRef(), TSharedPtr<SWindow>()).ToSharedRef();
+
 	ChildSlot
 	[
 		SNew(SVerticalBox)
@@ -73,7 +67,7 @@ void SMainUI::Construct(const FArguments& InArgs)
 							+SScrollBox::Slot()
 							[
 								TreeViewTabContents
-							]						
+							]
 						]
 					]
 				]
@@ -93,22 +87,23 @@ void SMainUI::Construct(const FArguments& InArgs)
 			]
 		]
 	];
-	
+
 	UTC_Manager->GetMMGTreeViewSettings()->GraphSettingsPtr = UTC_Manager->GetMMGGraphSettings();
 }
 
 SMainUI::~SMainUI()
 {
 	GraphTabManager->UnregisterTabSpawner(GraphTab);
+	GraphTabManager->UnregisterTabSpawner(MSTab);
 	TreeViewTabManager->UnregisterTabSpawner(TreeViewTab);
 	GenerateAddTabManager->UnregisterTabSpawner(GenerateTab);
+	GenerateAddTabManager->UnregisterTabSpawner(AddTab);
 }
 
-/**Graph Tab*/
+/**Graph Tab, with the material settings in its sidebar*/
 void SMainUI::InitGraphTab()
 {
-	const auto Tab = SNew(SDockTab).TabRole(ETabRole::NomadTab);
-	GraphTabManager = FGlobalTabmanager::Get()->NewTabManager(Tab);
+	GraphTabManager = FGlobalTabmanager::Get()->NewTabManager(SNew(SDockTab).TabRole(ETabRole::NomadTab));
 	GraphTabManager->SetCanDoDragOperation(false);
 	GraphTabLayout = FTabManager::NewLayout("GraphTabLayout")
 	->AddArea
@@ -125,27 +120,36 @@ void SMainUI::InitGraphTab()
 		)
 	);
 
-	GraphTabManager->RegisterTabSpawner(GraphTab, FOnSpawnTab::CreateRaw(this,&SMainUI::GraphTabSpawn));
-	GraphTabManager->RegisterTabSpawner(MSTab, FOnSpawnTab::CreateRaw(this,&SMainUI::MSTabSpawn));
+	GraphTabManager->RegisterTabSpawner(GraphTab, FOnSpawnTab::CreateRaw(this, &SMainUI::GraphTabSpawn));
+	GraphTabManager->RegisterTabSpawner(MSTab, FOnSpawnTab::CreateRaw(this, &SMainUI::MSTabSpawn));
 }
 
 TSharedRef<SDockTab> SMainUI::GraphTabSpawn(const FSpawnTabArgs& SpawnTabArgs)
 {
 	return SNew(SDockTab)
 	.TabRole(ETabRole::NomadTab)
-	.Label(NSLOCTEXT("GraphTab", "TabTitle", "Graph"))
+	.Label(LOCTEXT("GraphTabTitle", "Graph"))
 	[
-		SAssignNew(MMGGraphPtr, SMMGGraph)
+		SNew(SMMGGraph)
 		.MMGGraphSettings(UTC_Manager->GetMMGGraphSettings())
 	];
-	
+}
+
+TSharedRef<SDockTab> SMainUI::MSTabSpawn(const FSpawnTabArgs& SpawnTabArgs)
+{
+	return SNew(SDockTab)
+	.TabRole(ETabRole::PanelTab)
+	.Label(LOCTEXT("MaterialSettingsTabTitle", "Material Settings"))
+	[
+		SNew(SMMGMaterialSettings)
+		.MMGMaterialSettings(UTC_Manager->GetMMGMaterialSettings())
+	];
 }
 
 /**TreeView Tab*/
 void SMainUI::InitTreeViewTab()
 {
-	const auto Tab = SNew(SDockTab).TabRole(ETabRole::NomadTab);
-	TreeViewTabManager = FGlobalTabmanager::Get()->NewTabManager(Tab);
+	TreeViewTabManager = FGlobalTabmanager::Get()->NewTabManager(SNew(SDockTab).TabRole(ETabRole::NomadTab));
 	TreeViewTabManager->SetCanDoDragOperation(false);
 	TreeViewTabLayout = FTabManager::NewLayout("TreeViewTabLayout")
 	->AddArea
@@ -161,38 +165,24 @@ void SMainUI::InitTreeViewTab()
 		)
 	);
 
-	TreeViewTabManager->RegisterTabSpawner(TreeViewTab, FOnSpawnTab::CreateRaw(this,&SMainUI::TreeViewTabSpawn));
+	TreeViewTabManager->RegisterTabSpawner(TreeViewTab, FOnSpawnTab::CreateRaw(this, &SMainUI::TreeViewTabSpawn));
 }
 
 TSharedRef<SDockTab> SMainUI::TreeViewTabSpawn(const FSpawnTabArgs& SpawnTabArgs)
 {
 	return SNew(SDockTab)
 	.TabRole(ETabRole::NomadTab)
-	.Label(NSLOCTEXT("TreeViewTab", "TabTitle", "TreeView"))
+	.Label(LOCTEXT("TreeViewTabTitle", "TreeView"))
 	[
 		SAssignNew(MMGTreeView, SMMGTreeView)
 		.MMGTreeViewSettings(UTC_Manager->GetMMGTreeViewSettings())
 	];
-	
 }
 
-TSharedRef<SDockTab> SMainUI::MSTabSpawn(const FSpawnTabArgs& SpawnTabArgs)
-{
-	return SNew(SDockTab)
-	.TabRole(ETabRole::PanelTab)
-	.Label(NSLOCTEXT("MSTab", "TabTitle", "Material Settings"))
-	[
-		SAssignNew(MMGMaterialSettingsPtr, SMMGMaterialSettings)
-		.MMGMaterialSettings(UTC_Manager->GetMMGMaterialSettings())
-	];
-	
-}
-
-/**Generate Tab*/
+/**Generate and Add To tabs*/
 void SMainUI::InitGenerateAddTab()
 {
-	const auto Tab = SNew(SDockTab).TabRole(ETabRole::NomadTab);
-	GenerateAddTabManager = FGlobalTabmanager::Get()->NewTabManager(Tab);
+	GenerateAddTabManager = FGlobalTabmanager::Get()->NewTabManager(SNew(SDockTab).TabRole(ETabRole::NomadTab));
 	GenerateAddTabManager->SetCanDoDragOperation(false);
 	GenerateAddTabLayout = FTabManager::NewLayout("GenerateAddTabLayout")
 	->AddArea
@@ -209,53 +199,47 @@ void SMainUI::InitGenerateAddTab()
 		)
 	);
 
-	GenerateAddTabManager->RegisterTabSpawner(GenerateTab, FOnSpawnTab::CreateRaw(this,&SMainUI::GenerateTabSpawn));
-	GenerateAddTabManager->RegisterTabSpawner(AddTab, FOnSpawnTab::CreateRaw(this,&SMainUI::AddTabSpawn));
+	GenerateAddTabManager->RegisterTabSpawner(GenerateTab, FOnSpawnTab::CreateRaw(this, &SMainUI::GenerateTabSpawn));
+	GenerateAddTabManager->RegisterTabSpawner(AddTab, FOnSpawnTab::CreateRaw(this, &SMainUI::AddTabSpawn));
 }
 
 TSharedRef<SDockTab> SMainUI::GenerateTabSpawn(const FSpawnTabArgs& SpawnTabArgs)
 {
 	return SNew(SDockTab)
 	.TabRole(ETabRole::PanelTab)
-	.Label(NSLOCTEXT("GenerateTab", "TabTitle", "Generate"))
+	.Label(LOCTEXT("GenerateTabTitle", "Generate"))
 	[
-		SAssignNew(MMGGenerateMaterialUI, SMMGGenerateMaterialUI)
+		SNew(SMMGGenerateMaterialUI)
 		.MMGGenerateMaterial(UTC_Manager->GetMMGGenerateMaterial())
 	];
 }
 
-/**Add Tab*/
 TSharedRef<SDockTab> SMainUI::AddTabSpawn(const FSpawnTabArgs& SpawnTabArgs)
 {
 	return SNew(SDockTab)
 	.TabRole(ETabRole::PanelTab)
-	.Label(NSLOCTEXT("AddTab", "TabTitle", "Add To"))
+	.Label(LOCTEXT("AddTabTitle", "Add To"))
 	[
-		SAssignNew(MMGAddUI, SMMGAddUI)
+		SNew(SMMGAddUI)
 		.MMGAddToMaterial(UTC_Manager->GetMMGAddToMaterial())
 	];
 }
 
-/**Presets Context Menu*/
+/**Right click opens the presets, left click clears the tree selection*/
 FReply SMainUI::OpenPresetsContextMenu(const FGeometry& Geometry, const FPointerEvent& PointerEvent)
 {
-	if (PointerEvent.GetEffectingButton() == EKeys::RightMouseButton)
+	if (const TSharedPtr<SMMGTreeView> TreeView = MMGTreeView.Pin())
 	{
-		MMGTreeView.Pin()->CreatePresetsContextMenu(PointerEvent.GetScreenSpacePosition());
-	}
-	else if(PointerEvent.GetEffectingButton() == EKeys::LeftMouseButton)
-	{
-		MMGTreeView.Pin()->ClearTreeSelection();
+		if (PointerEvent.GetEffectingButton() == EKeys::RightMouseButton)
+		{
+			TreeView->CreatePresetsContextMenu(PointerEvent.GetScreenSpacePosition());
+		}
+		else if (PointerEvent.GetEffectingButton() == EKeys::LeftMouseButton)
+		{
+			TreeView->ClearTreeSelection();
+		}
 	}
 	return FReply::Unhandled();
 }
-
-void SMainUI::SetUTC_Manager(FUTC_Manager* UTC_ManagerPtr)
-{
-	if(!UTC_ManagerPtr) return;
-	UTC_Manager = UTC_ManagerPtr;
-}
-
-
 
 #undef LOCTEXT_NAMESPACE

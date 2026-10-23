@@ -1,6 +1,5 @@
 ﻿/** Copyright 2023, Universal Tool Compiler */
 
-
 #include "UI/Presets/MMGPresetActions.h"
 #include "UI/Presets/MMGPresets.h"
 

@@ -3,15 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/MMGTreeView.h"
 #include "MMGPresets.generated.h"
+
+/** The structs below are saved in preset assets: keep their property names */
 
 /** Custom Pack */
 USTRUCT()
 struct FMMGPresetCustomPackedStruct
 {
-	GENERATED_USTRUCT_BODY();
-	
+	GENERATED_BODY()
+
 	UPROPERTY(EditAnywhere, Category="Custom Packed")
 	FString R_CustomPackAttributeType;
 
@@ -29,7 +30,7 @@ struct FMMGPresetCustomPackedStruct
 USTRUCT()
 struct FMMGPresetChildMaskStruct
 {
-	GENERATED_USTRUCT_BODY();
+	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, Category="Child Mask")
 	FString MaskType;
@@ -39,14 +40,13 @@ struct FMMGPresetChildMaskStruct
 
 	UPROPERTY(EditAnywhere, Category="Child Mask")
 	FString B_Mask;
-	
 };
 
 /** Child Attribute */
 USTRUCT()
 struct FMMGPresetChildAttributeStruct
 {
-	GENERATED_USTRUCT_BODY();
+	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, Category="Child Attribute")
 	FString ChildAttributeType;
@@ -56,7 +56,7 @@ struct FMMGPresetChildAttributeStruct
 
 	UPROPERTY(EditAnywhere, Category="Child Attribute")
 	bool isCustomPacked = false;
-	
+
 	UPROPERTY(EditAnywhere, Category="Child Attribute")
 	FMMGPresetCustomPackedStruct CustomPack;
 };
@@ -65,8 +65,8 @@ struct FMMGPresetChildAttributeStruct
 USTRUCT()
 struct FMMGPresetFunctionStruct
 {
-	GENERATED_USTRUCT_BODY();
-	
+	GENERATED_BODY()
+
 	UPROPERTY(EditAnywhere, Category="Function")
 	FString FunctionName;
 
@@ -75,20 +75,20 @@ struct FMMGPresetFunctionStruct
 
 	UPROPERTY(EditAnywhere, Category="Function")
 	FString UVsType;
-	
+
 	UPROPERTY(EditAnywhere, Category="Function")
 	TArray<FMMGPresetChildAttributeStruct> ChildAttributes;
 
 	UPROPERTY(EditAnywhere, Category="Function")
 	TArray<FMMGPresetChildMaskStruct> ChildMasks;
 };
+
 /** Main Preset*/
 USTRUCT()
 struct FMMGPresetStruct
 {
-	GENERATED_USTRUCT_BODY();
+	GENERATED_BODY()
 
-public:
 	UPROPERTY(EditAnywhere, Category="Preset Infos")
 	FString PresetName;
 
@@ -97,7 +97,6 @@ public:
 
 	UPROPERTY(EditAnywhere, Category="Preset Infos")
 	TArray<FMMGPresetFunctionStruct> Functions;
-	
 };
 
 UCLASS()
@@ -106,10 +105,6 @@ class UTC_SHADERLIBRARY_API UMMGPresets : public UObject
 	GENERATED_BODY()
 
 public:
-
-	UMMGPresets();
-	
 	UPROPERTY(EditAnywhere, Category="Preset Infos")
 	TArray<FMMGPresetStruct> Presets;
-	
 };

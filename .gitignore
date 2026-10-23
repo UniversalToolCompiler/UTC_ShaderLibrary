@@ -1,0 +1,9 @@
+Binaries/
+Intermediate/
+Saved/
+DerivedDataCache/
+Build/
+*.pdb
+*.sln
+.vs/
+.idea/

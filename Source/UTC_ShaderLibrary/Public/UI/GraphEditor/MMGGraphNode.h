@@ -7,6 +7,7 @@
 
 class UMMGEdGraphNode;
 
+/** Graph node widget: colored title, inputs on the left, output on the right */
 class SMMGGraphNode : public SGraphNode
 {
 public:
@@ -16,11 +17,8 @@ public:
 	void Construct(const FArguments& InArgs, UMMGEdGraphNode* InNode);
 
 	virtual void UpdateGraphNode() override;
-	
-	TSharedPtr<SVerticalBox> InnerVerticalBox;
-	TSharedRef<SWidget> CreateNodeContentArea() override;
-	
-	//Node Param
-	UMMGEdGraphNode* NewNodeInfos;
-	FLinearColor TitleAreaColor = FLinearColor(.14,.58,1,1);
+	virtual TSharedRef<SWidget> CreateNodeContentArea() override;
+
+private:
+	UMMGEdGraphNode* MMGNode = nullptr;
 };

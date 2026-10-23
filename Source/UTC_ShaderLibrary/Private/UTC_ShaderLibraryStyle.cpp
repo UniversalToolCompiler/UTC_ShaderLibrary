@@ -1,11 +1,11 @@
 /** Copyright 2023, Universal Tool Compiler */
 
 #include "UTC_ShaderLibraryStyle.h"
-#include "Styling/SlateStyleRegistry.h"
+
 #include "Framework/Application/SlateApplication.h"
-#include "Slate/SlateGameResources.h"
 #include "Interfaces/IPluginManager.h"
 #include "Styling/SlateStyleMacros.h"
+#include "Styling/SlateStyleRegistry.h"
 
 #define RootToContentDir Style->RootToContentDir
 
@@ -33,19 +33,16 @@ FName FUTC_ShaderLibraryStyle::GetStyleSetName()
 	return StyleSetName;
 }
 
-const FVector2D Icon16x16(16.0f, 16.0f);
-const FVector2D Icon20x20(20.0f, 20.0f);
-
-TSharedRef< FSlateStyleSet > FUTC_ShaderLibraryStyle::Create()
+TSharedRef<FSlateStyleSet> FUTC_ShaderLibraryStyle::Create()
 {
-	TSharedRef< FSlateStyleSet > Style = MakeShareable(new FSlateStyleSet("UTC_ShaderLibraryStyle"));
-	Style->SetContentRoot(IPluginManager::Get().FindPlugin("UTC_ShaderLibrary")->GetBaseDir() / TEXT("Resources"));
-	
+	TSharedRef<FSlateStyleSet> Style = MakeShared<FSlateStyleSet>(GetStyleSetName());
+	Style->SetContentRoot(IPluginManager::Get().FindPlugin(TEXT("UTC_ShaderLibrary"))->GetBaseDir() / TEXT("Resources"));
+
+	const FVector2D Icon20x20(20.0f, 20.0f);
 	Style->Set("UTC_ShaderLibrary.OpenPluginWindow", new IMAGE_BRUSH("Icon20", Icon20x20));
 
 	return Style;
 }
-
 
 void FUTC_ShaderLibraryStyle::ReloadTextures()
 {
@@ -59,3 +56,5 @@ const ISlateStyle& FUTC_ShaderLibraryStyle::Get()
 {
 	return *StyleInstance;
 }
+
+#undef RootToContentDir

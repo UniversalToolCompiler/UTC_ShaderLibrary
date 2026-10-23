@@ -2,28 +2,29 @@
 
 #pragma once
 
+#include "CoreMinimal.h"
+#include "IDetailCustomization.h"
+#include "Input/Reply.h"
 #include "UTC_Manager.h"
 
-#include "IDetailCustomization.h"
-
-class FUTC_Manager;
-
-class MMGGenerateCustomizer : public IDetailCustomization
+/** Adds the "Generate Master Material" button under the generate settings */
+class FMMGGenerateCustomizer : public IDetailCustomization
 {
 public:
-	virtual void CustomizeDetails(IDetailLayoutBuilder& DetailBuilder) override;
 	static TSharedRef<IDetailCustomization> MakeInstance();
+	virtual void CustomizeDetails(IDetailLayoutBuilder& DetailBuilder) override;
 
 private:
 	FReply GenerateMMBtnClicked();
 	FUTC_Manager UTCManager;
 };
 
-class MMGAddCustomizer : public IDetailCustomization
+/** Adds the "Add to Master Material" button under the add settings */
+class FMMGAddCustomizer : public IDetailCustomization
 {
 public:
-	virtual void CustomizeDetails(IDetailLayoutBuilder& DetailBuilder) override;
 	static TSharedRef<IDetailCustomization> MakeInstance();
+	virtual void CustomizeDetails(IDetailLayoutBuilder& DetailBuilder) override;
 
 private:
 	FReply AddMMBtnClicked();

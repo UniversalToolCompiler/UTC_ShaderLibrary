@@ -1,41 +1,41 @@
 ﻿/** Copyright 2023, Universal Tool Compiler */
 
 #include "UI/GraphEditor/MMGGraph.h"
-
-#include "SGraphPanel.h"
 #include "UI/GraphEditor/MMGEdGraph.h"
 #include "UI/GraphEditor/MMGGraphSchema.h"
+#include "UI/MMGSettings.h"
+
+#include "GraphEditor.h"
 
 void SMMGGraph::Construct(const FArguments& InArgs)
 {
-	MMGGraphSettings = InArgs._MMGGraphSettings;
+	UMMGGraphSettings* MMGGraphSettings = InArgs._MMGGraphSettings;
 	ensure(MMGGraphSettings);
-	
-	if(!IsValid(MMGGraphSettings->GraphObject))
+
+	/** The graph outlives the window, like the tree it shows */
+	if (!IsValid(MMGGraphSettings->GraphObject))
 	{
 		MMGGraphSettings->GraphObject = NewObject<UMMGEdGraph>();
 		MMGGraphSettings->GraphObject->Schema = UMMGGraphSchema::StaticClass();
 		MMGGraphSettings->GraphObject->AddToRoot();
 	}
-	
+
 	GraphEditor = SNew(SGraphEditor)
 		.GraphToEdit(MMGGraphSettings->GraphObject)
 		.IsEditable(false)
 		.ShowGraphStateOverlay(false)
 		.DisplayAsReadOnly(false);
-	
-	GraphEditor->SetViewLocation(FVector2d(-250,-250), .75);
+
+	GraphEditor->SetViewLocation(FVector2f(-250.f, -250.f), .75f);
 	MMGGraphSettings->GraphObject->GraphEditorPtr = GraphEditor;
-	
-	if(!MMGGraphSettings->GraphObject->OutputNode)
+
+	if (!MMGGraphSettings->GraphObject->OutputNode)
+	{
 		MMGGraphSettings->GraphObject->CreateOutputNode();
-	
+	}
+
 	ChildSlot
 	[
-		SNew(SVerticalBox)
-		+SVerticalBox::Slot()
-		[
-			GraphEditor.ToSharedRef()
-		]
+		GraphEditor.ToSharedRef()
 	];
 }

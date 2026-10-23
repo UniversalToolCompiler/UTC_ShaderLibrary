@@ -1,12 +1,14 @@
 ﻿/** Copyright 2023, Universal Tool Compiler */
 
 #pragma once
-#include "CoreMinimal.h"
-#include "GraphEditor.h"
-#include "UI/MMGSettings.h"
 
+#include "CoreMinimal.h"
+#include "Widgets/SCompoundWidget.h"
+
+class SGraphEditor;
 class UMMGGraphSettings;
 
+/** Read-only graph editor showing the tree as nodes */
 class SMMGGraph : public SCompoundWidget
 {
 public:
@@ -15,9 +17,7 @@ public:
 	SLATE_END_ARGS()
 
 	void Construct(const FArguments& InArgs);
-	TSharedPtr<SGraphEditor> GraphEditor;
 
-	void CreateNode();
-	
-	UMMGGraphSettings* MMGGraphSettings;
+private:
+	TSharedPtr<SGraphEditor> GraphEditor;
 };
