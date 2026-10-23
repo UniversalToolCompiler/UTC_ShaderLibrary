@@ -1,6 +1,6 @@
 # UTC Shader Library for Unreal Engine
 
-Easily create master materials in Unreal Engine.
+Easily create master materials in Unreal Engine. Now works with Legacy and Substrate materials. 
 
 Supports Unreal Engine 5.8. Versions for older engines are on the `1.x-UE5.x` branches.
 
@@ -8,7 +8,6 @@ Feedback is welcome and helps improve the plugin.
 
 ## Links
 
-* Support my work: https://www.paypal.com/paypalme/UTCompiler
 * Marketplace: https://www.unrealengine.com/marketplace/en-US/product/utc-shader-library
 * Trailer: https://www.youtube.com/watch?v=v8OMGxTqgyI
 * Demo / tutorial: https://www.youtube.com/watch?v=5c1hgwKFKVM
