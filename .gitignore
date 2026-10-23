@@ -2,6 +2,7 @@ Binaries/
 Intermediate/
 Saved/
 DerivedDataCache/
+Config/
 Build/
 *.pdb
 *.sln
